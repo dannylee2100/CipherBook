@@ -25,6 +25,10 @@ The workflow is configured to repeat the suite on `ubuntu-24.04` with Node
 26.4.0 and the pinned official age 1.3.1 Linux release. Browser behavior is not
 executed in Milestone 1.
 
+Node 26.4.0 is the only Node version tested by this repository. Other Node
+versions are untested, and the private laboratory does not declare a broader
+support range.
+
 Local `npm run check` result: 30 tests passed, 0 failed. A separate
 `npm run test:interop` rerun passed all 3 official-age interoperability tests.
 `npm audit --omit=dev` reported 0 known vulnerabilities at the time of this run;
@@ -33,7 +37,10 @@ that is a point-in-time package-registry result, not an independent review.
 ## Measured facts
 
 All payloads are deterministic synthetic ASCII text. Byte counts were produced
-by `npm run measure` and were consistent across repeated local runs.
+by `npm run measure` and were consistent across repeated local runs. The runs
+regenerate identities, nonces, and ciphertext, so cryptographic contents change;
+the observed lengths did not change for these fixed package versions, recipient
+type, wrapper, and payload sizes.
 
 | Construction                              | Plaintext | Raw cryptographic | Separate nonce | Native serialized | Copied text | Public contact | Custom framing fields |
 | ----------------------------------------- | --------: | ----------------: | -------------: | ----------------: | ----------: | -------------: | --------------------: |
@@ -61,15 +68,33 @@ Definitions:
 
 ### Dependency and custom-code surface
 
-| Construction              | Direct runtime dependency                              | Custom envelope parser | Tested rejection categories | Approximate custom source/test size                       |
-| ------------------------- | ------------------------------------------------------ | ---------------------: | --------------------------: | --------------------------------------------------------- |
-| Sodium laboratory wrapper | `libsodium-wrappers` 0.8.4                             |                      1 |                           7 | Shared total: about 1,020 source lines and 540 test lines |
-| Native age                | `age-encryption` 0.3.0; official age is test-time only |                      0 |                           5 | Shared total: about 1,020 source lines and 540 test lines |
+| Category                                 | Source lines | Test lines | Files                                                                               | Why the custom code exists                                                                                                    |
+| ---------------------------------------- | -----------: | ---------: | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Shared utilities and relationship digest |          177 |         41 | `bytes.js`, `constants.js`, `relationship-digest.js`; `relationship-digest.test.js` | Byte validation, experiment limits, tagged and length-delimited relationship diagnostic                                       |
+| Sodium-specific                          |          315 |        196 | `sodium.js`; `sodium.test.js`                                                       | Contact and six-field wrapper framing/parsing, expected-sender checks, recipient-forgeability and later-key-disclosure probes |
+| Native-age-specific                      |          146 |        148 | `age.js`; `age.test.js`                                                             | Typage identity/contact handling, native binary envelope and armor handling, sender-unverified and later-recipient-key probes |
+| Official-age subprocess interoperability |          136 |         34 | `age-cli.js`; `interoperability.test.js`                                            | Bounded official CLI invocation, temporary identity-file handling, and both interoperability directions                       |
+| CLI harness                              |          175 |         59 | `cli.js`; `cli.test.js`                                                             | Shared warning, disposable command dispatch, and non-secret probe output                                                      |
+| Measurement harness                      |           78 |         61 | `measurements.js`; `measurements.test.js`                                           | Common synthetic payload generation and byte-count reporting at the three required sizes                                      |
+| **Total**                                |    **1,027** |    **539** | All Milestone 1 source and test files                                               | Cross-check only; not a construction score                                                                                    |
 
-The source count includes the CLI, bounds, measurements, relationship digest,
-and official-age subprocess adapter used by both spikes. The test count includes
-all assertions and interoperability probes. Counts use physical lines and are a
-maintainer-burden indicator, not a quality score.
+Counting method: physical lines reported by `wc -l` after formatting. Every
+source and test file is assigned to exactly one category. Counts include imports,
+comments, blanks, validation, and error handling; they exclude documentation,
+package metadata, the lockfile, CI, dependencies, and generated output. They are
+maintenance-surface evidence, not a quality or security score.
+
+Excluding shared CLI, measurement, and relationship infrastructure, the sodium
+spike owns 315 source and 196 test lines. Native age handling owns 146 source and
+148 test lines; its separately reported official-age interoperability adapter
+adds 136 source and 34 test lines. The adapter is test-time evidence cost, not a
+native age runtime wrapper.
+
+Direct runtime dependencies remain `libsodium-wrappers` 0.8.4 for the sodium
+spike and `age-encryption` 0.3.0 for the native-age spike. The official age
+executable is test-time only. Sodium has one custom envelope parser and six
+custom framing fields; native age uses its existing envelope parser and has no
+custom CipherBook framing.
 
 The sodium rejection categories asserted are invalid or oversized input,
 malformed wrapper/contact, byte mutation, truncation, wrong recipient, wrong

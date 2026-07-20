@@ -9,7 +9,8 @@
 
 ### Facts
 
-- No comparative implementation or user observation has been completed.
+- A disposable Milestone 1 Node comparison exists; no browser comparison, user
+  observation, or Milestone 3 decision has been completed.
 - The repository contains no approved protocol bytes or application design.
 - Existing tools may make a new envelope format unnecessary.
 

@@ -8,11 +8,12 @@
 
 ### Facts
 
-- Milestone 0 is documentation only.
+- Milestone 0 is complete, and Milestone 1 contains a disposable Node laboratory.
 - No cryptographic construction, envelope, serialization, fingerprint,
   persistence model, deployment, or protocol bytes have been selected.
 - The project has not undergone independent security review.
-- Any later spikes are intended to use disposable keys and synthetic payloads.
+- Milestone 1 uses disposable keys and synthetic payloads; any later approved
+  spike must retain those experimental boundaries.
 
 ### Assumptions to test
 
@@ -56,9 +57,11 @@ independently audited, or appropriate for evading employer monitoring.
 
 ## Current functional limitations
 
-- There is no executable tool.
-- There is no key generation, contact exchange, fingerprint comparison, seal,
-  or open operation.
+- The only executable is a disposable Milestone 1 laboratory, not a user tool or
+  encryption application.
+- The laboratory can generate temporary test identities and exercise contact,
+  relationship-digest, seal, and open operations using synthetic data only; it
+  does not provide a real contact-exchange or message workflow.
 - There is no stable, canonical, compatible, or version-1 encoding.
 - There is no persistent vault, recovery flow, device migration, or revocation
   mechanism.

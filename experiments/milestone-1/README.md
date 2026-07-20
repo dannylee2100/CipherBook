@@ -64,9 +64,11 @@ built-in test runner is sufficient for this spike.
 
 ## Commands
 
-Prerequisites are Node 20 or later, npm, and official `age` 1.3.1 on `PATH`. The
-committed CI workflow obtains the official Linux binary from its pinned upstream
-release and verifies its SHA-256 digest.
+This experiment was tested with Node 26.4.0. Other Node versions are untested,
+and this private laboratory does not declare a broader Node support range. npm
+and official `age` 1.3.1 on `PATH` are also required. The committed CI workflow
+obtains the official Linux binary from its pinned upstream release and verifies
+its SHA-256 digest.
 
 ```text
 npm ci
@@ -93,7 +95,7 @@ Alice encrypts with Bob's static public key and Alice's static private key using
 the high-level `crypto_box_easy` operation. Bob opens with Alice's expected
 public key and Bob's private key.
 
-This gives Bob a recipient-local check against an outsider who lacks either
+This gives Bob a recipient-local check against an outsider who possesses neither
 static private key. It is deniable and recipient-forgeable: Bob can use Alice's
 public key with Bob's private key to produce a ciphertext that Bob's normal
 expected-Alice opener accepts. An opened transcript is therefore not a

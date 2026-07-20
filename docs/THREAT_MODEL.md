@@ -2,13 +2,14 @@
 
 > [!WARNING]
 > This is a threat model for a research hypothesis, not evidence that CipherBook
-> protects real secrets. No implementation or cryptographic design is approved.
+> protects real secrets. No construction or design is approved for real use.
 
 ## Purpose and status
 
 This document identifies the threats that the lean validation work must expose
-rather than conceal. It is not a claim that mitigations exist. Milestones 1 and
-2, if undertaken, will be disposable experiments using synthetic data.
+rather than conceal. It is not a claim that mitigations exist. Milestone 1 is a
+disposable Node experiment using synthetic data; any separately approved
+Milestone 2 work must remain a disposable experiment too.
 
 ## Evidence categories
 
@@ -20,8 +21,9 @@ rather than conceal. It is not a claim that mitigations exist. Milestones 1 and
   public; private keys and plaintext are not.
 - Plaintext necessarily exists at an endpoint before sealing and after opening.
 - A recipient who learns plaintext can copy, disclose, transform, or retain it.
-- This repository currently has no implementation and therefore provides no
-  technical protection.
+- This repository contains a disposable Milestone 1 laboratory, not a usable
+  encryption application. Its synthetic Node results do not establish technical
+  protection for real data.
 
 ### Assumptions to test
 

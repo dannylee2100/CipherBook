@@ -4,9 +4,6 @@
   "private": true,
   "description": "Disposable CipherBook Milestone 1 construction comparison laboratory",
   "type": "module",
-  "engines": {
-    "node": ">=20"
-  },
   "scripts": {
     "lab": "node experiments/milestone-1/src/cli.js",
     "measure": "node experiments/milestone-1/src/cli.js compare measure",
