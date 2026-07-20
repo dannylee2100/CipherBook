@@ -114,15 +114,16 @@ test("QR is labeled as a separate technical demonstration, not a participant con
   assert.doesNotMatch(source, /id:\s*["']qr-256["']/u);
 });
 
-test("the only new direct package is the exact QR dependency", async () => {
+test("the QR dependency and Alpha 1 sodium-wrapper replacement are exact", async () => {
   const packageValue = JSON.parse(
     await readFile(new URL("package.json", repositoryRoot), "utf8"),
   );
   assert.equal(packageValue.dependencies["@nuintun/qrcode"], "5.0.3");
+  assert.equal(packageValue.dependencies["libsodium-wrappers-sumo"], "0.8.4");
   assert.deepEqual(Object.keys(packageValue.dependencies).sort(), [
     "@nuintun/qrcode",
     "age-encryption",
-    "libsodium-wrappers",
+    "libsodium-wrappers-sumo",
   ]);
 });
 
