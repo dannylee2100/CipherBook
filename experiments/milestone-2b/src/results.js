@@ -1,13 +1,18 @@
 import {
   ANONYMOUS_CODE_PATTERN,
   PARTICIPANT_RESPONSES,
+  STUDY_ARMS,
   STUDY_HARNESS_VERSION,
+  STUDY_PLAN_VERSION,
 } from "./constants.js";
 
 export const EXPORT_FORMAT = "M2B-ANONYMOUS-OBSERVATIONS-EXPERIMENT-UNSTABLE";
 
 const CSV_FIELDS = Object.freeze([
   "harnessVersion",
+  "studyPlanVersion",
+  "studyArm",
+  "taskSetSeed",
   "anonymousParticipantCode",
   "sessionId",
   "taskId",
@@ -49,6 +54,9 @@ export function validateAnonymousParticipantCode(code) {
 export function createObservation({
   participantCode,
   sessionId,
+  studyPlanVersion,
+  studyArm,
+  taskSetSeed,
   task,
   response,
   startedAt,
@@ -59,6 +67,15 @@ export function createObservation({
 }) {
   validateAnonymousParticipantCode(participantCode);
   requireText(sessionId, "session ID");
+  if (studyPlanVersion !== STUDY_PLAN_VERSION) {
+    throw new Error("study plan version is invalid");
+  }
+  if (!STUDY_ARMS.includes(studyArm)) {
+    throw new Error("study arm is invalid");
+  }
+  if (!/^[0-9a-f]{32}$/u.test(taskSetSeed)) {
+    throw new Error("synthetic task-set seed is invalid");
+  }
   if (!task || typeof task !== "object") {
     throw new Error("a study task is required");
   }
@@ -80,15 +97,21 @@ export function createObservation({
   }
   if (
     typeof moderatorObservation !== "string" ||
-    moderatorObservation.length > 240
+    moderatorObservation.length > 240 ||
+    /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/u.test(moderatorObservation)
   ) {
-    throw new Error("moderator observation must be at most 240 characters");
+    throw new Error(
+      "moderator observation must be at most 240 characters without control characters",
+    );
   }
 
   const groundTruth = task.groundTruth;
   const unsure = response === "unsure";
   return Object.freeze({
     harnessVersion: STUDY_HARNESS_VERSION,
+    studyPlanVersion,
+    studyArm,
+    taskSetSeed,
     anonymousParticipantCode: participantCode,
     sessionId,
     taskId: requireText(task.taskId, "task ID"),
@@ -109,18 +132,64 @@ export function createObservation({
   });
 }
 
-export function resultExport({ participantCode, sessionId, observations }) {
+export function resultExport({
+  participantCode,
+  sessionId,
+  studyPlanVersion,
+  studyArm,
+  taskSetSeed,
+  tasks,
+  observations,
+}) {
   validateAnonymousParticipantCode(participantCode);
   requireText(sessionId, "session ID");
-  if (!Array.isArray(observations)) {
-    throw new Error("observations must be an array");
+  if (studyPlanVersion !== STUDY_PLAN_VERSION) {
+    throw new Error("study plan version is invalid");
+  }
+  if (!STUDY_ARMS.includes(studyArm)) {
+    throw new Error("study arm is invalid");
+  }
+  if (!/^[0-9a-f]{32}$/u.test(taskSetSeed)) {
+    throw new Error("synthetic task-set seed is invalid");
+  }
+  if (!Array.isArray(tasks) || !Array.isArray(observations)) {
+    throw new Error("tasks and observations must be arrays");
+  }
+  if (tasks.length !== observations.length) {
+    throw new Error("every planned task must have exactly one observation");
+  }
+  const taskById = new Map(tasks.map((task) => [task.taskId, task]));
+  if (taskById.size !== tasks.length) {
+    throw new Error("planned task IDs must be unique");
+  }
+  if (
+    new Set(observations.map((observation) => observation.taskId)).size !==
+    tasks.length
+  ) {
+    throw new Error("every planned task ID must appear exactly once");
   }
   for (const observation of observations) {
+    const task = taskById.get(observation.taskId);
     if (
       observation.anonymousParticipantCode !== participantCode ||
-      observation.sessionId !== sessionId
+      observation.sessionId !== sessionId ||
+      observation.studyPlanVersion !== studyPlanVersion ||
+      observation.studyArm !== studyArm ||
+      observation.taskSetSeed !== taskSetSeed
     ) {
       throw new Error("observation does not belong to this anonymous session");
+    }
+    if (
+      !task ||
+      observation.condition !== task.conditionId ||
+      observation.displayedBits !== task.displayedBits ||
+      observation.groundTruth !== task.groundTruth ||
+      observation.mismatchType !== task.mismatchType ||
+      observation.mismatchPosition !== task.mismatchPosition
+    ) {
+      throw new Error(
+        "observation does not match its reproducible planned task",
+      );
     }
   }
   const sanitized = observations.map((item) =>
@@ -131,6 +200,10 @@ export function resultExport({ participantCode, sessionId, observations }) {
     warning:
       "Anonymous synthetic study observations only; downloaded files remain on this device.",
     harnessVersion: STUDY_HARNESS_VERSION,
+    studyPlanVersion,
+    studyArm,
+    taskSetSeed,
+    plannedTaskCount: tasks.length,
     anonymousParticipantCode: participantCode,
     sessionId,
     observations: Object.freeze(sanitized),

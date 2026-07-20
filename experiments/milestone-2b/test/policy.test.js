@@ -10,7 +10,6 @@ const runtimeFiles = [
   "src/constants.js",
   "src/emoji-table.js",
   "src/main.js",
-  "src/prng.js",
   "src/qr.js",
   "src/representations.js",
   "src/results.js",
@@ -63,6 +62,15 @@ test("runtime contains no remote request, telemetry, camera, microphone, or audi
   }
 });
 
+test("runtime has no weak study PRNG or participant coaching language", async () => {
+  const source = await runtimeText();
+  assert.doesNotMatch(source, /\bMath\.random\s*\(/u);
+  assert.doesNotMatch(source, /\bMath\.imul\s*\(/u);
+  assert.doesNotMatch(source, /\bfnv1a32\b/u);
+  assert.doesNotMatch(source, /compare every (?:item|entry|group)/iu);
+  assert.doesNotMatch(source, /(?:do not|don't) (?:skim|check only)/iu);
+});
+
 test("runtime labels synthetic values and makes no final recommendation", async () => {
   const source = await runtimeText();
   for (const label of [
@@ -99,6 +107,13 @@ test("experiment directory contains no service worker, manifest, deployment, or 
   );
 });
 
+test("QR is labeled as a separate technical demonstration, not a participant condition", async () => {
+  const source = await runtimeText();
+  assert.match(source, /moderator-only QR technical demonstration/iu);
+  assert.match(source, /not a participant task/iu);
+  assert.doesNotMatch(source, /id:\s*["']qr-256["']/u);
+});
+
 test("the only new direct package is the exact QR dependency", async () => {
   const packageValue = JSON.parse(
     await readFile(new URL("package.json", repositoryRoot), "utf8"),
@@ -117,8 +132,10 @@ test("licensed study mappings have attribution documentation", async () => {
     "utf8",
   );
   assert.match(attribution, /matrix-spec/iu);
+  assert.match(attribution, /4c2bb5aae19dcb15e2bee3127d57de80b5068195/u);
   assert.match(attribution, /Apache License 2\.0/iu);
   assert.match(attribution, /Blockchain Commons/iu);
+  assert.match(attribution, /bacd8054be636ec48b0118763384cf6c7f947ab7/u);
   assert.match(attribution, /BSD-2-Clause-Patent/iu);
   assert.match(attribution, /@nuintun\/qrcode/iu);
   assert.match(attribution, /MIT License/iu);

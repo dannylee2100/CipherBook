@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { createFixedSession, startParticipantTask } from "./helpers.js";
+import { createStudySession, startParticipantTask } from "./helpers.js";
 
 async function inspectPersistence(page) {
   return page.evaluate(async () => ({
@@ -30,7 +30,7 @@ test("study workflow leaves storage empty and makes no external request", async 
     }
   });
 
-  await createFixedSession(page, "emoji-96");
+  await createStudySession(page, "A");
   await startParticipantTask(page);
   await page.locator('[data-response="match"]').click();
   await page.locator("#save-advance").click();
@@ -61,7 +61,7 @@ test("runtime never asks for camera or microphone and controls remain keyboard a
       },
     });
   });
-  await createFixedSession(page, "hex-96");
+  await createStudySession(page, "B");
   await startParticipantTask(page);
   expect(await page.evaluate(() => globalThis.__mediaRequestCount)).toBe(0);
 

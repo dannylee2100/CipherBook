@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
+import { STUDY_PLAN_VERSION } from "../src/constants.js";
 import {
   createObservation,
   exportCsv,
@@ -8,29 +9,60 @@ import {
   exportJson,
   resultExport,
 } from "../src/results.js";
-import { createStudyTask, MISMATCH_TYPES } from "../src/task-generator.js";
+import { deriveStudyArm, generateStudyPlan } from "../src/task-generator.js";
 
-const sessionId = "S-001122334455";
+async function seedForArm(wantedArm) {
+  for (let candidate = 0; candidate < 1_000; candidate += 1) {
+    const seed = (candidate + 20_000).toString(16).padStart(32, "0");
+    if ((await deriveStudyArm(seed)) === wantedArm) {
+      return seed;
+    }
+  }
+  throw new Error(`could not find deterministic seed for arm ${wantedArm}`);
+}
+
 const participantCode = "P01";
-const matchTask = createStudyTask({
-  conditionId: "hex-96",
-  seed: "results-match",
-});
-const mismatchTask = createStudyTask({
-  conditionId: "words-96",
-  mismatchType: MISMATCH_TYPES.SUBSTITUTION_MIDDLE,
-  seed: "results-mismatch",
-});
+const sessionId = "S-001122334455";
+const studyArm = "A";
+const taskSetSeed = await seedForArm(studyArm);
+const plan = await generateStudyPlan({ taskSetSeed, studyArm });
+const matchTask = plan.tasks.find((task) => task.groundTruth === "match");
+const mismatchTask = plan.tasks.find((task) => task.groundTruth === "mismatch");
 
 function observation(task, response, extra = {}) {
   return createObservation({
     participantCode,
     sessionId,
+    studyPlanVersion: STUDY_PLAN_VERSION,
+    studyArm,
+    taskSetSeed,
     task,
     response,
     startedAt: 100.25,
     endedAt: 345.75,
     ...extra,
+  });
+}
+
+function completeObservations(overrides = new Map()) {
+  return plan.tasks.map((task) =>
+    observation(
+      task,
+      overrides.get(task.taskId)?.response ?? task.groundTruth,
+      overrides.get(task.taskId)?.extra,
+    ),
+  );
+}
+
+function completeExport(observations = completeObservations()) {
+  return resultExport({
+    participantCode,
+    sessionId,
+    studyPlanVersion: STUDY_PLAN_VERSION,
+    studyArm,
+    taskSetSeed,
+    tasks: plan.tasks,
+    observations,
   });
 }
 
@@ -61,6 +93,11 @@ test("timing, confidence, repeat count, and observation are bounded fields", () 
   assert.match(value.moderatorObservation, /repeated twice/u);
   assert.throws(() => observation(matchTask, "match", { confidence: 9 }));
   assert.throws(() => observation(matchTask, "match", { repeatCount: -1 }));
+  assert.throws(() =>
+    observation(matchTask, "match", {
+      moderatorObservation: "x".repeat(241),
+    }),
+  );
 });
 
 test("anonymous participant code cannot be a name-like free-form value", () => {
@@ -68,6 +105,9 @@ test("anonymous participant code cannot be a name-like free-form value", () => {
     createObservation({
       participantCode: "Alice",
       sessionId,
+      studyPlanVersion: STUDY_PLAN_VERSION,
+      studyArm,
+      taskSetSeed,
       task: matchTask,
       response: "match",
       startedAt: 1,
@@ -76,34 +116,72 @@ test("anonymous participant code cannot be a name-like free-form value", () => {
   );
 });
 
-test("JSON and CSV exports contain observations but no stimuli", () => {
-  const observations = [
-    { ...observation(matchTask, "match"), injectedStimulus: "must not export" },
-  ];
-  const exported = resultExport({ participantCode, sessionId, observations });
+test("JSON and CSV include reproducible plan identifiers but no stimuli", () => {
+  const exported = completeExport();
   const json = exportJson(exported);
   const csv = exportCsv(exported);
-  assert.match(json, /anonymousParticipantCode/u);
-  assert.match(csv, /^harnessVersion,/u);
-  assert.doesNotMatch(json, /digestHex|reference|comparison|seed/u);
-  assert.doesNotMatch(json, /injectedStimulus|must not export/u);
-  assert.doesNotMatch(csv, /digestHex|reference|comparison|seed/u);
+  assert.match(json, /"studyPlanVersion"/u);
+  assert.match(json, /"studyArm": "A"/u);
+  assert.match(json, new RegExp(taskSetSeed, "u"));
+  assert.match(csv, /^harnessVersion,studyPlanVersion,studyArm,taskSetSeed,/u);
+  assert.doesNotMatch(json, /digestHex|"reference"|"comparison"/u);
+  assert.doesNotMatch(csv, /digestHex|reference|comparison/u);
+});
+
+test("exported seed, arm, and task IDs reconstruct every observed task", async () => {
+  const exported = completeExport();
+  const reconstructed = await generateStudyPlan({
+    taskSetSeed: exported.taskSetSeed,
+    studyArm: exported.studyArm,
+  });
+  const reconstructedById = new Map(
+    reconstructed.tasks.map((task) => [task.taskId, task]),
+  );
+  for (const recorded of exported.observations) {
+    const task = reconstructedById.get(recorded.taskId);
+    assert.ok(task, recorded.taskId);
+    assert.equal(recorded.condition, task.conditionId);
+    assert.equal(recorded.groundTruth, task.groundTruth);
+    assert.equal(recorded.mismatchType, task.mismatchType);
+    assert.equal(recorded.mismatchPosition, task.mismatchPosition);
+  }
+});
+
+test("export rejects missing, duplicated, or altered task observations", () => {
+  const observations = completeObservations();
+  assert.throws(() => completeExport(observations.slice(1)));
+  assert.throws(() =>
+    completeExport([
+      observations[0],
+      observations[0],
+      ...observations.slice(2),
+    ]),
+  );
+  const altered = observations.map((item, index) =>
+    index === 0 ? { ...item, mismatchPosition: "entry 999" } : item,
+  );
+  assert.throws(() => completeExport(altered));
 });
 
 test("CSV export neutralizes spreadsheet-formula prefixes", () => {
-  const observations = [
-    observation(matchTask, "match", {
-      moderatorObservation: '=HYPERLINK("https://invalid.example","synthetic")',
-    }),
-  ];
-  const csv = exportCsv(
-    resultExport({ participantCode, sessionId, observations }),
-  );
+  const overrides = new Map([
+    [
+      plan.tasks[0].taskId,
+      {
+        response: plan.tasks[0].groundTruth,
+        extra: {
+          moderatorObservation:
+            '=HYPERLINK("https://invalid.example","synthetic")',
+        },
+      },
+    ],
+  ]);
+  const csv = exportCsv(completeExport(completeObservations(overrides)));
   assert.match(csv, /'=HYPERLINK/u);
   assert.doesNotMatch(csv, /,"=HYPERLINK/u);
 });
 
-test("export schema contains only the documented observation fields", () => {
+test("export schema contains no prohibited personal or real-cryptographic fields", () => {
   const forbidden = new Set([
     "name",
     "email",
@@ -111,10 +189,13 @@ test("export schema contains only the documented observation fields", () => {
     "employer",
     "account",
     "ipAddress",
+    "networkIdentifier",
     "deviceFingerprint",
+    "demographics",
     "privateKey",
+    "publicKey",
     "publicContact",
-    "digest",
+    "realRelationshipValue",
     "message",
     "clipboard",
     "audio",

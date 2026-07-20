@@ -190,7 +190,7 @@ textarea:focus-visible {
 .answer-key,
 .outcome,
 .export-area,
-.qr-study-control {
+.qr-technical-control {
   margin: 1rem 0;
   border: 2px solid #674b21;
   border-radius: 0.4rem;
@@ -203,9 +203,23 @@ textarea:focus-visible {
   background: #f1faef;
 }
 
-.qr-study-control {
+.qr-technical-control {
   border-color: #315d75;
   background: #eef8fc;
+}
+
+#export-note-preview {
+  margin-top: 1rem;
+  border: 1px solid #aeb5aa;
+  border-radius: 0.4rem;
+  background: #fffef9;
+  padding: 0.8rem;
+}
+
+#export-note-list {
+  max-height: 18rem;
+  overflow: auto;
+  overflow-wrap: anywhere;
 }
 
 .button-row,

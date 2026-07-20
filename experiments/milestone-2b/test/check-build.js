@@ -29,6 +29,11 @@ for (const pattern of [
   /\bserviceWorker\.register\b/u,
   /\bgetUserMedia\s*\(/u,
   /\bMediaRecorder\b/u,
+  /\bMath\.random\s*\(/u,
+  /\bMath\.imul\s*\(/u,
+  /\bfnv1a32\b/u,
+  /compare every (?:item|entry|group)/iu,
+  /(?:do not|don't) (?:skim|check only)/iu,
   /CipherBook\s+v1|\bCBE1\b|\bCBC1\b/iu,
 ]) {
   assert.doesNotMatch(output, pattern);

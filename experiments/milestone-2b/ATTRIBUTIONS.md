@@ -21,9 +21,10 @@ and code-point sequence. The table is non-normative for CipherBook.
 
 The 256 words in `src/word-list.js` are copied in byte-index order from
 BCR-2020-012, “Bytewords: Encoding binary data as English words,” © 2020
-Blockchain Commons, by Wolf McNally and Christopher Allen:
+Blockchain Commons, by Wolf McNally and Christopher Allen, pinned at commit
+`bacd8054be636ec48b0118763384cf6c7f947ab7`:
 
-<https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2020-012-bytewords.md>
+<https://github.com/BlockchainCommons/Research/blob/bacd8054be636ec48b0118763384cf6c7f947ab7/papers/bcr-2020-012-bytewords.md>
 
 The source repository applies the BSD-2-Clause-Patent license below. This
 experiment uses the word mapping only; it does not implement or claim the

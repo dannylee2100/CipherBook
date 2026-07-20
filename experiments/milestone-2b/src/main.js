@@ -1,4 +1,8 @@
-import { CONDITION_BY_ID } from "./constants.js";
+import {
+  CONDITION_BY_ID,
+  DIGEST_BYTES,
+  QR_TECHNICAL_DEFINITION,
+} from "./constants.js";
 import {
   createObservation,
   exportCsv,
@@ -8,7 +12,7 @@ import {
   validateAnonymousParticipantCode,
 } from "./results.js";
 import { decodeQrImageData } from "./qr.js";
-import { bytesToHex } from "./representations.js";
+import { bytesToHex, representationFor } from "./representations.js";
 import {
   activeTask,
   clearStudyState,
@@ -16,30 +20,37 @@ import {
   resetTaskResponse,
 } from "./state.js";
 import {
-  createInteractiveStudySeed,
-  generateInteractiveStudyTasks,
+  createRandomStudyBytes,
+  createTaskSetSeedForArm,
+  generateStudyPlan,
 } from "./task-generator.js";
 import { renderRepresentation } from "./view.js";
+
+const NEUTRAL_PARTICIPANT_INSTRUCTION =
+  "Decide whether the two displayed values match. Answer Match, Mismatch, or Unsure.";
 
 const ids = [
   "global-status",
   "global-error",
   "setup-view",
   "participant-code",
-  "condition-selection",
-  "task-order",
+  "study-arm",
   "create-session",
+  "run-qr-demo",
+  "qr-demo-output",
+  "qr-demo-representation",
+  "qr-demo-status",
   "moderator-view",
   "session-summary",
   "task-summary",
   "answer-key",
-  "ground-truth",
-  "mismatch-detail",
   "moderator-reference-area",
   "moderator-reference",
   "spoken-instruction",
   "pending-outcome",
   "outcome-text",
+  "observation-area",
+  "repeat-area",
   "repeat-count",
   "moderator-observation",
   "show-participant",
@@ -49,18 +60,18 @@ const ids = [
   "export-summary",
   "review-export",
   "export-confirmation",
+  "export-note-preview",
+  "export-note-list",
   "confirm-export",
   "download-json",
   "download-csv",
   "participant-view",
   "participant-task-summary",
   "participant-instruction",
+  "spoken-participant-context",
   "reference-card",
   "participant-reference",
   "participant-comparison",
-  "qr-study-control",
-  "run-qr-comparison",
-  "qr-comparison-status",
   "pause-task",
 ];
 
@@ -90,6 +101,38 @@ function renderSetup() {
   elements["setup-view"].hidden = state.view !== "setup";
 }
 
+function clearAnswerKey() {
+  elements["answer-key"].hidden = true;
+  elements["answer-key"].replaceChildren();
+}
+
+function revealAnswerKey(task) {
+  const heading = document.createElement("h3");
+  heading.textContent = "Answer key — revealed after the recorded response";
+  const groundTruth = document.createElement("p");
+  groundTruth.id = "ground-truth";
+  groundTruth.textContent = `Ground truth: ${task.groundTruth.toUpperCase()}`;
+  const mismatchDetail = document.createElement("p");
+  mismatchDetail.id = "mismatch-detail";
+  mismatchDetail.textContent =
+    task.groundTruth === "match"
+      ? "Exact task: reference and comparison stimuli are identical."
+      : `Controlled mismatch: ${task.mismatchType}; ${task.mismatchPosition}.`;
+  elements["answer-key"].replaceChildren(heading, groundTruth, mismatchDetail);
+  elements["answer-key"].hidden = false;
+}
+
+function renderObservationPreview() {
+  elements["export-note-list"].replaceChildren(
+    ...state.observations.map((observation) => {
+      const item = document.createElement("li");
+      const note = observation.moderatorObservation || "[no observation text]";
+      item.textContent = `${observation.taskId}: ${note}`;
+      return item;
+    }),
+  );
+}
+
 function renderModerator() {
   const visible = state.view === "moderator";
   elements["moderator-view"].hidden = !visible;
@@ -99,15 +142,17 @@ function renderModerator() {
 
   const task = activeTask(state);
   elements["session-summary"].textContent =
-    `Anonymous code ${state.participantCode} · session ${state.sessionId} · ` +
+    `Anonymous code ${state.participantCode} · arm ${state.studyArm} · ` +
     `${state.observations.length} saved observation(s)`;
 
   if (!task) {
     elements["task-summary"].textContent =
       `Session complete: ${state.tasks.length} of ${state.tasks.length} tasks.`;
-    elements["answer-key"].hidden = true;
+    clearAnswerKey();
     elements["moderator-reference-area"].hidden = true;
+    elements["moderator-reference"].replaceChildren();
     elements["pending-outcome"].hidden = true;
+    elements["observation-area"].hidden = true;
     elements["repeat-count"].disabled = true;
     elements["moderator-observation"].disabled = true;
     elements["show-participant"].hidden = true;
@@ -115,9 +160,13 @@ function renderModerator() {
     elements["export-area"].hidden = false;
     const summary = summarizeObservations(state.observations);
     elements["export-summary"].textContent =
-      `${summary.total} anonymous observation(s); ${summary.falseAccepts} false accept(s); ` +
+      `${summary.total} anonymous manual-task observation(s); ${summary.falseAccepts} false accept(s); ` +
       `${summary.falseRejects} false reject(s); ${summary.unsure} unsure response(s).`;
     elements["export-confirmation"].hidden = !state.exportReviewVisible;
+    elements["export-note-preview"].hidden = !state.exportReviewVisible;
+    if (state.exportReviewVisible) {
+      renderObservationPreview();
+    }
     elements["confirm-export"].checked = state.exportConfirmed;
     elements["download-json"].disabled = !state.exportConfirmed;
     elements["download-csv"].disabled = !state.exportConfirmed;
@@ -125,30 +174,37 @@ function renderModerator() {
   }
 
   const position = state.taskIndex + 1;
+  const spoken = currentCondition()?.kind === "spoken";
+  const responseRecorded = Boolean(state.pendingResponse);
   elements["task-summary"].textContent =
     `Task ${position} of ${state.tasks.length} · ${task.conditionLabel} · ` +
     `${task.displayedBits} displayed bits`;
-  elements["answer-key"].hidden = false;
-  elements["moderator-reference-area"].hidden = false;
-  elements["ground-truth"].textContent =
-    `Ground truth: ${task.groundTruth.toUpperCase()}`;
-  elements["mismatch-detail"].textContent =
-    task.groundTruth === "match"
-      ? "Exact task: reference and comparison stimuli are identical."
-      : `Controlled mismatch: ${task.mismatchType}; ${task.mismatchPosition}.`;
-  renderRepresentation(
-    elements["moderator-reference"],
-    task.reference,
-    "Moderator reference",
-  );
 
-  const spoken = currentCondition()?.kind === "spoken";
+  if (responseRecorded) {
+    revealAnswerKey(task);
+  } else {
+    clearAnswerKey();
+  }
+
+  elements["moderator-reference-area"].hidden = !spoken;
   elements["spoken-instruction"].hidden = !spoken;
-  elements["repeat-count"].disabled = !spoken;
-  elements["moderator-observation"].disabled = false;
-  elements["pending-outcome"].hidden = !state.pendingResponse;
-  elements["show-participant"].hidden = Boolean(state.pendingResponse);
-  elements["save-advance"].hidden = !state.pendingResponse;
+  if (spoken) {
+    renderRepresentation(
+      elements["moderator-reference"],
+      task.reference,
+      "Moderator reference",
+    );
+  } else {
+    elements["moderator-reference"].replaceChildren();
+  }
+
+  elements["pending-outcome"].hidden = !responseRecorded;
+  elements["observation-area"].hidden = !responseRecorded;
+  elements["repeat-area"].hidden = !responseRecorded || !spoken;
+  elements["repeat-count"].disabled = !responseRecorded || !spoken;
+  elements["moderator-observation"].disabled = !responseRecorded;
+  elements["show-participant"].hidden = responseRecorded;
+  elements["save-advance"].hidden = !responseRecorded;
   elements["export-area"].hidden = true;
 
   if (state.pendingResponse) {
@@ -157,6 +213,8 @@ function renderModerator() {
     elements["outcome-text"].textContent =
       `Participant answered ${response.toUpperCase()}. ` +
       `${response === "unsure" ? "Recorded as unsure." : correct ? "The response matches the task ground truth." : "The response does not match the task ground truth."}`;
+  } else {
+    elements["outcome-text"].textContent = "";
   }
 }
 
@@ -175,18 +233,15 @@ function renderParticipant() {
   elements["participant-task-summary"].textContent =
     `${task.conditionLabel} · ${task.displayedBits} displayed bits · ` +
     `task ${state.taskIndex + 1} of ${state.tasks.length}`;
+  elements["participant-instruction"].textContent =
+    NEUTRAL_PARTICIPANT_INSTRUCTION;
 
-  if (condition.kind === "spoken") {
-    elements["participant-instruction"].textContent =
-      "Listen to the moderator read the numbered reference labels, then compare the entire spoken sequence with the numbered list below.";
-    elements["reference-card"].hidden = true;
+  const spoken = condition.kind === "spoken";
+  elements["spoken-participant-context"].hidden = !spoken;
+  elements["reference-card"].hidden = spoken;
+  if (spoken) {
     elements["participant-reference"].replaceChildren();
   } else {
-    elements["reference-card"].hidden = false;
-    elements["participant-instruction"].textContent =
-      condition.kind === "qr"
-        ? "These locally generated QR images carry all 256 synthetic bits. This no-camera harness is technical instrumentation; use the complete text fallback only if needed and do not compare QR shapes by eye."
-        : "Compare every numbered item in order before answering. Do not check only the beginning or end.";
     renderRepresentation(
       elements["participant-reference"],
       task.reference,
@@ -199,11 +254,9 @@ function renderParticipant() {
     "Comparison",
   );
 
-  const qrCondition = condition.kind === "qr";
-  elements["qr-study-control"].hidden = !qrCondition;
-  elements["qr-comparison-status"].textContent = state.qrDecoderResult;
-  updateParticipantResponseAvailability();
-
+  for (const button of document.querySelectorAll("[data-response]")) {
+    button.disabled = false;
+  }
   for (const input of document.querySelectorAll('input[name="confidence"]')) {
     input.checked = false;
   }
@@ -217,61 +270,6 @@ function render() {
   renderParticipant();
 }
 
-function selectedConditionIds() {
-  return Array.from(
-    elements["condition-selection"].querySelectorAll(
-      'input[type="checkbox"]:checked',
-    ),
-    (input) => input.value,
-  );
-}
-
-function updateParticipantResponseAvailability() {
-  const qrWaiting = currentCondition()?.kind === "qr" && !state.qrComparisonRun;
-  for (const button of document.querySelectorAll("[data-response]")) {
-    button.disabled = qrWaiting && button.dataset.response !== "unsure";
-  }
-}
-
-elements["create-session"].addEventListener("click", () => {
-  try {
-    const participantCode = elements["participant-code"].value.trim();
-    validateAnonymousParticipantCode(participantCode);
-    const conditionIds = selectedConditionIds();
-    const seed = createInteractiveStudySeed();
-    const tasks = generateInteractiveStudyTasks({
-      conditionIds,
-      orderSeed: seed,
-      randomize: elements["task-order"].value === "random",
-    });
-
-    state = emptyStudyState();
-    state.participantCode = participantCode;
-    state.sessionId = `S-${seed.slice(0, 12)}`;
-    state.tasks = tasks;
-    state.view = "moderator";
-    state.status = `Synthetic session created with ${tasks.length} task(s). No data has been saved or uploaded.`;
-    render();
-  } catch (error) {
-    state.error =
-      error instanceof Error ? error.message : "Study setup failed.";
-    render();
-  }
-});
-
-elements["show-participant"].addEventListener("click", () => {
-  if (!activeTask(state) || state.pendingResponse) {
-    return;
-  }
-  state.error = "";
-  state.status =
-    "Participant task timing started with a local monotonic timer.";
-  state.taskStartedAt = performance.now();
-  state.qrComparisonRun = false;
-  state.qrDecoderResult = "";
-  setView("participant");
-});
-
 async function decodeImageElement(image) {
   if (!image.complete || image.naturalWidth === 0) {
     await new Promise((resolve, reject) => {
@@ -283,37 +281,88 @@ async function decodeImageElement(image) {
   canvas.width = image.naturalWidth;
   canvas.height = image.naturalHeight;
   const context = canvas.getContext("2d");
+  if (!context) {
+    throw new Error("QR technical demonstration requires a 2D canvas context");
+  }
   context.drawImage(image, 0, 0);
   return decodeQrImageData(
     context.getImageData(0, 0, canvas.width, canvas.height),
   );
 }
 
-elements["run-qr-comparison"].addEventListener("click", async () => {
-  const images = elements["participant-view"].querySelectorAll(".qr-image");
-  if (images.length !== 2 || currentCondition()?.kind !== "qr") {
+elements["run-qr-demo"].addEventListener("click", async () => {
+  elements["run-qr-demo"].disabled = true;
+  elements["qr-demo-output"].hidden = true;
+  elements["qr-demo-status"].textContent = "";
+  try {
+    const digest = createRandomStudyBytes(DIGEST_BYTES);
+    const representation = representationFor(
+      QR_TECHNICAL_DEFINITION.id,
+      digest,
+    );
+    renderRepresentation(
+      elements["qr-demo-representation"],
+      representation,
+      "Technical demonstration",
+    );
+    elements["qr-demo-output"].hidden = false;
+    const image = elements["qr-demo-representation"].querySelector(".qr-image");
+    const decoded = await decodeImageElement(image);
+    if (bytesToHex(decoded) !== bytesToHex(digest)) {
+      throw new Error("local QR decoder returned different synthetic bytes");
+    }
+    elements["qr-demo-status"].textContent =
+      "Technical result: the generated image decoded to the exact 256 synthetic bits. No participant metric was recorded.";
+  } catch (error) {
+    elements["qr-demo-output"].hidden = false;
+    elements["qr-demo-status"].textContent =
+      error instanceof Error
+        ? `Technical QR demonstration failed: ${error.message}`
+        : "Technical QR demonstration failed.";
+  } finally {
+    elements["run-qr-demo"].disabled = false;
+  }
+});
+
+elements["create-session"].addEventListener("click", async () => {
+  elements["create-session"].disabled = true;
+  try {
+    const participantCode = elements["participant-code"].value.trim();
+    const studyArm = elements["study-arm"].value;
+    validateAnonymousParticipantCode(participantCode);
+    const taskSetSeed = await createTaskSetSeedForArm(studyArm);
+    const studyPlan = await generateStudyPlan({ taskSetSeed, studyArm });
+
+    state = emptyStudyState();
+    state.participantCode = participantCode;
+    state.sessionId = `S-${taskSetSeed.slice(0, 12)}`;
+    state.studyPlanVersion = studyPlan.studyPlanVersion;
+    state.studyArm = studyPlan.studyArm;
+    state.taskSetSeed = studyPlan.taskSetSeed;
+    state.tasks = studyPlan.tasks;
+    state.view = "moderator";
+    state.status =
+      `Synthetic arm ${studyArm} session created with ${studyPlan.tasks.length} manual task(s). ` +
+      "No data has been saved or uploaded.";
+    render();
+  } catch (error) {
+    state.error =
+      error instanceof Error ? error.message : "Study setup failed.";
+    render();
+  } finally {
+    elements["create-session"].disabled = false;
+  }
+});
+
+elements["show-participant"].addEventListener("click", () => {
+  if (!activeTask(state) || state.pendingResponse) {
     return;
   }
-  elements["run-qr-comparison"].disabled = true;
-  let decodedBothImages = false;
-  try {
-    const [reference, comparison] = await Promise.all(
-      Array.from(images, (image) => decodeImageElement(image)),
-    );
-    state.qrDecoderResult =
-      bytesToHex(reference) === bytesToHex(comparison)
-        ? "Local decoder result: MATCH. This result does not prove human identity."
-        : "Local decoder result: MISMATCH. Do not verify this synthetic relationship.";
-    decodedBothImages = true;
-  } catch {
-    state.qrDecoderResult =
-      "Local decoder could not compare the generated images. Respond Unsure or pause the task.";
-  } finally {
-    state.qrComparisonRun = decodedBothImages;
-    elements["run-qr-comparison"].disabled = false;
-    elements["qr-comparison-status"].textContent = state.qrDecoderResult;
-    updateParticipantResponseAvailability();
-  }
+  state.error = "";
+  state.status =
+    "Participant task timing started with a local monotonic timer.";
+  state.taskStartedAt = performance.now();
+  setView("participant");
 });
 
 elements["pause-task"].addEventListener("click", () => {
@@ -325,7 +374,11 @@ elements["pause-task"].addEventListener("click", () => {
 
 for (const button of document.querySelectorAll("[data-response]")) {
   button.addEventListener("click", () => {
-    if (state.view !== "participant" || state.taskStartedAt === null) {
+    if (
+      state.view !== "participant" ||
+      state.taskStartedAt === null ||
+      state.pendingResponse
+    ) {
       return;
     }
     const confidenceInput = document.querySelector(
@@ -339,7 +392,7 @@ for (const button of document.querySelectorAll("[data-response]")) {
     };
     state.taskStartedAt = null;
     state.status =
-      "Participant response captured in memory. The moderator must save or clear it explicitly.";
+      "Participant response captured in memory and cannot be changed after answer-key reveal.";
     setView("moderator");
   });
 }
@@ -357,6 +410,9 @@ elements["save-advance"].addEventListener("click", () => {
     const observation = createObservation({
       participantCode: state.participantCode,
       sessionId: state.sessionId,
+      studyPlanVersion: state.studyPlanVersion,
+      studyArm: state.studyArm,
+      taskSetSeed: state.taskSetSeed,
       task,
       ...state.pendingResponse,
       repeatCount,
@@ -369,7 +425,7 @@ elements["save-advance"].addEventListener("click", () => {
     elements["moderator-observation"].value = "";
     state.status = activeTask(state)
       ? "Anonymous observation held in memory; ready for the next task."
-      : "All selected tasks are complete. Review before any explicit local export.";
+      : "All planned manual tasks are complete. Review every note before any explicit local export.";
     state.error = "";
     render();
   } catch (error) {
@@ -382,6 +438,7 @@ elements["save-advance"].addEventListener("click", () => {
 elements["clear-session"].addEventListener("click", () => {
   clearStudyState(state);
   elements["participant-code"].value = "P01";
+  elements["study-arm"].value = "A";
   elements["repeat-count"].value = "0";
   elements["moderator-observation"].value = "";
   state.status =
@@ -393,7 +450,7 @@ elements["review-export"].addEventListener("click", () => {
   state.exportReviewVisible = true;
   state.exportConfirmed = false;
   state.status =
-    "Export summary shown. No file is created until the moderator confirms and chooses a download.";
+    "Export summary and every observation note are shown. No file is created until confirmation and an explicit download choice.";
   render();
 });
 
@@ -409,6 +466,10 @@ function currentExport() {
   return resultExport({
     participantCode: state.participantCode,
     sessionId: state.sessionId,
+    studyPlanVersion: state.studyPlanVersion,
+    studyArm: state.studyArm,
+    taskSetSeed: state.taskSetSeed,
+    tasks: state.tasks,
     observations: state.observations,
   });
 }

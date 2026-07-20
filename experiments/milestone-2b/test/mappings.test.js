@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { CONDITION_DEFINITIONS } from "../src/constants.js";
+import { REPRESENTATION_DEFINITIONS } from "../src/constants.js";
 import { EMOJI_TABLE } from "../src/emoji-table.js";
 import {
   bytesToHex,
@@ -19,7 +19,7 @@ import { WORD_LIST } from "../src/word-list.js";
 const fixture = Uint8Array.from({ length: 32 }, (_, index) => index);
 
 test("same synthetic digest produces identical representations", () => {
-  for (const condition of CONDITION_DEFINITIONS) {
+  for (const condition of REPRESENTATION_DEFINITIONS) {
     const first = representationFor(condition.id, fixture);
     const second = representationFor(condition.id, fixture.slice());
     assert.deepEqual(first, second);
@@ -29,7 +29,7 @@ test("same synthetic digest produces identical representations", () => {
 test("a changed first digest byte changes every study representation", () => {
   const changed = fixture.slice();
   changed[0] ^= 0xff;
-  for (const condition of CONDITION_DEFINITIONS) {
+  for (const condition of REPRESENTATION_DEFINITIONS) {
     assert.notEqual(
       representationSignature(representationFor(condition.id, fixture)),
       representationSignature(representationFor(condition.id, changed)),

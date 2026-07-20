@@ -7,7 +7,7 @@
 ## Status and gate
 
 No human study has been run. This document tells a later human moderator how to
-run a small pilot; it is not a report of findings.
+run a small manual-comparison pilot; it is not a report of findings.
 
 > A small pilot cannot prove a verification method safe. It can only reveal obvious comprehension and comparison failures and determine whether a method deserves further study.
 
@@ -18,17 +18,52 @@ absence of that observed failure in this sample and task set.
 
 ## Participants and evidence gaps
 
-- Recruit at least six target participants; eight are preferred.
+- Recruit at least six target participants; eight completed arms are preferred.
 - Recruit people who plausibly face the occasional-envelope workflow, not only
   cryptography or software specialists.
 - When the intended audience includes them, include screen-reader users and
   people with different language backgrounds. If they are absent, record the
   missing evidence rather than a passed accessibility or language result.
 - Assign anonymous codes such as `P01`. Do not enter names, contact details,
-  employers, account identifiers, or free-form biographies.
+  employers, account identifiers, demographics, or free-form biographies.
 - Obtain informed consent for observation, timing, and anonymous local records.
   Participants may pause or stop at any time without explanation.
 - Do not record audio or video. Do not enable telemetry.
+
+The study plan has eight arms, `A` through `H`. Six participants may be
+insufficient for complete mismatch-class coverage for every condition depending
+on assigned arms, skipped tasks, or withdrawal. Six cannot complete the full
+eight-arm matrix. Record the gap; do not infer the missing observations.
+
+## Fixed plan before recruitment
+
+Before recruitment begins:
+
+1. Record the reviewed harness commit and the exact unstable study-plan
+   identifier.
+2. Fix the target participant count and arm-allocation list. Use `A` through `H`
+   in order for the first complete block. If replacement of an incomplete
+   session is allowed, record that rule now and do not change it based on errors.
+3. Fix 24 tasks per participant: four for each of six manual conditions. Do not
+   add, remove, or repeat a task based on participant performance.
+4. Do not disclose the match/mismatch ratio, mismatch classes, arm schedule, or
+   study-plan source to participants before they finish.
+5. Fix recruitment, consent, exclusion, withdrawal, and anonymous-data handling
+   rules. Do not add demographics to the harness.
+
+Within every arm, each manual condition has at least one exact match and one
+controlled mismatch. Per-condition match/mismatch ratios vary among 1/3, 2/2,
+and 3/1 under the committed matrix; every arm totals 12/12 across its 24 tasks.
+Across all eight arms, match and mismatch totals are 96 each. Mismatch classes
+rotate across arms: beginning, middle, and end substitutions receive equal
+complete-arm coverage, and secondary mismatch classes are distributed rather
+than repeated for every participant. Task order is derived from the session's
+synthetic seed.
+
+This is counterbalancing for a directional pilot, not a sample-size calculation
+or statistical validation. A participant could read the public source and learn
+the allocation; the protocol reduces this risk procedurally and does not claim
+secret blinding.
 
 ## Materials
 
@@ -46,19 +81,20 @@ digests, recovery data, or secrets into the session.
 1. Read the project threat model and limitations.
 2. Confirm the harness warning and all four synthetic labels are visible.
 3. Confirm no prior session reappears after reload.
-4. Choose the planned conditions before recruitment; do not remove a difficult
-   condition after seeing a participant's errors.
-5. Use locally randomized order unless the study record documents a fixed order
-   and why it is needed.
-6. Confirm the task set includes exact matches, early/middle/late
-   substitutions, adjacent transposition, omission, and duplication where
-   applicable. Visual emoji also includes one candidate visual-confusion pair;
-   QR includes a different full digest.
-7. Keep the moderator answer key out of the participant's view.
+4. Confirm the arm allocation and participant count were fixed before
+   recruitment.
+5. Confirm automated tests pass for 24 tasks per arm, equal condition exposure,
+   complete-arm match/mismatch balance, mismatch-class rotation, early/middle/
+   late coverage, and exact seed reconstruction.
+6. Confirm the answer-key area is absent before a response and appears only
+   afterward.
+7. Confirm QR appears only in the separate moderator technical demonstration.
 
-## Procedure
+Do not inspect the current task's exported plan or source while conducting the
+task. The moderator still sees condition labels and may remember the public
+plan, so interface blinding reduces but does not eliminate cueing.
 
-### Introduction
+## Participant introduction
 
 Tell the participant, without adding claims:
 
@@ -68,59 +104,76 @@ Tell the participant, without adding claims:
   participant or certify a method.
 - They may answer **Match**, **Mismatch**, or **Unsure** and may stop at any time.
 
-Do not explain expected comparison strategies or coach during tasks.
+Do not explain expected comparison strategies, mismatch classes, task ratios,
+or where differences may appear. Do not coach during tasks.
 
-### Tasks
+## Manual task procedure
 
-For each task:
+For each of the 24 predeclared tasks:
 
-1. In moderator mode, confirm the task and keep its answer key hidden.
-2. For spoken-label tasks, read the numbered English reference labels exactly as
-   displayed. Record repeat requests manually; do not use a microphone,
-   recording, or speech recognition.
+1. In moderator mode, confirm only the condition and task ordinal. Ground truth,
+   mismatch class, and mismatch position must be absent.
+2. For a spoken-label task only, use the displayed moderator reference. Read the
+   numbered English labels exactly as shown. Record requested repeats after the
+   response; do not use a microphone, recording, or speech recognition.
 3. Start participant mode. Timing begins with the local monotonic timer.
-4. Observe without prompting:
-   - whether the participant reaches every group;
-   - whether they inspect only the beginning, end, color, or overall shape;
-   - omissions, transpositions, early confirmation, requests for help, and
-     rendering or pronunciation confusion.
-5. Let the participant choose Match, Mismatch, or Unsure. Confidence 1–3 is
-   optional.
-6. Immediately ask the neutral recall question, “Which numbered positions or
-   groups did you compare?” Record observed coverage and the answer without
-   coaching. Do not treat self-report alone as proof that every item was checked.
-7. Return to moderator mode. Enter only a short task-relevant observation. Do
-   not enter personal information.
-8. Save and advance. Do not alter a response after the answer key is shown.
+4. Give only this task instruction:
+
+   > Decide whether the two displayed values match. Answer Match, Mismatch, or Unsure.
+
+5. Observe without prompting. Do not tell the participant to inspect all
+   entries, avoid skimming, focus on a region, or use any comparison strategy.
+6. Let the participant choose Match, Mismatch, or Unsure. Confidence 1–3 is
+   optional. The response is committed before the answer key appears and cannot
+   then be changed.
+7. After the response, reveal the answer key and ask:
+
+   > Which numbered positions or groups did you compare?
+
+   Record observed behavior and the answer without coaching. Do not treat
+   self-report alone as proof that an entry was checked.
+
+8. Enter only a short task-relevant observation. Review the warning beside the
+   field and do not enter identifying information. Enter the spoken repeat count
+   when applicable.
+9. Save and advance. Do not rerun a completed task because the response was
+   incorrect or surprising.
 
 False accept—answering Match for a seeded mismatch—is the primary critical
 failure. False reject and completion time are secondary outcomes. Timing is
 usability evidence, not cryptographic evidence.
 
-### QR limitation
+## Separate QR technical demonstration
 
-This harness generates and technically decodes QR images but has no camera.
-Generated-image or file-style automation is not evidence about in-person camera
-permission, aiming, lighting, device handoff, reciprocity, or accessibility.
-Do not ask a participant to compare QR visual patterns by eye. Record the QR
-condition as incomplete if the planned human workflow cannot be represented
-without adding camera infrastructure.
+QR is not one of the 24 participant tasks. The moderator-only control generates
+one full 256-bit synthetic value, encodes it behind the experiment-only prefix,
+draws the image locally, and confirms exact decoder recovery. It has no
+participant response, timer, observation, or manual aggregate.
+
+Do not ask a participant to compare QR patterns by eye, click the local decoder,
+or treat its output as a human verification task. Generated-image decoding is
+not evidence about camera permission, aiming, lighting, device handoff,
+reciprocity, accessibility, or identity binding.
+
+A valid human QR study requires a separately designed two-device or camera
+workflow. No camera workflow is implemented or authorized in Milestone 2B. Any
+future QR observations must be reported separately from the manual false-accept,
+false-reject, unsure, and completion-time metrics.
 
 ## Uncoached explanation questions
 
-After the comparison tasks, ask each question before correcting or teaching:
+After all manual tasks, ask each question before correcting or teaching:
 
 1. Is the comparison value secret?
 2. Can it decrypt a message?
 3. Does matching it prove the device is uncompromised?
 4. Does matching it hide communication metadata?
 5. Does matching it prevent the recipient from copying plaintext?
-6. Does a QR result automatically prove the human identity?
-7. What should you do when the values differ?
+6. What should you do when the values differ?
 
 Record the response in de-identified raw notes outside the harness using the
 approved study process. These questions test comprehension only; they are not a
-security certification.
+security certification. Do not collect demographics.
 
 ## Accessibility, rendering, and language observations
 
@@ -133,26 +186,42 @@ Record, without inferring beyond the participant:
 - visually or conceptually confused emoji;
 - English label pronunciation and accent issues;
 - unknown or ambiguous Bytewords;
-- hexadecimal chunking or transposition problems;
-- QR text fallback use and whether QR creates unjustified confidence; and
+- hexadecimal chunking or transposition problems; and
 - any condition the participant cannot access.
 
 No automated assertion replaces a screen-reader participant. No tested desktop
-browser result supports a mobile, Safari, WebKit, or cross-platform rendering
-claim.
+browser result supports a mobile, Safari, WebKit, camera, or cross-platform
+rendering claim.
+
+## Export and anonymous-data review
+
+After all 24 tasks:
+
+1. Review aggregate manual counts.
+2. Review every displayed observation note.
+3. Confirm no note contains a name, contact detail, employer, account,
+   demographic, network identifier, device fingerprint, or other identifying
+   data.
+4. Download JSON or CSV only if the approved handling process requires it.
+
+The export includes the unstable plan identifier, arm, complete synthetic
+task-set seed, and deterministic task IDs. This metadata is non-identifying and
+allows exact task reconstruction. It contains no real contacts, identities,
+keys, messages, or QR metrics.
 
 ## Raw observations versus interpretation
 
 Keep these separate:
 
-- **Raw observation:** task response, ground truth, mismatch type and location,
-  elapsed time, confidence, repeat count, and concise observed behavior.
+- **Raw observation:** task response, ground truth, mismatch type and exact
+  entry location, elapsed time, confidence, repeat count, and concise observed
+  behavior.
 - **Maintainer interpretation:** why a behavior may have occurred, comparison
   across conditions, evidence gaps, and go/no-go implications.
 
 Do not revise raw records to match an interpretation. Do not infer unobserved
-participant outcomes. Do not aggregate before preserving the anonymous raw
-records under the human-approved handling process.
+participant outcomes. Do not aggregate before preserving anonymous raw records
+under the human-approved handling process.
 
 ## Pilot interpretation rules
 
@@ -160,11 +229,12 @@ records under the human-approved handling process.
 - Zero false accepts does not establish that a condition is safe.
 - A fast method is not preferred if participants skim or misunderstand what it
   verifies.
-- A long method is not justified by displayed bits if participants omit groups.
+- A long method is not justified by displayed bits if participants omit
+  entries.
 - Accessibility or language failures remain failures or evidence gaps; they are
   not solved by automated tests.
-- QR may reduce manual work but cannot prove identity by itself or compensate
-  for a compromised endpoint.
+- QR technical success is not human QR evidence and cannot prove identity or
+  compensate for a compromised endpoint.
 - The pilot must not select construction, authentication, envelope,
   serialization, persistence, hosting, or protocol bytes.
 

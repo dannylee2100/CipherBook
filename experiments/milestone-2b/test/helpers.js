@@ -1,24 +1,12 @@
 import { expect } from "@playwright/test";
 
-export async function selectOnlyCondition(page, conditionId) {
-  for (const checkbox of await page
-    .locator('#condition-selection input[type="checkbox"]')
-    .all()) {
-    if ((await checkbox.getAttribute("value")) === conditionId) {
-      await checkbox.check();
-    } else {
-      await checkbox.uncheck();
-    }
-  }
-}
-
-export async function createFixedSession(page, conditionId, code = "P01") {
+export async function createStudySession(page, arm = "A", code = "P01") {
   await page.goto("/");
-  await selectOnlyCondition(page, conditionId);
   await page.locator("#participant-code").fill(code);
-  await page.locator("#task-order").selectOption("fixed");
+  await page.locator("#study-arm").selectOption(arm);
   await page.locator("#create-session").click();
   await expect(page.locator("#moderator-view")).toBeVisible();
+  await expect(page.locator("#session-summary")).toContainText(`arm ${arm}`);
 }
 
 export async function startParticipantTask(page) {
@@ -28,14 +16,18 @@ export async function startParticipantTask(page) {
 }
 
 export async function answerAndSave(page, response, observation = "") {
-  if (await page.locator("#run-qr-comparison").isVisible()) {
-    await page.locator("#run-qr-comparison").click();
-    await expect(page.locator("#qr-comparison-status")).not.toHaveText("");
-  }
   await page.locator(`[data-response="${response}"]`).click();
   await expect(page.locator("#moderator-view")).toBeVisible();
   if (observation) {
     await page.locator("#moderator-observation").fill(observation);
   }
   await page.locator("#save-advance").click();
+}
+
+export async function completeRemainingTasks(page, response = "unsure") {
+  while (await page.locator("#show-participant").isVisible()) {
+    await startParticipantTask(page);
+    await answerAndSave(page, response);
+  }
+  await expect(page.locator("#export-area")).toBeVisible();
 }

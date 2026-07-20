@@ -1,10 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import {
-  answerAndSave,
-  createFixedSession,
-  startParticipantTask,
-} from "./helpers.js";
+import { createStudySession } from "./helpers.js";
 
 test("browser-generated QR image decodes to the exact 32 synthetic bytes", async ({
   page,
@@ -42,36 +38,27 @@ test("browser-generated QR image decodes to the exact 32 synthetic bytes", async
   expect(result.payload).toMatch(/SYNTHETIC-STUDY-VALUE-UNSTABLE/u);
 });
 
-test("QR tasks display both complete values with text fallbacks", async ({
+test("QR is a moderator-only technical demonstration without participant metrics", async ({
   page,
 }) => {
-  await createFixedSession(page, "qr-256");
-  await startParticipantTask(page);
-  await expect(page.locator("#participant-view .qr-image")).toHaveCount(2);
-  await expect(
-    page.locator("#participant-view .full-hex-fallback"),
-  ).toHaveCount(2);
-  const fallbacks = await page
-    .locator("#participant-view .full-hex-fallback")
-    .allTextContents();
-  expect(fallbacks[0].replaceAll(" ", "")).toHaveLength(64);
-  expect(fallbacks[0]).toBe(fallbacks[1]);
-  await expect(page.locator('[data-response="match"]')).toBeDisabled();
-  await expect(page.locator('[data-response="unsure"]')).toBeEnabled();
-  await page.locator("#run-qr-comparison").click();
-  await expect(page.locator("#qr-comparison-status")).toContainText("MATCH");
-  await expect(page.locator('[data-response="match"]')).toBeEnabled();
-
-  await page.locator('[data-response="match"]').click();
-  await page.locator("#save-advance").click();
-  await startParticipantTask(page);
-  const mismatchFallbacks = await page
-    .locator("#participant-view .full-hex-fallback")
-    .allTextContents();
-  expect(mismatchFallbacks[0]).not.toBe(mismatchFallbacks[1]);
-  await page.locator("#run-qr-comparison").click();
-  await expect(page.locator("#qr-comparison-status")).toContainText("MISMATCH");
-  await expect(page.locator("body")).toContainText(
-    "does not include a camera and is not evidence about camera usability",
+  await page.goto("/");
+  await expect(page.getByTestId("qr-technical-control")).toBeVisible();
+  await page.locator("#run-qr-demo").click();
+  await expect(page.locator("#qr-demo-representation .qr-image")).toHaveCount(
+    1,
   );
+  await expect(
+    page.locator("#qr-demo-representation .full-hex-fallback"),
+  ).toHaveText(/^(?:[0-9a-f]{8} ){7}[0-9a-f]{8}$/u);
+  await expect(page.locator("#qr-demo-status")).toContainText(
+    "exact 256 synthetic bits",
+  );
+  await expect(page.locator("#qr-demo-status")).toContainText(
+    "No participant metric was recorded",
+  );
+  await expect(page.locator("#qr-demo-output [data-response]")).toHaveCount(0);
+
+  await createStudySession(page, "C");
+  await expect(page.locator("#task-summary")).not.toContainText("QR");
+  await expect(page.locator("#participant-view .qr-image")).toHaveCount(0);
 });

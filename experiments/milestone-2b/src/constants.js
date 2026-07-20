@@ -1,6 +1,21 @@
 export const STUDY_HARNESS_VERSION =
   "M2B-HARNESS-EXPERIMENT-UNSTABLE-2026-07-20";
 
+export const STUDY_PLAN_VERSION = "M2B-MANUAL-STUDY-PLAN-EXPERIMENT-UNSTABLE-1";
+
+export const STUDY_ARMS = Object.freeze([
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+]);
+
+export const TASKS_PER_MANUAL_CONDITION = 4;
+
 export const DIGEST_BYTES = 32;
 
 export const SYNTHETIC_LABELS = Object.freeze([
@@ -10,13 +25,7 @@ export const SYNTHETIC_LABELS = Object.freeze([
   "NOT A REAL CONTACT FINGERPRINT",
 ]);
 
-export const CONDITION_DEFINITIONS = Object.freeze([
-  Object.freeze({
-    id: "qr-256",
-    label: "Full-digest QR",
-    bits: 256,
-    kind: "qr",
-  }),
+export const MANUAL_CONDITION_DEFINITIONS = Object.freeze([
   Object.freeze({
     id: "emoji-48",
     label: "Visual emoji — 8 symbols",
@@ -55,9 +64,23 @@ export const CONDITION_DEFINITIONS = Object.freeze([
   }),
 ]);
 
+export const QR_TECHNICAL_DEFINITION = Object.freeze({
+  id: "qr-technical-256",
+  label: "Full-digest QR technical demonstration",
+  bits: 256,
+  kind: "qr",
+});
+
+// Manual study conditions and the QR technical demonstration share only the
+// experiment-only representation renderer. QR is not a participant condition.
+export const REPRESENTATION_DEFINITIONS = Object.freeze([
+  ...MANUAL_CONDITION_DEFINITIONS,
+  QR_TECHNICAL_DEFINITION,
+]);
+
 export const CONDITION_BY_ID = Object.freeze(
   Object.fromEntries(
-    CONDITION_DEFINITIONS.map((condition) => [condition.id, condition]),
+    REPRESENTATION_DEFINITIONS.map((condition) => [condition.id, condition]),
   ),
 );
 

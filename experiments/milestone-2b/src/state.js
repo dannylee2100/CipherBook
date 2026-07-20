@@ -3,12 +3,13 @@ export function emptyStudyState() {
     view: "setup",
     participantCode: "",
     sessionId: "",
+    studyPlanVersion: "",
+    studyArm: "",
+    taskSetSeed: "",
     tasks: [],
     taskIndex: 0,
     taskStartedAt: null,
     pendingResponse: null,
-    qrComparisonRun: false,
-    qrDecoderResult: "",
     observations: [],
     exportReviewVisible: false,
     exportConfirmed: false,
@@ -24,8 +25,6 @@ export function activeTask(state) {
 export function resetTaskResponse(state) {
   state.taskStartedAt = null;
   state.pendingResponse = null;
-  state.qrComparisonRun = false;
-  state.qrDecoderResult = "";
   state.exportReviewVisible = false;
   state.exportConfirmed = false;
 }
@@ -36,12 +35,13 @@ export function clearStudyState(state) {
   }
   state.participantCode = "";
   state.sessionId = "";
+  state.studyPlanVersion = "";
+  state.studyArm = "";
+  state.taskSetSeed = "";
   state.tasks = [];
   state.taskIndex = 0;
   state.taskStartedAt = null;
   state.pendingResponse = null;
-  state.qrComparisonRun = false;
-  state.qrDecoderResult = "";
   state.observations = [];
   state.exportReviewVisible = false;
   state.exportConfirmed = false;
