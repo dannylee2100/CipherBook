@@ -1,7 +1,17 @@
-import { TextDecoder, TextEncoder } from "node:util";
-
 const encoder = new TextEncoder();
 const strictDecoder = new TextDecoder("utf-8", { fatal: true });
+
+function bytesToBinary(value) {
+  const bytes = requireBytes(value);
+  const chunks = [];
+  const chunkSize = 16 * 1024;
+  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+    chunks.push(
+      String.fromCharCode(...bytes.subarray(offset, offset + chunkSize)),
+    );
+  }
+  return chunks.join("");
+}
 
 export function utf8(value, name = "value") {
   if (typeof value !== "string") {
@@ -39,7 +49,10 @@ export function boundedBytes(value, maximum, name = "value") {
 }
 
 export function base64urlEncode(value) {
-  return Buffer.from(requireBytes(value)).toString("base64url");
+  return btoa(bytesToBinary(value))
+    .replaceAll("+", "-")
+    .replaceAll("/", "_")
+    .replace(/=+$/u, "");
 }
 
 export function base64urlDecode(value, expectedLength, name = "value") {
@@ -51,7 +64,11 @@ export function base64urlDecode(value, expectedLength, name = "value") {
     throw new Error(`${name} is not strict unpadded base64url text`);
   }
 
-  const bytes = new Uint8Array(Buffer.from(value, "base64url"));
+  const padding = "=".repeat((4 - (value.length % 4)) % 4);
+  const binary = atob(
+    `${value.replaceAll("-", "+").replaceAll("_", "/")}${padding}`,
+  );
+  const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
   if (base64urlEncode(bytes) !== value) {
     throw new Error(`${name} is not strict unpadded base64url text`);
   }
