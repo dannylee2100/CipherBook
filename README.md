@@ -14,10 +14,13 @@ The immediate work is to test whether that workflow deserves a project at all.
 
 ## Current status
 
-Milestone 0 contains documentation only. There is no application, command-line
-tool, browser prototype, stable envelope, selected cryptographic construction,
-or protocol version. Any later technical spike must use synthetic test data and
-must label its output as disposable and unstable.
+Milestone 0 is complete. Milestone 1 now contains a disposable command-line
+laboratory that compares two construction candidates using synthetic data. It
+is evidence-gathering code, not an application or production CLI. There is no
+browser prototype, stable envelope, selected cryptographic construction, or
+protocol version. See the
+[Milestone 1 laboratory](experiments/milestone-1/README.md) and its
+[recorded results](experiments/milestone-1/RESULTS.md).
 
 The project may be archived after the evaluation milestone. Continuing is not
 the default outcome; it requires evidence that the workflow solves a real
@@ -27,8 +30,8 @@ problem better than existing tools without misleading users about its limits.
 
 ### Facts
 
-- The repository currently contains a project charter and license, not a usable
-  encryption tool.
+- The repository contains a project charter and a disposable construction
+  laboratory, not a usable encryption tool.
 - Common message transports can observe, retain, reorder, alter, or replace text
   sent through them.
 - Existing tools already cover substantial parts of the proposed use case.
