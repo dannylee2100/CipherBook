@@ -9,9 +9,9 @@
 
 ### Facts
 
-- Disposable Milestone 1 Node and Milestone 2A browser comparisons exist; no
-  verification-method user observation or Milestone 3 decision has been
-  completed.
+- Disposable Milestone 1 Node and Milestone 2A browser comparisons exist, and a
+  Milestone 2B synthetic verification-study harness exists. No Milestone 2B
+  human observation or Milestone 3 decision has been completed.
 - The repository contains no approved protocol bytes or application design.
 - Existing tools may make a new envelope format unnecessary.
 

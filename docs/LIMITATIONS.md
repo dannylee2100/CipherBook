@@ -9,7 +9,9 @@
 ### Facts
 
 - Milestone 0 is complete, Milestone 1 contains a disposable Node laboratory,
-  and Milestone 2A contains a disposable locally run browser laboratory.
+  Milestone 2A contains a disposable browser workflow laboratory, and Milestone
+  2B contains a local synthetic verification-study harness. No Milestone 2B
+  human study has been run.
 - No cryptographic construction, envelope, serialization, fingerprint,
   persistence model, deployment, or protocol bytes have been selected.
 - The project has not undergone independent security review.
@@ -58,12 +60,15 @@ independently audited, or appropriate for evading employer monitoring.
 
 ## Current functional limitations
 
-- The only executables are disposable Milestone 1 command-line and Milestone 2A
-  browser laboratories, not user tools or encryption applications.
+- The only executables are disposable Milestone 1 command-line, Milestone 2A
+  browser-workflow, and Milestone 2B verification-study laboratories, not user
+  tools or encryption applications.
 - The laboratories can generate temporary test identities and exercise contact,
   relationship-diagnostic, seal, and open operations using synthetic data only.
   The browser laboratory does not intentionally persist state, and it does not
-  provide a workflow appropriate for real contacts or messages.
+  provide a workflow appropriate for real contacts or messages. The study
+  harness accepts synthetic comparison values only and has no identity, contact,
+  or message workflow.
 - There is no stable, canonical, compatible, or version-1 encoding.
 - There is no persistent vault, recovery flow, device migration, or revocation
   mechanism.

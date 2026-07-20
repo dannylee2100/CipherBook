@@ -8,8 +8,9 @@
 
 This document identifies the threats that the lean validation work must expose
 rather than conceal. It is not a claim that mitigations exist. Milestone 1 is a
-disposable Node experiment using synthetic data, and Milestone 2A is a
-disposable, locally run browser experiment using synthetic data. Any remaining
+disposable Node experiment using synthetic data, Milestone 2A is a disposable
+browser workflow experiment, and Milestone 2B is a local synthetic verification
+study harness. No Milestone 2B human study has been run. Any remaining
 separately approved Milestone 2 work must remain a disposable experiment too.
 
 ## Evidence categories
@@ -22,9 +23,10 @@ separately approved Milestone 2 work must remain a disposable experiment too.
   public; private keys and plaintext are not.
 - Plaintext necessarily exists at an endpoint before sealing and after opening.
 - A recipient who learns plaintext can copy, disclose, transform, or retain it.
-- This repository contains disposable Milestone 1 and Milestone 2A
-  laboratories, not a usable encryption application. Their synthetic Node and
-  browser results do not establish technical protection for real data.
+- This repository contains disposable Milestone 1, Milestone 2A, and Milestone
+  2B laboratories, not a usable encryption application. Their synthetic Node,
+  browser, and automated study-harness results do not establish technical
+  protection for real data or human verification behavior.
 
 ### Assumptions to test
 
@@ -91,7 +93,7 @@ over a recipient's behavior are not protected assets for this validation.
 | --- | --- | --- | --- | --- |
 | Untrusted message transport | Observe, store, replay, reorder, truncate, corrupt, suppress, or replace contacts and envelopes | Disclosure of metadata; denial of service; stale or attacker-created input; attempted contact substitution | Whether tampering and wrong-recipient cases fail clearly, and whether replay is understood as possible | Delivery, freshness, replay prevention, and metadata concealment remain unavailable without additional systems |
 | Public-key substitution | Replace Alice's contact for Bob, Bob's contact for Alice, or both before verification | Attacker may establish separate relationships and read or alter later traffic | Whether out-of-band verification detects one-key and active two-key substitution; whether users compare the whole representation | A skipped, rushed, or compromised verification step defeats the intended association |
-| Human verification failure | Encourage omission, skimming, transposition, premature confirmation, or reliance on familiar glyphs | False acceptance of a substituted key or rejection of a correct key | Error rates for QR, emoji, spoken labels, words, and hexadecimal comparison; whether users know the value is public | No representation eliminates coercion, inattentiveness, accessibility barriers, or dishonest participants |
+| Human verification failure | Encourage omission, skimming, transposition, premature confirmation, or reliance on familiar glyphs | False acceptance of a substituted key or rejection of a correct key | Error rates for manual emoji, spoken-label, word, and hexadecimal comparison; whether users know the value is public. QR in Milestone 2B supplies technical encode/decode evidence only and needs a separate human workflow study. | No representation eliminates coercion, inattentiveness, accessibility barriers, or dishonest participants |
 | Endpoint compromise | Control an endpoint before or during identity generation, sealing, verification, or opening | Theft or alteration of plaintext and keys; falsified UI; incorrect randomness | Whether warnings state the boundary without implying a workaround | A client cannot protect secrets from an attacker controlling the client environment |
 | Browser or extension compromise | Read or change the DOM, clipboard, typed text, downloaded scripts, camera data, or memory | Theft or modification of keys, contacts, plaintext, or displayed fingerprints | Whether the memory-only spike avoids unnecessary exposure and clearly states that extensions and the browser remain trusted in practice | A web prototype cannot isolate itself from a malicious browser, extension, OS, or screen-capture tool |
 | Metadata exposure | Observe participants, account identifiers, timestamps, IP addresses, message length, frequency, and retained ciphertext | Relationship and activity disclosure even if payload bytes are unreadable | Whether every flow avoids suggesting that an envelope hides transport metadata | Ciphertext sent through an existing account inherits that transport's metadata and retention behavior |

@@ -23,7 +23,11 @@ browser client, selected construction, stable envelope, or protocol version,
 and it uses only synthetic data. See the
 [Milestone 1 laboratory](experiments/milestone-1/README.md) and its
 [recorded results](experiments/milestone-1/RESULTS.md), plus the
-[Milestone 2A laboratory](experiments/milestone-2a/README.md).
+[Milestone 2A laboratory](experiments/milestone-2a/README.md). The
+[Milestone 2B verification study harness](experiments/milestone-2b/README.md)
+now contains local synthetic tasks and an unexecuted human-study protocol. It
+has technical test evidence only; no human study has been run and no
+verification method or length has been selected.
 
 The project may be archived after the evaluation milestone. Continuing is not
 the default outcome; it requires evidence that the workflow solves a real
@@ -33,8 +37,9 @@ problem better than existing tools without misleading users about its limits.
 
 ### Facts
 
-- The repository contains a project charter and disposable command-line and
-  browser laboratories, not a usable encryption tool.
+- The repository contains a project charter and disposable command-line,
+  browser-workflow, and verification-study laboratories, not a usable
+  encryption tool.
 - Common message transports can observe, retain, reorder, alter, or replace text
   sent through them.
 - Existing tools already cover substantial parts of the proposed use case.
@@ -98,7 +103,8 @@ The approved plan has four milestones:
    experimental warning. No application code.
 1. Compare disposable libsodium and age/Typage command-line spikes through one
    minimal test harness.
-2. Observe the workflow in a memory-only browser UX spike.
+2. Observe the workflow in memory-only browser experiments, including the
+   separately approved verification-method study protocol.
 3. Evaluate the construction evidence and user observations, then continue,
    narrow the idea, or archive the project.
 

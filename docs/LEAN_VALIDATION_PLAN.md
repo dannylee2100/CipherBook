@@ -26,9 +26,10 @@ decision.
 - Recipient confidentiality, sender authentication, human contact verification,
   transport metadata, endpoint behavior, and recipient behavior are separate
   concerns.
-- Milestone 1 provides disposable Node implementation evidence, and Milestone
-  2A provides disposable browser feasibility evidence. No verification-method
-  user-observation evidence exists yet.
+- Milestone 1 provides disposable Node implementation evidence, Milestone 2A
+  provides disposable browser feasibility evidence, and Milestone 2B provides
+  a synthetic verification-study harness and unexecuted human-study protocol.
+  No verification-method user-observation evidence exists yet.
 - No cryptographic construction, wire format, fingerprint choice, storage model,
   host, or protocol bytes are approved.
 
@@ -162,21 +163,25 @@ any other final representation or length.
 
 ### Candidate tasks
 
-Use the same test-only relationship digest to compare:
+Use the same test-only relationship digest to compare these manual methods:
 
-- in-person QR verification carrying the full experimental digest and enough
-  context to prevent scanning it as an identity secret;
 - visual emoji comparison at several candidate lengths;
 - spoken comparison using unambiguous public labels for emoji;
 - word-based comparison using an established, documented test word list; and
 - grouped hexadecimal as the universal text fallback.
 
+Keep full-digest QR encoding and exact decoding as separate technical evidence.
+Do not combine a local machine-decoder result with manual participant error or
+completion-time metrics. Human QR evaluation requires a separately approved
+two-device or camera workflow; no such workflow is part of Milestone 2B.
+
 Candidate lengths may include, for study purposes only, emoji displays based on
 a 64-symbol test alphabet at 8, 16, and 24 symbols (48, 96, and 144 displayed
 bits), alongside equal-bit spoken, word, and hexadecimal comparisons where
-practical. These are experimental conditions, not recommendations. QR may carry
-the full 256-bit fixture digest so the study can compare automation with manual
-truncation.
+practical. These are experimental conditions, not recommendations. The separate
+QR technical demonstration may carry the full 256-bit fixture digest, with an
+explicit unstable prefix and hexadecimal fallback, solely to test exact local
+encode/decode behavior.
 
 ### Security model for shortening
 
@@ -207,8 +212,9 @@ compare what is displayed.
 - **Transposition:** two correct symbols or groups appear in the wrong order.
 - **Rendering:** fonts, platform glyphs, skin-tone or variation selectors, and
   visually similar symbols change interpretation.
-- **Accessibility:** a screen reader announces confusing names, a QR task cannot
-  be completed, or a visual-only state is inaccessible.
+- **Accessibility:** a screen reader announces confusing names or a visual-only
+  state is inaccessible. A future human QR workflow would need its own camera,
+  handoff, reciprocity, and accessibility analysis.
 - **Language:** emoji labels or words are unknown, hard to pronounce, culturally
   ambiguous, or confused by non-native speakers.
 - **Coordination:** participants compare the wrong screens, verify only one
@@ -223,9 +229,15 @@ the intended audience includes them, include screen-reader users and non-native
 speakers; absence of such participants is a recorded evidence gap, not a passed
 accessibility result.
 
-Randomize exact-match and mismatch tasks. Place differences at the beginning,
-middle, and end, and include transposition, omission, and visually similar cases.
-Do not tell participants which cases differ. Record:
+Use a predeclared eight-arm manual plan with 24 tasks per participant: four tasks
+for each of six manual conditions, equal condition exposure, and condition-level
+match/mismatch ratios that rotate among 1/3, 2/2, and 3/1 while every arm totals
+12/12. Across all eight arms, match and mismatch totals are 96 each. Rotate
+mismatch classes instead of showing every class to every participant, balance
+beginning/middle/end substitutions across the full arm set, and derive condition
+and ground-truth ordering from a 128-bit synthetic seed using deterministic
+cryptographic expansion. Do not disclose task ratios or adapt the plan after
+observing performance. Record:
 
 - false accepts and false rejects;
 - completion time and requests for help;
@@ -235,6 +247,11 @@ Do not tell participants which cases differ. Record:
 - rendering, pronunciation, language, camera, and accessibility failures; and
 - whether the participant can explain that the representation is public and
   what successful comparison does and does not establish.
+
+Eight completed arms are required to execute the declared matrix. Six
+participants may leave mismatch-class coverage incomplete depending on assigned
+arms, skipped tasks, or withdrawal. This directional pilot is not statistical
+validation.
 
 No manual representation should be recommended if any participant falsely
 accepts a seeded mismatch in this small study. Passing this gate is necessary,
@@ -436,9 +453,10 @@ operations:
 - copy the experimental envelope; and
 - clear all visible and in-memory state.
 
-The study surface includes candidate QR display/scan, visual emoji, spoken emoji
-labels, words, and hexadecimal. QR support is study instrumentation, not a
-production camera design. Reload and Clear reset the application interface and
+The human study surface includes visual emoji, spoken emoji labels, words, and
+hexadecimal under a fixed counterbalanced manual-task plan. Full-digest QR
+encode/decode remains a separate moderator-only technical demonstration, not a
+participant condition. Reload and Clear reset the application interface and
 drop its temporary identity and payload references; browser, operating-system,
 clipboard, extension, crash, or memory layers may still retain copies.
 
@@ -457,8 +475,9 @@ clipboard, extension, crash, or memory layers may still retain copies.
 - Reload and explicit Clear make all prototype state unavailable to the UI; the
   documentation states that browser memory and clipboards cannot be guaranteed
   erased.
-- At least one mobile-device QR round trip is attempted and any platform gaps are
-  recorded rather than hidden.
+- The separate QR technical demonstration locally recovers the exact 256-bit
+  synthetic value and explicitly records that camera and two-device behavior
+  remain untested.
 
 ### Tests
 
@@ -468,10 +487,11 @@ clipboard, extension, crash, or memory layers may still retain copies.
 - Copy behavior and clear/reload behavior.
 - Automated inspection confirming absence of persistence APIs and service-worker
   registration.
-- Controlled exact-match and mismatch tasks for each assigned fingerprint
-  representation.
-- QR displays the full assigned experimental relationship data and rejects a
-  different relationship fixture.
+- Counterbalanced exact-match and rotating mismatch tasks for every manual
+  representation, including complete-arm balance and deterministic
+  reconstruction checks.
+- QR encodes and decodes the full assigned experimental data in a technical
+  test, without producing participant observations or entering manual metrics.
 - Screen-reader reading order and spoken-label output check.
 - Cross-platform rendering notes and a multilingual label/word-list check where
   participants are available.
@@ -488,8 +508,8 @@ features, and persistent contacts.
 - Do users complete verification or merely click through it?
 - Do users know which party, if any, the construction authenticates?
 - Does copying through an untrusted transport feel useful or needlessly awkward?
-- Which verification method causes false acceptance, exclusion, or false
-  confidence?
+- Which manual verification method causes false acceptance, exclusion, or false
+  confidence, and does QR technical feasibility justify a separate human study?
 - Does the browser environment add warnings and failure modes that overwhelm the
   narrow workflow?
 
@@ -500,8 +520,9 @@ features, and persistent contacts.
   party proof in the recipient-local mode.
 - Any candidate representation produces false acceptance, systematic skimming,
   or inaccessible operation that cannot be tested without expanding scope.
-- QR camera behavior consumes the experiment; replace it with controlled study
-  instrumentation rather than building camera infrastructure.
+- QR camera behavior would consume the experiment; retain only separate
+  technical instrumentation rather than building camera infrastructure or
+  treating machine decoding as a participant task.
 - Participants prefer existing tools for their concrete scenarios or reject the
   verification overhead.
 - Persistence, recovery, installation, or deployment is treated as necessary to
@@ -519,8 +540,10 @@ are met.
 
 - A decision matrix comparing both constructions.
 - De-identified raw observation notes separated from interpretation.
-- Fingerprint-method results with false accepts, false rejects, completion time,
-  comparison coverage, rendering, accessibility, and language gaps.
+- Manual fingerprint-method results with false accepts, false rejects,
+  completion time, comparison coverage, rendering, accessibility, and language
+  gaps. QR contributes only technical encode/decode evidence unless a separate
+  human QR protocol is later approved and executed.
 - A recommended construction or a finding that neither is appropriate.
 - A recommended verification method or a finding that none passed.
 - A decision to use an existing envelope, justify further custom-format research,
@@ -591,8 +614,9 @@ GitHub Pages, production security claims, and new product features.
 
 - Which construction's actual properties best match the observed user need?
 - Can participants act correctly under its sender-authentication semantics?
-- Does any manual or QR verification method survive active substitution and
-  human-error testing well enough to justify further study?
+- Does any manual verification method survive active substitution and
+  human-error testing well enough to justify further study, and is a distinct
+  two-device or camera study warranted for QR?
 - Is custom protocol work necessary, or would it reduce interoperability without
   compensating value?
 - Can one maintainer responsibly carry the remaining attack and support surface?
