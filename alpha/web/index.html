@@ -8,34 +8,35 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'none'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
     />
-    <title>CipherBook Alpha 0 envelope utility</title>
+    <title>CipherBook Alpha 1 envelope utility</title>
     <link rel="stylesheet" href="/src/styles.css" />
   </head>
   <body>
     <main>
       <div class="critical-warning" role="alert" data-testid="alpha-warning">
         <strong
-          >CipherBook Alpha 0 is an experimental engineering preview.</strong
+          >CipherBook Alpha 1 is an experimental engineering preview.</strong
         >
         It has not been independently reviewed or human-validated. Do not use
         real secrets.
       </div>
 
       <header class="hero">
-        <p class="eyebrow">CipherBook Alpha 0 · local engineering preview</p>
-        <h1>One temporary encrypted envelope</h1>
+        <p class="eyebrow">CipherBook Alpha 1 · local engineering preview</p>
+        <h1>One encrypted envelope at a time</h1>
         <p>
-          Create a temporary identity, compare one contact through a separate
-          trusted interaction, seal text, and move the resulting ciphertext
-          through another application. This is an envelope utility, not a
-          messenger.
+          Create or manually restore one identity, compare one contact through a
+          separate trusted interaction, seal text, and move the resulting
+          ciphertext through another application. This is an envelope utility,
+          not a messenger or an online account.
         </p>
       </header>
 
       <div class="memory-warning" role="note">
-        This page does not intentionally save your identity or messages. Clear
-        or reload resets the interface, but browsers, operating systems,
-        extensions, memory, crash data, and clipboards may retain copies.
+        This page does not automatically save your identity or messages. Manual
+        encrypted-file export is optional. Clear or reload resets the interface,
+        but browsers, operating systems, extensions, memory, crash data,
+        downloads, backups, and clipboards may retain copies.
       </div>
 
       <p id="global-status" class="status" aria-live="polite">
@@ -46,18 +47,45 @@
         <div class="section-heading">
           <span class="step" aria-hidden="true">1</span>
           <div>
-            <h2 id="identity-heading">Create temporary identity</h2>
-            <p>Only the public contact is displayed or copied.</p>
+            <h2 id="identity-heading">Create or restore identity</h2>
+            <p>Only the public contact is displayed or copied by the page.</p>
           </div>
         </div>
         <p class="warning-inline">
-          Reloading or closing the page loses this temporary identity and makes
-          its envelopes unreadable. JavaScript memory erasure is not guaranteed.
+          Reloading or closing the page loses the active identity unless you
+          explicitly create an encrypted identity file. JavaScript memory
+          erasure is not guaranteed.
         </p>
         <button id="generate-identity" type="button">
-          Generate temporary identity
+          Generate new temporary identity
         </button>
         <p id="identity-error" class="error" aria-live="assertive"></p>
+
+        <div class="identity-file-panel">
+          <h3>Restore encrypted identity file</h3>
+          <p>
+            Select one file that you previously created manually. CipherBook
+            does not remember the file or passphrase.
+          </p>
+          <label for="identity-file-input">Encrypted identity file</label>
+          <input
+            id="identity-file-input"
+            type="file"
+            accept=".cbidentity,application/octet-stream"
+          />
+          <label for="identity-import-passphrase">Import passphrase</label>
+          <input
+            id="identity-import-passphrase"
+            type="password"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button id="restore-identity-file" type="button" disabled>
+            Restore encrypted identity file
+          </button>
+          <p id="identity-import-error" class="error" aria-live="assertive"></p>
+        </div>
+
         <label for="own-contact">Your public contact</label>
         <textarea
           id="own-contact"
@@ -68,6 +96,46 @@
         <button id="copy-own-contact" type="button" disabled>
           Copy public contact
         </button>
+
+        <div class="identity-file-panel">
+          <h3>Save encrypted identity file</h3>
+          <p class="warning-inline">
+            A weak passphrase may be guessed offline by anyone who obtains this
+            file.
+          </p>
+          <p class="warning-inline">
+            There is no password reset. Losing the passphrase makes this file
+            unusable. Keep the file and passphrase separately.
+          </p>
+          <label for="identity-export-passphrase">New passphrase</label>
+          <input
+            id="identity-export-passphrase"
+            type="password"
+            autocomplete="new-password"
+            spellcheck="false"
+          />
+          <p class="field-help">
+            At least 12 Unicode code points and at most 1024 UTF-8 bytes.
+            Leading spaces, trailing spaces, case, and Unicode form are
+            significant. This minimum does not make a passphrase strong.
+          </p>
+          <label for="identity-export-confirmation">Confirm passphrase</label>
+          <input
+            id="identity-export-confirmation"
+            type="password"
+            autocomplete="new-password"
+            spellcheck="false"
+          />
+          <label class="confirmation">
+            <input id="identity-export-acknowledgment" type="checkbox" />
+            I understand that CipherBook cannot recover this passphrase and that
+            file holders can attempt offline guesses.
+          </label>
+          <button id="download-identity-file" type="button" disabled>
+            Download encrypted identity file
+          </button>
+          <p id="identity-export-error" class="error" aria-live="assertive"></p>
+        </div>
       </section>
 
       <section aria-labelledby="contact-heading">
@@ -75,7 +143,7 @@
           <span class="step" aria-hidden="true">2</span>
           <div>
             <h2 id="contact-heading">Import one counterparty contact</h2>
-            <p>Contacts are hostile input. Alpha 0 supports one only.</p>
+            <p>Contacts are hostile input. Alpha 1 supports one only.</p>
           </div>
         </div>
         <label for="contact-input">Counterparty public contact</label>
@@ -106,7 +174,7 @@
         </div>
 
         <div class="comparison-card authoritative">
-          <h3>Authoritative Alpha 0 comparison</h3>
+          <h3>Authoritative Alpha 1 comparison</h3>
           <div class="labels" aria-label="Full comparison limitations">
             <span>Public</span>
             <span>Not a key</span>
@@ -243,13 +311,16 @@
         <button id="clear-all" class="danger" type="button">
           Clear all state
         </button>
-        <p class="warning-inline">This is not a secure-deletion guarantee.</p>
+        <p class="warning-inline">
+          Clear removes the application state controlled by this page. It cannot
+          delete exported files or guarantee memory erasure.
+        </p>
       </section>
 
       <section class="boundary" aria-labelledby="boundary-heading">
         <h2 id="boundary-heading">What opening means</h2>
         <p>
-          Alpha 0 performs a recipient-local expected-counterparty key check. It
+          Alpha 1 performs a recipient-local expected-counterparty key check. It
           is deniable and recipient-forgeable, not a signature. Either party’s
           later static-private-key disclosure can expose captured relationship
           envelopes. Endpoint compromise defeats these intended protections.

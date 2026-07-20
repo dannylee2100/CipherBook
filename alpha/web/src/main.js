@@ -6,6 +6,12 @@ import {
 import { copyTextFromUserGesture } from "./clipboard.js";
 import { deriveEmojiConvenience } from "./emoji.js";
 import { deriveRelationshipFingerprint } from "./fingerprint.js";
+import { downloadEncryptedIdentityFile } from "./identity-file-download.js";
+import { readSelectedIdentityFile } from "./identity-file-input.js";
+import {
+  exportEncryptedIdentityFile,
+  importEncryptedIdentityFile,
+} from "./identity-file.js";
 import { shareCiphertextFromUserGesture } from "./share.js";
 import { sodiumAlpha } from "./sodium-adapter.js";
 import {
@@ -13,6 +19,7 @@ import {
   clearVerificationState,
   createAlphaState,
   disposeAlphaState,
+  replaceIdentity,
   replaceCounterparty,
 } from "./state.js";
 import { elements, render } from "./view.js";
@@ -44,7 +51,78 @@ function classifyOpenFailure(error) {
   if (/auth|decrypt|ciphertext/iu.test(message)) {
     return "Opening failed. The ciphertext may be altered or for another relationship.";
   }
-  return "The envelope could not be opened by this Alpha 0 identity.";
+  return "The envelope could not be opened by this Alpha 1 identity.";
+}
+
+function classifyIdentityImportFailure(error) {
+  const code = error && typeof error === "object" ? error.code : "";
+  if (code === "authentication") {
+    return "The identity file could not be opened. The passphrase may be incorrect, or the file may be damaged or modified.";
+  }
+  if (code === "file-format") {
+    return "This is not a supported CipherBook Alpha identity file.";
+  }
+  if (code === "kdf-profile") {
+    return "This identity file uses an unsupported KDF profile.";
+  }
+  if (code === "file-oversized") {
+    return "The selected identity file is oversized and was not read.";
+  }
+  if (code === "file-empty") {
+    return "The selected identity file is empty.";
+  }
+  if (code === "file-count") {
+    return "Select exactly one encrypted identity file.";
+  }
+  if (code === "file-length") {
+    return "The identity file is truncated or has trailing data.";
+  }
+  if (code === "passphrase-empty") {
+    return "Enter the identity-file passphrase.";
+  }
+  if (code === "passphrase-long") {
+    return "The passphrase exceeds the 1024-byte UTF-8 limit.";
+  }
+  if (code === "kdf-failed") {
+    return "The identity file could not be opened in this browser.";
+  }
+  return "The identity file could not be restored.";
+}
+
+function classifyIdentityExportFailure(error) {
+  const code = error && typeof error === "object" ? error.code : "";
+  if (code === "passphrase-empty") {
+    return "Enter and confirm a new passphrase.";
+  }
+  if (code === "passphrase-short") {
+    return "Use at least 12 Unicode code points. This minimum does not make a passphrase strong.";
+  }
+  if (code === "passphrase-long") {
+    return "The passphrase exceeds the 1024-byte UTF-8 limit.";
+  }
+  if (code === "passphrase-mismatch") {
+    return "Passphrase and confirmation must match exactly.";
+  }
+  if (code === "kdf-failed") {
+    return "The encrypted identity file could not be created in this browser.";
+  }
+  return "The encrypted identity file could not be created.";
+}
+
+function clearImportControls() {
+  elements["identity-import-passphrase"].value = "";
+  elements["identity-file-input"].value = "";
+}
+
+function clearExportControls() {
+  elements["identity-export-passphrase"].value = "";
+  elements["identity-export-confirmation"].value = "";
+  elements["identity-export-acknowledgment"].checked = false;
+}
+
+function clearIdentityFileControls() {
+  clearImportControls();
+  clearExportControls();
 }
 
 async function runBusy(errorArea, action, failureMessage) {
@@ -87,6 +165,70 @@ elements["generate-identity"].addEventListener("click", async () => {
     },
     "Temporary identity generation failed in this browser.",
   );
+  clearIdentityFileControls();
+  render(state);
+});
+
+for (const id of ["identity-file-input", "identity-import-passphrase"]) {
+  elements[id].addEventListener("input", () => {
+    state.errors.identityImport = "";
+    render(state);
+  });
+}
+
+elements["restore-identity-file"].addEventListener("click", async () => {
+  await runBusy(
+    "identityImport",
+    async () => {
+      const fileBytes = await readSelectedIdentityFile(
+        elements["identity-file-input"].files,
+      );
+      const restored = await importEncryptedIdentityFile(
+        fileBytes,
+        elements["identity-import-passphrase"].value,
+      );
+      replaceIdentity(state, restored, sodiumAlpha);
+    },
+    classifyIdentityImportFailure,
+  );
+  clearImportControls();
+  render(state);
+});
+
+for (const id of [
+  "identity-export-passphrase",
+  "identity-export-confirmation",
+  "identity-export-acknowledgment",
+]) {
+  elements[id].addEventListener("input", () => {
+    state.errors.identityExport = "";
+    render(state);
+  });
+}
+
+elements["download-identity-file"].addEventListener("click", async () => {
+  await runBusy(
+    "identityExport",
+    async () => {
+      if (!state.identity) {
+        throw new Error("an active identity is required");
+      }
+      if (!elements["identity-export-acknowledgment"].checked) {
+        throw new Error("the offline-guessing acknowledgment is required");
+      }
+      const fileBytes = await exportEncryptedIdentityFile(
+        state.identity,
+        elements["identity-export-passphrase"].value,
+        elements["identity-export-confirmation"].value,
+      );
+      downloadEncryptedIdentityFile(fileBytes);
+      state.status =
+        "Encrypted identity file created. Keep the file and passphrase separately. CipherBook cannot recover either one.";
+    },
+    classifyIdentityExportFailure,
+  );
+  clearExportControls();
+  render(state);
 });
 
 elements["copy-own-contact"].addEventListener("click", async () => {
@@ -158,7 +300,7 @@ elements["seal-plaintext"].addEventListener("input", (event) => {
 
 elements["fill-synthetic"].addEventListener("click", () => {
   state.sealPlaintext =
-    "Synthetic Alpha 0 note. This text is not real or sensitive information.";
+    "Synthetic Alpha 1 note. This text is not real or sensitive information.";
   state.generatedEnvelope = "";
   state.errors.seal = "";
   render(state);
@@ -270,13 +412,15 @@ elements["copy-plaintext"].addEventListener("click", async () => {
 
 elements["clear-all"].addEventListener("click", () => {
   resetState(
-    "Application state cleared. Browser and operating-system memory erasure is not guaranteed.",
+    "Clear removes the application state controlled by this page. It cannot delete exported files or guarantee memory erasure.",
   );
+  clearIdentityFileControls();
   render(state);
 });
 
 globalThis.addEventListener("pagehide", () => {
   disposeAlphaState(state, sodiumAlpha);
+  clearIdentityFileControls();
 });
 
 render(state);

@@ -160,6 +160,34 @@ textarea[readonly] {
   background: #f5f3ec;
 }
 
+input[type="password"],
+input[type="file"] {
+  width: 100%;
+  min-height: 2.75rem;
+  border: 1px solid #8d928d;
+  border-radius: 0.35rem;
+  padding: 0.62rem 0.75rem;
+  background: #fff;
+  color: #17201d;
+  font: inherit;
+}
+
+.identity-file-panel {
+  margin-top: 1.25rem;
+  border-top: 1px solid #cbc7ba;
+  padding-top: 0.4rem;
+}
+
+.identity-file-panel h3 {
+  margin-bottom: 0.25rem;
+}
+
+.field-help {
+  margin: 0.35rem 0 0;
+  color: #59625e;
+  font-size: 0.82rem;
+}
+
 button {
   min-height: 2.75rem;
   margin-top: 0.75rem;
