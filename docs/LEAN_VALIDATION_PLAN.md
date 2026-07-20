@@ -1,5 +1,13 @@
 # CipherBook Lean Pre-MVP Validation Plan
 
+> [!IMPORTANT]
+> This remains the historical validation plan. The Milestone 2B human pilot was
+> deferred before recruitment, no observations were collected, and Milestone 3
+> was not performed. The maintainer separately authorized a provisional Alpha 0
+> engineering track in
+> [`ALPHA-0001`](decisions/ALPHA-0001-sodium-browser-alpha.md). That choice does
+> not satisfy this plan's continuation gates or resolve its decision log.
+
 > [!WARNING]
 > CipherBook is an experimental research prototype. Do not use it for real
 > secrets. This plan validates a hypothesis; it does not approve a protocol or

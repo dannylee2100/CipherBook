@@ -7,19 +7,26 @@
 
 ## Current project status
 
-The repository is testing whether a verified-contact encrypted-envelope
+The repository began by testing whether a verified-contact encrypted-envelope
 workflow is useful and understandable enough to justify further development.
-Technical feasibility alone is not a reason to continue. The project may be
-narrowed or archived after evaluation.
+The planned Milestone 2B human pilot was deferred before recruitment; no human
+observations or Milestone 3 analysis exist. The maintainer has separately
+authorized CipherBook Alpha 0 as a small engineering exercise despite that
+missing usability evidence. The project may still be narrowed, redesigned, or
+archived.
 
-CipherBook is not a chat application. It is not production-ready or
-independently reviewed. No protocol, artifact format, production architecture,
-or compatibility guarantee exists yet.
+CipherBook is not a chat application. It is not production-ready,
+independently reviewed, or appropriate for real secrets. No protocol,
+production architecture, or CipherBook compatibility guarantee exists. Alpha 0
+temporarily reuses experimental sodium formats without promoting them to a
+stable format.
 
-The only currently authorized plan consists of Milestones 0 through 3 in
-`docs/LEAN_VALIDATION_PLAN.md`. Further architecture, protocol, product, release,
-or deployment work is forbidden until Milestone 3 is complete and continuation
-is explicitly approved by a human.
+The historical validation plan remains in `docs/LEAN_VALIDATION_PLAN.md`. The
+only additional engineering work currently authorized is the narrow Alpha 0
+scope recorded in
+`docs/decisions/ALPHA-0001-sodium-browser-alpha.md` and issue #9. That approval
+does not complete Milestone 3, resolve a final project decision, or authorize
+persistence, recovery, deployment, release engineering, or protocol design.
 
 ## Required reading
 
@@ -31,10 +38,12 @@ full:
 - `docs/LIMITATIONS.md`
 - `docs/UNRESOLVED_DECISIONS.md`
 - `docs/LEAN_VALIDATION_PLAN.md`
+- `docs/decisions/ALPHA-0001-sodium-browser-alpha.md` when working on Alpha 0
 
-Treat the lean validation plan and unresolved-decision log as authoritative for
-the current phase. Stop and report any contradiction instead of silently
-choosing an architecture.
+Treat the unresolved-decision log, the historical validation record, and the
+narrow Alpha 0 decision as authoritative for their respective scopes. Stop and
+report any contradiction instead of silently expanding the alpha or choosing a
+final architecture.
 
 ## Decisions that remain unresolved
 
@@ -56,10 +65,15 @@ Experimental convenience choices do not resolve these questions. Never convert
 spike output, test fixtures, or study encodings into protocol v1 without explicit
 human approval following a positive Milestone 3 decision.
 
+Alpha 0 provisionally chooses sodium, the existing unstable sodium encodings, a
+full hexadecimal comparison, and a 16-emoji convenience view solely for the
+engineering branch. These are not project-wide recommendations or final
+decisions.
+
 ## Current security and product boundaries
 
 - Use only synthetic payloads and disposable identities during experimental
-  milestones.
+  milestones and Alpha 0 testing.
 - Do not claim anonymity, metadata hiding, endpoint protection, forward secrecy,
   enforced deletion, enforced expiration, recipient restraint, or censorship
   resistance.
@@ -79,6 +93,7 @@ human approval following a positive Milestone 3 decision.
 ## Agent workflow rules
 
 - Work only on the explicitly authorized milestone and keep the change narrow.
+- For Alpha 0, work only within issue #9 and the recorded architecture decision.
 - Preserve unresolved decisions unless a later approved evaluation resolves
   them.
 - Prefer disposable experiments over stable architecture or protocol work.
@@ -139,6 +154,25 @@ Compare technical evidence and user observations, then make an explicit decision
 to continue, narrow, or archive. A positive evaluation permits only preparation
 of a revised plan. It does not itself authorize architecture, protocol,
 persistence, deployment, release, or implementation work.
+
+### Alpha 0: temporary sodium browser envelope utility
+
+The maintainer authorized this track after deferring, not completing, the human
+pilot. Its maximum scope is:
+
+- a sodium-only, locally run browser utility for developers and curious testers;
+- temporary in-memory identities and one counterparty;
+- the existing unstable sodium contact and envelope encodings;
+- a full hexadecimal relationship comparison plus an explicitly unvalidated
+  16-emoji convenience view;
+- text seal/open, explicit copy/share, and complete application-state reset;
+- Chromium and Firefox automation; and
+- local static build inspection without publication or deployment.
+
+It must not add age as a user-facing mode, persistent storage, recovery, PWA
+installation, service workers, deployment, a stable protocol, production
+claims, or usability claims. It must not alter the historical experiment
+directories or frozen Milestone 2B tag.
 
 ## Review requirements
 

@@ -4,8 +4,9 @@
 # CipherBook
 
 CipherBook is a hypothesis about whether a verified-contact, encrypted-envelope
-workflow is useful and understandable. It is not an approved protocol, a
-production-ready application, or a secure product.
+workflow is useful and understandable. It now also contains an explicitly
+provisional engineering alpha for developers and curious testers. It is not an
+approved protocol, a production-ready application, or a secure product.
 
 The proposed workflow is deliberately narrow: two people exchange public
 contacts, verify the relationship through a separate trusted interaction, and
@@ -29,22 +30,37 @@ now contains local synthetic tasks and an unexecuted human-study protocol. It
 has technical test evidence only; no human study has been run and no
 verification method or length has been selected.
 
-The project may be archived after the evaluation milestone. Continuing is not
-the default outcome; it requires evidence that the workflow solves a real
-problem better than existing tools without misleading users about its limits.
+The Milestone 2B human pilot was deferred before recruitment. No participants
+were recruited, no observations were collected, and no usability conclusions
+were reached. The maintainer chose to continue with **CipherBook Alpha 0** as a
+hobby engineering exercise, not because the validation gates passed. The
+project may still be redesigned or archived.
+
+Alpha 0 is a locally run, sodium-only, memory-only browser envelope utility. It
+reuses reviewed experimental components and unstable encodings, displays a full
+hexadecimal relationship comparison, and offers an unvalidated 16-emoji
+convenience view. Its interface requires each party to confirm the full
+hexadecimal comparison before sealing or opening; importing a contact alone is
+not verification, and the emoji view cannot authorize either action. That
+confirmation is unvalidated and does not create a signature or transferable
+proof of authorship. See [Alpha 0](alpha/web/README.md) and its
+[known limitations](alpha/web/KNOWN_LIMITATIONS.md). No Alpha 0 behavior is
+protocol version 1.
 
 ## What is fact, assumed, hypothesized, and decided
 
 ### Facts
 
-- The repository contains a project charter and disposable command-line,
-  browser-workflow, and verification-study laboratories, not a usable
-  encryption tool.
+- The repository contains a project charter, disposable research laboratories,
+  and a provisional Alpha 0 engineering preview. None is appropriate for real
+  secrets.
 - Common message transports can observe, retain, reorder, alter, or replace text
   sent through them.
 - Existing tools already cover substantial parts of the proposed use case.
 - No cryptographic construction, serialization, fingerprint design, storage
   design, hosting provider, or protocol bytes have been approved.
+- The deferred human pilot produced no participant evidence. Alpha 0 choices
+  are maintainer-selected implementation constraints, not validation results.
 
 ### Assumptions to test
 
@@ -72,6 +88,9 @@ problem better than existing tools without misleading users about its limits.
 - Keep the decisions in
   [Unresolved Decisions](docs/UNRESOLVED_DECISIONS.md) open until comparative
   evidence exists.
+- Defer the human pilot without treating it as completed.
+- Build the narrowly scoped Alpha 0 using provisional choices recorded in
+  [ALPHA-0001](docs/decisions/ALPHA-0001-sodium-browser-alpha.md).
 
 ## Example fit
 
@@ -106,7 +125,11 @@ The approved plan has four milestones:
 2. Observe the workflow in memory-only browser experiments, including the
    separately approved verification-method study protocol.
 3. Evaluate the construction evidence and user observations, then continue,
-   narrow the idea, or archive the project.
+   narrow the idea, or archive the project. This evaluation has not occurred.
+
+The maintainer has paused that sequence and authorized Alpha 0 separately. The
+alpha does not replace missing human evidence or settle the historical decision
+log.
 
 See the complete [Lean Validation Plan](docs/LEAN_VALIDATION_PLAN.md),
 [Threat Model](docs/THREAT_MODEL.md), and

@@ -12,7 +12,11 @@
 - Disposable Milestone 1 Node and Milestone 2A browser comparisons exist, and a
   Milestone 2B synthetic verification-study harness exists. No Milestone 2B
   human observation or Milestone 3 decision has been completed.
-- The repository contains no approved protocol bytes or application design.
+- The human pilot was deferred before recruitment. The maintainer authorized a
+  provisional sodium-only Alpha 0 engineering preview without treating that as
+  a Milestone 3 result.
+- The repository contains no approved protocol bytes or final application
+  design.
 - Existing tools may make a new envelope format unnecessary.
 
 ### Assumptions to test
@@ -40,6 +44,29 @@
   an earlier plan.
 - Do not proceed to protocol design solely because both spikes can round-trip a
   payload.
+- Keep the Alpha 0 implementation choices separate from final project
+  decisions.
+
+## Alpha 0 provisional engineering choices
+
+For the Alpha 0 branch only, the maintainer chose to:
+
+1. use the libsodium relationship-envelope experiment;
+2. retain the existing unstable sodium contact and envelope encodings;
+3. display the full 256-bit hexadecimal relationship diagnostic as the
+   authoritative Alpha 0 comparison;
+4. also display a 16-emoji, 96-bit convenience representation using the
+   existing Matrix-derived experiment table;
+5. label the emoji representation as unvalidated convenience UX;
+6. use temporary memory-only identities;
+7. provide no private-identity persistence or export; and
+8. provide no deployment or stable-format claim.
+
+These choices make one alpha executable. They do not recommend sodium over age,
+approve recipient-local authentication, approve the experimental envelope,
+select a final fingerprint, choose serialization, approve persistence or
+hosting, or define protocol version 1. See
+[`ALPHA-0001`](decisions/ALPHA-0001-sodium-browser-alpha.md).
 
 ## Decision log
 
@@ -57,8 +84,8 @@
 
 ## Experiment-only choices
 
-Milestones 1 and 2 may need local, reversible choices so an experiment can run.
-Each such choice must:
+Milestones 1 and 2 and the provisional Alpha 0 may need local, reversible choices
+so an experiment can run. Each such choice must:
 
 1. be labeled experiment-only and unstable in output and documentation;
 2. be isolated so the alternative spike can be compared fairly;
