@@ -3,7 +3,11 @@ import { expect, test } from "@playwright/test";
 import {
   confirmFullComparison,
   connectPair,
+  exportIdentityFile,
+  generateIdentity,
+  importIdentityFile,
   openEnvelope,
+  runtimeBrowserPassphrase,
   sealText,
 } from "./helpers.js";
 
@@ -24,7 +28,7 @@ async function inspectPersistence(page) {
   }));
 }
 
-test("complete Alpha 0 workflow leaves browser storage empty and makes no runtime request", async ({
+test("complete Alpha 1 workflow leaves browser storage empty and makes no runtime request", async ({
   context,
 }) => {
   const requests = [];
@@ -74,4 +78,34 @@ test("complete Alpha 0 workflow leaves browser storage empty and makes no runtim
   expect(await inspectPersistence(alice)).toEqual(expectedEmpty);
   expect(await inspectPersistence(bob)).toEqual(expectedEmpty);
   expect(requests).toEqual(initialRequests);
+});
+
+test("manual identity-file export and import add no browser persistence or runtime request", async ({
+  page,
+}) => {
+  const requests = [];
+  page.on("request", (request) => requests.push(request.url()));
+  await page.goto("/");
+  const originalContact = await generateIdentity(page);
+  const initialRequests = [...requests];
+  const passphrase = runtimeBrowserPassphrase();
+  const file = await exportIdentityFile(page, passphrase);
+  await page.reload();
+  const reloadRequests = requests.slice(initialRequests.length);
+  await importIdentityFile(page, file, passphrase);
+
+  await expect(page.locator("#own-contact")).toHaveValue(originalContact);
+  expect(await inspectPersistence(page)).toEqual({
+    localStorageEntries: 0,
+    sessionStorageEntries: 0,
+    cookie: "",
+    indexedDatabases: [],
+    cacheKeys: [],
+    serviceWorkerRegistrations: 0,
+  });
+  for (const requestUrl of [...initialRequests, ...reloadRequests]) {
+    const url = new URL(requestUrl);
+    expect(url.origin).toBe("http://127.0.0.1:4175");
+  }
+  expect(requests).toEqual([...initialRequests, ...reloadRequests]);
 });

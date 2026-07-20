@@ -23,7 +23,7 @@ test("first screen states the alpha and memory boundaries without messenger UI",
     "Do not use real secrets",
   );
   await expect(page.locator("body")).toContainText(
-    "browsers, operating systems, extensions, memory, crash data, and clipboards may retain copies",
+    "browsers, operating systems, extensions, memory, crash data, downloads, backups, and clipboards may retain copies",
   );
   await expect(page.locator("body")).toContainText(
     "envelope utility, not a messenger",
@@ -195,7 +195,7 @@ test("confirmed pair seals and opens multilingual and empty text", async ({
 
   await alice.locator("#fill-synthetic").click();
   await expect(alice.locator("#seal-plaintext")).toHaveValue(
-    /Synthetic Alpha 0 note/u,
+    /Synthetic Alpha 1 note/u,
   );
   await expect(alice.locator("#seal-byte-count")).toHaveText(
     /^[1-9][0-9]* \/ 65536 UTF-8 bytes$/u,

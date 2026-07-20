@@ -9,6 +9,10 @@ const runtimeFiles = [
   "src/clipboard.js",
   "src/emoji.js",
   "src/fingerprint.js",
+  "src/identity-file-crypto.js",
+  "src/identity-file-download.js",
+  "src/identity-file-input.js",
+  "src/identity-file.js",
   "src/main.js",
   "src/share.js",
   "src/sodium-adapter.js",
@@ -27,7 +31,7 @@ async function runtimeText() {
   ).join("\n");
 }
 
-test("Alpha 0 runtime contains no persistence, service-worker, or URL-state calls", async () => {
+test("Alpha 1 runtime contains no automatic persistence, service worker, or URL state", async () => {
   const source = await runtimeText();
   for (const pattern of [
     /\blocalStorage\s*[.[]/u,
@@ -36,13 +40,14 @@ test("Alpha 0 runtime contains no persistence, service-worker, or URL-state call
     /\bdocument\.cookie\s*=/u,
     /\bcaches\.(?:open|match|put|delete)\s*\(/u,
     /\bserviceWorker\.(?:register|ready)\b/u,
+    /\b(?:showSaveFilePicker|showOpenFilePicker|getDirectory)\s*\(/u,
     /\blocation\.(?:search|hash)\b/u,
   ]) {
     assert.doesNotMatch(source, pattern);
   }
 });
 
-test("Alpha 0 runtime contains no remote assets, requests, analytics, or telemetry", async () => {
+test("Alpha 1 runtime contains no remote assets, requests, analytics, or telemetry", async () => {
   const source = await runtimeText();
   for (const pattern of [
     /(?:src|href)=["']https?:\/\//iu,
@@ -56,7 +61,7 @@ test("Alpha 0 runtime contains no remote assets, requests, analytics, or telemet
   }
 });
 
-test("Alpha 0 has no age mode, private-key export, or positive authorship wording", async () => {
+test("Alpha 1 has no age mode, clear private-key output, or positive authorship wording", async () => {
   const source = await runtimeText();
   assert.doesNotMatch(source, /milestone-1\/src\/age\.js|age-encryption/iu);
   assert.doesNotMatch(source, /mode-select|construction selector/iu);
@@ -68,6 +73,29 @@ test("Alpha 0 has no age mode, private-key export, or positive authorship wordin
     source,
     /base64urlEncode\s*\(\s*identity\.privateKey|download.*private|copy.*private/iu,
   );
+  assert.doesNotMatch(
+    source,
+    /new\s+Blob\s*\(\s*\[\s*(?:identity\.)?privateKey|writeText\s*\(\s*(?:identity\.)?privateKey/iu,
+  );
+});
+
+test("Alpha 1 runtime never persists, logs, copies, shares, or names a passphrase", async () => {
+  const source = await runtimeText();
+  for (const pattern of [
+    /console\.(?:log|info|warn|error|debug)\s*\([^)]*passphrase/iu,
+    /(?:localStorage|sessionStorage|indexedDB|document\.cookie)[^\n]*passphrase/iu,
+    /clipboard\.writeText\s*\([^)]*passphrase/iu,
+    /navigator\.share\s*\([^)]*passphrase/iu,
+    /download\s*=\s*[^\n]*passphrase/iu,
+    /[?&#](?:passphrase|password)=/iu,
+  ]) {
+    assert.doesNotMatch(source, pattern);
+  }
+  const stateSource = await readFile(
+    new URL("../src/state.js", import.meta.url),
+    "utf8",
+  );
+  assert.doesNotMatch(stateSource, /passphrase/iu);
 });
 
 test("warnings preserve unstable, unvalidated, and no-real-secrets boundaries", async () => {
@@ -82,9 +110,18 @@ test("warnings preserve unstable, unvalidated, and no-real-secrets boundaries", 
     /has been human-validated|usability-validated|participants (?:confirmed|validated)|study (?:proved|shows)/iu,
   );
   assert.doesNotMatch(source, /CipherBook\s+v1|\bCBE1\b|\bCBC1\b/iu);
+  assert.doesNotMatch(
+    source,
+    /(?:production[- ]ready|has been independently reviewed|is independently reviewed|has been human[- ]validated|is human[- ]validated|stable identity[- ]file format|compatible identity[- ]file format)/iu,
+  );
+  assert.doesNotMatch(
+    source,
+    /(?:supports|offers|provides|includes).{0,40}(?:password reset|passphrase recovery)/iu,
+  );
+  assert.match(source, /There is no password reset/iu);
 });
 
-test("Alpha 0 contains no PWA, service worker, deployment, or participant data artifact", async () => {
+test("Alpha 1 contains no PWA, service worker, deployment, or participant data artifact", async () => {
   const entries = await readdir(alphaRoot, { recursive: true });
   assert.equal(
     entries.some((path) =>
@@ -104,7 +141,7 @@ test("Alpha 0 contains no PWA, service worker, deployment, or participant data a
   );
 });
 
-test("Alpha 0 styling includes visible focus and reduced-motion handling", async () => {
+test("Alpha 1 styling includes visible focus and reduced-motion handling", async () => {
   const source = await runtimeText();
   assert.match(source, /:focus-visible/u);
   assert.match(source, /prefers-reduced-motion:\s*reduce/u);

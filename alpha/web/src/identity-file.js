@@ -65,6 +65,13 @@ function equalBytes(left, right) {
   return difference === 0;
 }
 
+function requireExactBytes(value, length, code, name) {
+  if (!(value instanceof Uint8Array) || value.length !== length) {
+    throw fail(code, `${name} must be exactly ${length} bytes.`);
+  }
+  return value;
+}
+
 function encodePassphrase(passphrase, { requireMinimum }) {
   if (typeof passphrase !== "string") {
     throw fail("passphrase-type", "Passphrase must be text.");
@@ -161,13 +168,28 @@ export async function exportEncryptedIdentityFile(
   let plaintextPrivateKey;
   try {
     passphraseBytes = encodePassphrase(passphrase, { requireMinimum: true });
-    const salt = crypto.randomBytes(crypto.saltBytes);
-    const nonce = crypto.randomBytes(crypto.nonceBytes);
+    const salt = requireExactBytes(
+      crypto.randomBytes(crypto.saltBytes),
+      crypto.saltBytes,
+      "salt-length",
+      "Generated salt",
+    );
+    const nonce = requireExactBytes(
+      crypto.randomBytes(crypto.nonceBytes),
+      crypto.nonceBytes,
+      "nonce-length",
+      "Generated nonce",
+    );
     const profile = Uint8Array.of(ALPHA1_KDF_PROFILE.id);
     const additionalData = concatBytes(MAGIC, profile, salt, nonce);
 
     try {
-      derivedKey = crypto.deriveKey(passphraseBytes, salt);
+      derivedKey = requireExactBytes(
+        crypto.deriveKey(passphraseBytes, salt),
+        crypto.keyBytes,
+        "derived-key-length",
+        "Derived encryption key",
+      );
     } catch (error) {
       throw fail(
         "kdf-failed",
@@ -177,15 +199,12 @@ export async function exportEncryptedIdentityFile(
     }
 
     plaintextPrivateKey = new Uint8Array(identity.privateKey);
-    const ciphertext = crypto.encrypt(
-      plaintextPrivateKey,
-      additionalData,
-      nonce,
-      derivedKey,
+    const ciphertext = requireExactBytes(
+      crypto.encrypt(plaintextPrivateKey, additionalData, nonce, derivedKey),
+      IDENTITY_FILE_LAYOUT.ciphertextBytes,
+      "ciphertext-length",
+      "Encrypted identity",
     );
-    if (ciphertext.length !== IDENTITY_FILE_LAYOUT.ciphertextBytes) {
-      throw fail("ciphertext-length", "Unexpected encrypted identity length.");
-    }
     return concatBytes(additionalData, ciphertext);
   } finally {
     crypto.zero(passphraseBytes);
@@ -209,7 +228,12 @@ export async function importEncryptedIdentityFile(
   try {
     passphraseBytes = encodePassphrase(passphrase, { requireMinimum: false });
     try {
-      derivedKey = crypto.deriveKey(passphraseBytes, parsed.salt);
+      derivedKey = requireExactBytes(
+        crypto.deriveKey(passphraseBytes, parsed.salt),
+        crypto.keyBytes,
+        "derived-key-length",
+        "Derived encryption key",
+      );
     } catch (error) {
       throw fail(
         "kdf-failed",
@@ -233,12 +257,12 @@ export async function importEncryptedIdentityFile(
       );
     }
 
-    if (decryptedPrivateKey.length !== crypto.privateKeyBytes) {
-      throw fail(
-        "private-key-length",
-        "The identity file contained an invalid private-key length.",
-      );
-    }
+    requireExactBytes(
+      decryptedPrivateKey,
+      crypto.privateKeyBytes,
+      "private-key-length",
+      "Decrypted private key",
+    );
 
     candidatePrivateKey = new Uint8Array(decryptedPrivateKey);
     const publicKey = crypto.derivePublicKey(candidatePrivateKey);

@@ -1,4 +1,53 @@
 import { expect } from "@playwright/test";
+import { randomBytes } from "node:crypto";
+
+import { IDENTITY_FILE_NAME } from "../src/identity-file.js";
+
+export function runtimeBrowserPassphrase(suffix = "") {
+  return `browser-${randomBytes(18).toString("base64url")}${suffix}`;
+}
+
+async function downloadBytes(download) {
+  const stream = await download.createReadStream();
+  const chunks = [];
+  for await (const chunk of stream) {
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks);
+}
+
+export async function exportIdentityFile(page, passphrase) {
+  await page.locator("#identity-export-passphrase").fill(passphrase);
+  await page.locator("#identity-export-confirmation").fill(passphrase);
+  await page.locator("#identity-export-acknowledgment").check();
+  await expect(page.locator("#download-identity-file")).toBeEnabled();
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    page.locator("#download-identity-file").click(),
+  ]);
+  expect(download.suggestedFilename()).toBe(IDENTITY_FILE_NAME);
+  await expect(page.locator("#identity-export-error")).toHaveText("");
+  await expect(page.locator("#identity-export-passphrase")).toHaveValue("");
+  await expect(page.locator("#identity-export-confirmation")).toHaveValue("");
+  await expect(
+    page.locator("#identity-export-acknowledgment"),
+  ).not.toBeChecked();
+  return downloadBytes(download);
+}
+
+export async function importIdentityFile(page, bytes, passphrase) {
+  await page.locator("#identity-file-input").setInputFiles({
+    name: IDENTITY_FILE_NAME,
+    mimeType: "application/octet-stream",
+    buffer: Buffer.from(bytes),
+  });
+  await page.locator("#identity-import-passphrase").fill(passphrase);
+  await expect(page.locator("#restore-identity-file")).toBeEnabled();
+  await page.locator("#restore-identity-file").click();
+  await expect(page.locator("#identity-import-error")).toHaveText("");
+  await expect(page.locator("#identity-import-passphrase")).toHaveValue("");
+  await expect(page.locator("#identity-file-input")).toHaveValue("");
+}
 
 export async function generateIdentity(page) {
   await page.locator("#generate-identity").click();

@@ -28,10 +28,17 @@ for (const pattern of [
   /\bsessionStorage\s*[.[]/u,
   /\bindexedDB\s*[.(]/u,
   /\bdocument\.cookie\s*=/u,
+  /\bcaches\.(?:open|match|put|delete)\s*\(/u,
   /\bserviceWorker\.register\b/u,
+  /\b(?:showSaveFilePicker|showOpenFilePicker|getDirectory)\s*\(/u,
   /CipherBook\s+v1|\bCBE1\b|\bCBC1\b/iu,
   /Verified author|Signed by|Proven sender|Authenticated to third parties/iu,
   /AGE-SECRET-KEY|age-encryption/iu,
+  /(?:Reset your password|Forgot (?:your )?password|Recover (?:your )?passphrase)/iu,
+  /(?:production[- ]ready|has been independently reviewed|has been human[- ]validated)/iu,
+  /(?:stable|canonical|compatible) identity[- ]file format/iu,
+  /(?:Copy|Display|Download) (?:the )?(?:unencrypted )?private key/iu,
+  /\b(?:analytics|telemetry)\b/iu,
 ]) {
   assert.doesNotMatch(output, pattern);
 }
@@ -49,4 +56,4 @@ assert.equal(
   "Alpha build must not contain a service worker or web manifest",
 );
 
-console.log(`Checked ${files.length} locally bundled Alpha 0 files.`);
+console.log(`Checked ${files.length} locally bundled Alpha 1 files.`);
