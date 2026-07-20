@@ -40,16 +40,26 @@ still be redesigned or archived.
 Alpha 1 is a locally run, sodium-only browser envelope utility. It retains the
 Alpha 0 contact, verification, seal, and open behavior and adds an optional
 manual download/restore path for one passphrase-encrypted identity file. It
-does not automatically persist state. The fixed binary file is disposable
-Alpha machinery, not a stable vault, backup, recovery design, envelope format,
-or protocol version. Anyone holding the file can attempt passphrase guesses
-offline, and there is no password reset. Page exit and back/forward-cache
-restoration clear and re-render page-controlled state, but this does not
-guarantee memory erasure. Passphrase fields request `autocomplete="off"`; that
-does not prevent browsers, extensions, or password managers from retaining or
-offering to fill values. Profile `1` has literal Alpha-only numeric semantics,
-and dependency-constant drift stops initialization instead of reinterpreting
-existing files. No migration or future compatibility is promised. See
+does not automatically persist state. An identity is the active private
+identity material together with the public contact to which counterparties
+address envelopes. Downloading the encrypted identity file is the only Alpha 1
+path for using that same public contact after the page is closed or reloaded;
+restoring it does not restore counterparty contacts, verification state,
+messages, or history. The page reports only that a download was started during
+the current session. It cannot verify where the browser stored the file or
+whether the person retained it, and that session-only status resets with the
+identity or page state.
+
+The fixed binary file is disposable Alpha machinery, not a stable vault,
+backup, recovery design, envelope format, or protocol version. Anyone holding
+the file can attempt passphrase guesses offline, and there is no password
+reset. Page exit and back/forward-cache restoration clear and re-render
+page-controlled state, but this does not guarantee memory erasure. Passphrase
+fields request `autocomplete="off"`; that does not prevent browsers,
+extensions, or password managers from retaining or offering to fill values.
+Profile `1` has literal Alpha-only numeric semantics, and dependency-constant
+drift stops initialization instead of reinterpreting existing files. No
+migration or future compatibility is promised. See
 [Alpha 1](alpha/web/README.md), its
 [known limitations](alpha/web/KNOWN_LIMITATIONS.md), and the provisional
 [Alpha 1 decision](docs/decisions/ALPHA-0002-encrypted-identity-file.md).

@@ -52,9 +52,8 @@
           </div>
         </div>
         <p class="warning-inline">
-          Reloading or closing the page loses the active identity unless you
-          explicitly create an encrypted identity file. JavaScript memory
-          erasure is not guaranteed.
+          A generated identity exists only in this page's memory. JavaScript
+          memory erasure is not guaranteed.
         </p>
         <button id="generate-identity" type="button">
           Generate new temporary identity
@@ -78,7 +77,7 @@
             type="file"
             accept=".cbidentity,application/octet-stream"
           />
-          <label for="identity-import-passphrase">Import passphrase</label>
+          <label for="identity-import-passphrase">Restore passphrase</label>
           <input
             id="identity-import-passphrase"
             type="password"
@@ -93,18 +92,86 @@
         </div>
 
         <label for="own-contact">Your public contact</label>
+        <p id="own-contact-help" class="field-help">
+          This public contact identifies your current CipherBook identity.
+          People encrypt envelopes to this identity. Closing, reloading, or
+          leaving this page loses the active identity unless you previously
+          downloaded its encrypted identity file.
+        </p>
         <textarea
           id="own-contact"
           rows="3"
           readonly
           spellcheck="false"
+          aria-describedby="own-contact-help"
         ></textarea>
         <button id="copy-own-contact" type="button" disabled>
           Copy public contact
         </button>
 
-        <div class="identity-file-panel">
-          <h3>Save encrypted identity file</h3>
+        <div
+          id="identity-export-panel"
+          class="identity-file-panel identity-export-panel"
+          role="region"
+          aria-labelledby="identity-export-heading"
+          hidden
+        >
+          <h3 id="identity-export-heading">Keep this identity for later</h3>
+          <p>
+            Download an encrypted identity file before closing the page. Without
+            it, the next identity you generate will have a different public
+            contact, and your contacts will need to exchange and verify the new
+            contact.
+          </p>
+          <p>
+            Exporting creates a passphrase-encrypted file containing the private
+            key needed to use this same public contact again.
+          </p>
+          <p id="identity-export-pending-warning" class="warning-inline">
+            This identity will be lost when the page is closed or reloaded
+            unless you download an encrypted identity file.
+          </p>
+
+          <div
+            class="identity-artifact-comparison"
+            aria-label="Public contact and encrypted identity file differences"
+          >
+            <div class="identity-artifact-card">
+              <h4>Public contact</h4>
+              <ul>
+                <li>Safe to send to the intended counterparty</li>
+                <li>Used to address encrypted envelopes</li>
+                <li>Does not decrypt messages</li>
+                <li>Does not restore the identity</li>
+              </ul>
+            </div>
+            <div class="identity-artifact-card">
+              <h4>Encrypted identity file</h4>
+              <ul>
+                <li>Must not be sent as a public contact</li>
+                <li>Contains the encrypted private identity material</li>
+                <li>Requires the passphrase</li>
+                <li>Restores the same public contact</li>
+                <li>Should be retained privately and not published</li>
+              </ul>
+            </div>
+          </div>
+
+          <p>The encrypted identity file does not contain:</p>
+          <ul class="compact-list">
+            <li>Counterparty contacts or verification confirmation</li>
+            <li>Messages, message history, or plaintext</li>
+            <li>The passphrase</li>
+            <li>Online account information</li>
+          </ul>
+
+          <h4>Download in three steps</h4>
+          <ol class="compact-list">
+            <li>Enter and confirm a passphrase.</li>
+            <li>Download the encrypted identity file.</li>
+            <li>Store the file and passphrase separately.</li>
+          </ol>
+          <p>CipherBook cannot recover the file or passphrase.</p>
           <p class="warning-inline">
             A weak passphrase may be guessed offline by anyone who obtains this
             file.
@@ -120,8 +187,9 @@
             autocomplete="off"
             autocapitalize="none"
             spellcheck="false"
+            aria-describedby="identity-export-passphrase-help identity-export-error"
           />
-          <p class="field-help">
+          <p id="identity-export-passphrase-help" class="field-help">
             At least 12 Unicode code points and at most 1024 UTF-8 bytes.
             Leading spaces, trailing spaces, case, and Unicode form are
             significant. This minimum does not make a passphrase strong.
@@ -133,16 +201,40 @@
             autocomplete="off"
             autocapitalize="none"
             spellcheck="false"
+            aria-describedby="identity-export-passphrase-help identity-export-error"
           />
           <label class="confirmation">
-            <input id="identity-export-acknowledgment" type="checkbox" />
+            <input
+              id="identity-export-acknowledgment"
+              type="checkbox"
+              aria-describedby="identity-export-error"
+            />
             I understand that CipherBook cannot recover this passphrase and that
             file holders can attempt offline guesses.
           </label>
-          <button id="download-identity-file" type="button" disabled>
+          <button
+            id="download-identity-file"
+            class="primary-action"
+            type="button"
+            aria-describedby="identity-export-session-status identity-export-retention-note identity-export-error"
+            disabled
+          >
             Download encrypted identity file
           </button>
           <p id="identity-export-error" class="error" aria-live="assertive"></p>
+          <p
+            id="identity-export-session-status"
+            class="status"
+            role="status"
+            aria-live="polite"
+          >
+            No encrypted identity file has been downloaded during this page
+            session.
+          </p>
+          <p id="identity-export-retention-note" class="field-help">
+            CipherBook cannot verify where the browser stored the file or
+            whether you retained it.
+          </p>
         </div>
       </section>
 

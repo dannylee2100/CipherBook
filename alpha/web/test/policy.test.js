@@ -43,6 +43,7 @@ test("Alpha 1 runtime contains no automatic persistence, service worker, or URL 
     /\bserviceWorker\.(?:register|ready)\b/u,
     /\b(?:showSaveFilePicker|showOpenFilePicker|getDirectory)\s*\(/u,
     /\blocation\.(?:search|hash)\b/u,
+    /\bbeforeunload\b/u,
   ]) {
     assert.doesNotMatch(source, pattern);
   }
@@ -174,6 +175,14 @@ test("warnings preserve unstable, unvalidated, and no-real-secrets boundaries", 
     /(?:supports|offers|provides|includes).{0,40}(?:password reset|passphrase recovery)/iu,
   );
   assert.match(source, /There is no password reset/iu);
+  assert.match(
+    source,
+    /CipherBook cannot verify where the browser stored the file or whether you retained it/iu,
+  );
+  assert.doesNotMatch(
+    source,
+    /Identity safely backed up|Export complete|File securely saved|Recovery configured/iu,
+  );
 });
 
 test("Alpha 1 contains no PWA, service worker, deployment, or participant data artifact", async () => {

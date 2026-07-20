@@ -79,12 +79,21 @@ independently audited, or appropriate for evading employer monitoring.
 - Alpha 1 can manually export and restore one encrypted identity file. This is
   not automatic persistence, a persistent vault, managed backup, password
   recovery, device-migration design, rotation, or revocation.
+- The public contact addresses envelopes but cannot decrypt them or restore an
+  identity. The encrypted file contains the passphrase-encrypted private
+  material needed to restore the same public contact; it does not restore
+  counterparty contacts, verification state, messages, history, plaintext, the
+  passphrase, or online account information.
 - A file holder can attempt offline passphrase guesses. There is no password
   reset, and loss of the passphrase makes the file unusable.
 - Exported file copies, download history, operating-system backups, and retained
   memory are outside the page's control. The file header reveals that it is a
   CipherBook Alpha identity artifact, though it contains no cleartext public
   contact.
+- The page's session-only export status means only that a download action
+  started. It does not prove that the browser saved the file or that the person
+  retained it. The status uses no browser storage and resets with identity and
+  lifecycle clearing.
 - Page exit and persisted back/forward-cache restoration clear and re-render
   page-controlled state, but this is not guaranteed memory erasure. The page
   requests `autocomplete="off"` and clears passphrase controls; browsers,
