@@ -1,0 +1,24 @@
+{
+  "name": "cipherbook-milestone-1-lab",
+  "version": "0.0.0-experimental",
+  "private": true,
+  "description": "Disposable CipherBook Milestone 1 construction comparison laboratory",
+  "type": "module",
+  "scripts": {
+    "lab": "node experiments/milestone-1/src/cli.js",
+    "measure": "node experiments/milestone-1/src/cli.js compare measure",
+    "format": "prettier --write package.json .github/workflows/milestone-1.yml \"experiments/milestone-1/**/*.{js,md}\"",
+    "format:check": "prettier --check package.json .github/workflows/milestone-1.yml \"experiments/milestone-1/**/*.{js,md}\"",
+    "check:syntax": "node --check experiments/milestone-1/src/*.js && node --check experiments/milestone-1/test/*.test.js",
+    "test": "node --test --test-reporter spec experiments/milestone-1/test/*.test.js",
+    "test:interop": "node --test --test-reporter spec experiments/milestone-1/test/interoperability.test.js",
+    "check": "npm run format:check && npm run check:syntax && npm test"
+  },
+  "dependencies": {
+    "age-encryption": "0.3.0",
+    "libsodium-wrappers": "0.8.4"
+  },
+  "devDependencies": {
+    "prettier": "3.9.5"
+  }
+}

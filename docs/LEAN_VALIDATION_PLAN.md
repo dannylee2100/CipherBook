@@ -26,7 +26,8 @@ decision.
 - Recipient confidentiality, sender authentication, human contact verification,
   transport metadata, endpoint behavior, and recipient behavior are separate
   concerns.
-- No implementation evidence or user-observation evidence exists yet.
+- Milestone 1 now provides disposable Node implementation evidence. No browser
+  or user-observation evidence exists yet.
 - No cryptographic construction, wire format, fingerprint choice, storage model,
   host, or protocol bytes are approved.
 
