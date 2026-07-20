@@ -45,7 +45,7 @@ export const elements = Object.fromEntries(
   ids.map((id) => {
     const element = document.getElementById(id);
     if (!element) {
-      throw new Error(`missing Alpha 0 element: ${id}`);
+      throw new Error(`missing Alpha 1 element: ${id}`);
     }
     return [id, element];
   }),
