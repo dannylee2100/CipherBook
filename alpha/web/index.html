@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'none'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <title>CipherBook Alpha 0 envelope utility</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <main>
+      <div class="critical-warning" role="alert" data-testid="alpha-warning">
+        <strong
+          >CipherBook Alpha 0 is an experimental engineering preview.</strong
+        >
+        It has not been independently reviewed or human-validated. Do not use
+        real secrets.
+      </div>
+
+      <header class="hero">
+        <p class="eyebrow">CipherBook Alpha 0 · local engineering preview</p>
+        <h1>One temporary encrypted envelope</h1>
+        <p>
+          Create a temporary identity, compare one contact through a separate
+          trusted interaction, seal text, and move the resulting ciphertext
+          through another application. This is an envelope utility, not a
+          messenger.
+        </p>
+      </header>
+
+      <div class="memory-warning" role="note">
+        This page does not intentionally save your identity or messages. Clear
+        or reload resets the interface, but browsers, operating systems,
+        extensions, memory, crash data, and clipboards may retain copies.
+      </div>
+
+      <p id="global-status" class="status" aria-live="polite">
+        No temporary identity exists.
+      </p>
+
+      <section aria-labelledby="identity-heading">
+        <div class="section-heading">
+          <span class="step" aria-hidden="true">1</span>
+          <div>
+            <h2 id="identity-heading">Create temporary identity</h2>
+            <p>Only the public contact is displayed or copied.</p>
+          </div>
+        </div>
+        <p class="warning-inline">
+          Reloading or closing the page loses this temporary identity and makes
+          its envelopes unreadable. JavaScript memory erasure is not guaranteed.
+        </p>
+        <button id="generate-identity" type="button">
+          Generate temporary identity
+        </button>
+        <p id="identity-error" class="error" aria-live="assertive"></p>
+        <label for="own-contact">Your public contact</label>
+        <textarea
+          id="own-contact"
+          rows="3"
+          readonly
+          spellcheck="false"
+        ></textarea>
+        <button id="copy-own-contact" type="button" disabled>
+          Copy public contact
+        </button>
+      </section>
+
+      <section aria-labelledby="contact-heading">
+        <div class="section-heading">
+          <span class="step" aria-hidden="true">2</span>
+          <div>
+            <h2 id="contact-heading">Import one counterparty contact</h2>
+            <p>Contacts are hostile input. Alpha 0 supports one only.</p>
+          </div>
+        </div>
+        <label for="contact-input">Counterparty public contact</label>
+        <textarea
+          id="contact-input"
+          rows="3"
+          autocomplete="off"
+          spellcheck="false"
+          disabled
+        ></textarea>
+        <button id="import-contact" type="button" disabled>
+          Import counterparty contact
+        </button>
+        <p class="field-label">Active counterparty</p>
+        <p id="active-contact" class="monospace break-all">
+          No counterparty contact imported.
+        </p>
+        <p id="contact-error" class="error" aria-live="assertive"></p>
+      </section>
+
+      <section aria-labelledby="verify-heading">
+        <div class="section-heading">
+          <span class="step" aria-hidden="true">3</span>
+          <div>
+            <h2 id="verify-heading">Compare through a trusted interaction</h2>
+            <p>Both people must use the same two public contacts.</p>
+          </div>
+        </div>
+
+        <div class="comparison-card authoritative">
+          <h3>Authoritative Alpha 0 comparison</h3>
+          <div class="labels" aria-label="Full comparison limitations">
+            <span>Public</span>
+            <span>Not a key</span>
+            <span>Not a password</span>
+            <span>Not a final fingerprint format</span>
+          </div>
+          <label for="relationship-hex">
+            Full 256-bit lowercase hexadecimal value
+          </label>
+          <textarea
+            id="relationship-hex"
+            rows="3"
+            readonly
+            spellcheck="false"
+            data-testid="relationship-hex"
+          ></textarea>
+        </div>
+
+        <div class="comparison-card convenience">
+          <h3>Experimental convenience view</h3>
+          <div class="labels" aria-label="Emoji comparison limitations">
+            <span>Public</span>
+            <span>Unvalidated</span>
+            <span>First 96 bits only</span>
+          </div>
+          <p>
+            These 16 emoji are not keys and are not sufficient when the full
+            hexadecimal values differ. Rendering and English labels have not
+            been tested with users.
+          </p>
+          <ol
+            id="relationship-emoji"
+            class="emoji-sequence"
+            aria-label="Experimental 16-emoji convenience comparison"
+          ></ol>
+        </div>
+
+        <label class="confirmation">
+          <input id="comparison-confirmed" type="checkbox" disabled />
+          I compared the full hexadecimal value through a separate trusted
+          interaction.
+        </label>
+      </section>
+
+      <section aria-labelledby="seal-heading">
+        <div class="section-heading">
+          <span class="step" aria-hidden="true">4</span>
+          <div>
+            <h2 id="seal-heading">Seal one text envelope</h2>
+            <p>
+              The transport still sees participants, timing, and approximate
+              size.
+            </p>
+          </div>
+        </div>
+        <label for="seal-plaintext">Text payload</label>
+        <textarea
+          id="seal-plaintext"
+          rows="6"
+          autocomplete="off"
+          spellcheck="false"
+        ></textarea>
+        <div class="row spread">
+          <span id="seal-byte-count" class="status">0 / 65536 UTF-8 bytes</span>
+          <button id="fill-synthetic" class="secondary" type="button">
+            Fill synthetic example
+          </button>
+        </div>
+        <button id="seal-button" type="button" disabled>Seal text</button>
+        <p id="seal-error" class="error" aria-live="assertive"></p>
+        <label for="sealed-envelope">Generated unstable ciphertext</label>
+        <textarea
+          id="sealed-envelope"
+          rows="9"
+          readonly
+          spellcheck="false"
+        ></textarea>
+        <div class="row">
+          <button id="copy-envelope" type="button" disabled>
+            Copy ciphertext
+          </button>
+          <button id="share-envelope" type="button" disabled hidden>
+            Share ciphertext
+          </button>
+        </div>
+      </section>
+
+      <section aria-labelledby="open-heading">
+        <div class="section-heading">
+          <span class="step" aria-hidden="true">5</span>
+          <div>
+            <h2 id="open-heading">Open one received envelope</h2>
+            <p>The expected counterparty contact is required.</p>
+          </div>
+        </div>
+        <label for="open-envelope">Paste unstable ciphertext</label>
+        <textarea
+          id="open-envelope"
+          rows="9"
+          autocomplete="off"
+          spellcheck="false"
+        ></textarea>
+        <button id="open-button" type="button" disabled>Open envelope</button>
+        <p id="open-error" class="error" aria-live="assertive"></p>
+        <p id="open-status" class="status" aria-live="polite"></p>
+        <p class="warning-inline">
+          The recipient can create a transcript their own client accepts under
+          the other party’s public contact. This is not third-party proof of
+          authorship.
+        </p>
+        <p class="field-label">Opened text</p>
+        <pre id="opened-plaintext" class="opened" tabindex="0"></pre>
+        <button id="copy-plaintext" type="button" disabled>
+          Copy opened plaintext
+        </button>
+        <p class="warning-inline">
+          Copy only by explicit action. Clipboard managers and other
+          applications may retain plaintext.
+        </p>
+      </section>
+
+      <section aria-labelledby="clear-heading">
+        <div class="section-heading">
+          <span class="step" aria-hidden="true">6</span>
+          <div>
+            <h2 id="clear-heading">Clear this alpha</h2>
+            <p>Drop every application reference controlled by this page.</p>
+          </div>
+        </div>
+        <button id="clear-all" class="danger" type="button">
+          Clear all state
+        </button>
+        <p class="warning-inline">This is not a secure-deletion guarantee.</p>
+      </section>
+
+      <section class="boundary" aria-labelledby="boundary-heading">
+        <h2 id="boundary-heading">What opening means</h2>
+        <p>
+          Alpha 0 performs a recipient-local expected-counterparty key check. It
+          is deniable and recipient-forgeable, not a signature. Either party’s
+          later static-private-key disclosure can expose captured relationship
+          envelopes. Endpoint compromise defeats these intended protections.
+        </p>
+        <p>
+          The unstable contact and envelope encodings are retained only for this
+          alpha. They are not a stable protocol or compatibility promise.
+        </p>
+      </section>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
