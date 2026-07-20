@@ -29,12 +29,13 @@ file is a fixed-size, disposable binary artifact with:
   `crypto_box` secret key and the 16-byte authenticator.
 
 The 59-byte cleartext header—magic, profile, salt, and nonce—is authenticated as
-additional data. The fixed profile byte maps locally to
-`crypto_pwhash_ALG_ARGON2ID13`,
-`crypto_pwhash_OPSLIMIT_INTERACTIVE` (2 operations), and
-`crypto_pwhash_MEMLIMIT_INTERACTIVE` (67,108,864 bytes). The derived key is 32
-bytes, as required by XChaCha20-Poly1305. No numeric KDF parameters are accepted
-from a file.
+additional data. The fixed profile byte has literal numeric semantics:
+algorithm ID `2` (`crypto_pwhash_ALG_ARGON2ID13`), operations limit `2`, memory
+limit `67,108,864` bytes, derived-key length `32` bytes, and salt length `16`
+bytes. Runtime initialization compares the loaded sodium constants with those
+literal values and fails closed before derivation or decryption if any differ.
+It does not reinterpret profile `1`, substitute dependency defaults, add a new
+profile, or fall back. No numeric KDF parameters are accepted from a file.
 
 The encrypted plaintext contains no public key. After authenticated decryption,
 Alpha 1 reconstructs the public key with libsodium's official
@@ -43,7 +44,9 @@ unchanged Alpha contact encoder. Unknown magic, profile values, lengths, or
 trailing data are rejected before password-based key derivation.
 
 This decision is deliberately local to Alpha 1. The file format is unstable and
-disposable. The alpha may be redesigned or discarded.
+disposable. No migration path or future compatibility is promised. Supporting
+changed profile semantics or a different dependency mapping requires a separate
+reviewed decision. The alpha may be redesigned or discarded.
 
 ## Consequences and principal risks
 
@@ -55,6 +58,11 @@ disposable. The alpha may be redesigned or discarded.
 - Browsers, extensions, operating systems, downloads, crash data, swap, and
   backups may retain passphrases, keys, or file copies despite best-effort
   buffer clearing.
+- Passphrase inputs request `autocomplete="off"` and are cleared after attempts,
+  but browsers, extensions, password managers, operating systems, and crash data
+  may still retain or offer to fill a value.
+- Page exit and persisted back/forward-cache restoration reset and render an
+  empty page-controlled state. This does not guarantee memory erasure.
 - Restoring a static identity extends the period during which later key
   compromise can expose captured relationship envelopes. Alpha 1 still has no
   forward secrecy.

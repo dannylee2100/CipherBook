@@ -125,6 +125,14 @@ function clearIdentityFileControls() {
   clearExportControls();
 }
 
+function resetVisibleApplicationState(
+  status = "No temporary identity exists.",
+) {
+  resetState(status);
+  clearIdentityFileControls();
+  render(state);
+}
+
 async function runBusy(errorArea, action, failureMessage) {
   state.busy = true;
   state.errors[errorArea] = "";
@@ -411,16 +419,19 @@ elements["copy-plaintext"].addEventListener("click", async () => {
 });
 
 elements["clear-all"].addEventListener("click", () => {
-  resetState(
+  resetVisibleApplicationState(
     "Clear removes the application state controlled by this page. It cannot delete exported files or guarantee memory erasure.",
   );
-  clearIdentityFileControls();
-  render(state);
 });
 
 globalThis.addEventListener("pagehide", () => {
-  disposeAlphaState(state, sodiumAlpha);
-  clearIdentityFileControls();
+  resetVisibleApplicationState();
+});
+
+globalThis.addEventListener("pageshow", (event) => {
+  if (event.persisted) {
+    resetVisibleApplicationState();
+  }
 });
 
 render(state);

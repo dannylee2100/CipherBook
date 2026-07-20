@@ -3,7 +3,10 @@ import { test } from "node:test";
 
 import { utf8 } from "../../../experiments/milestone-1/src/bytes.js";
 import { exportSodiumContact } from "../../../experiments/milestone-1/src/sodium.js";
-import { identityFileCrypto } from "../src/identity-file-crypto.js";
+import {
+  assertAlpha1KdfCompatibility,
+  identityFileCrypto,
+} from "../src/identity-file-crypto.js";
 import {
   IDENTITY_FILE_KDF_PROFILE,
   IDENTITY_FILE_LAYOUT,
@@ -39,6 +42,30 @@ test("real Alpha 1 export/import restores the exact public contact from the secr
   assert.equal(file.length, IDENTITY_FILE_LAYOUT.totalBytes);
   assert.equal(restored.contact, expectedContact);
   assert.deepEqual(restored.identity.publicKey, identity.publicKey);
+  assert.deepEqual(restored.identity.privateKey, identity.privateKey);
+});
+
+test("literal profile semantics import a file produced with the prior dependency-derived values", async () => {
+  const identity = runtimeIdentity();
+  const passphrase = runtimePassphrase();
+  const expectedContact = exportSodiumContact(identity.publicKey);
+  const priorProfileAdapter = {
+    ...identityFileCrypto,
+    saltBytes: 16,
+    keyBytes: 32,
+  };
+
+  const priorFile = await exportEncryptedIdentityFile(
+    identity,
+    passphrase,
+    passphrase,
+    priorProfileAdapter,
+  );
+  const restored = await importEncryptedIdentityFile(priorFile, passphrase);
+
+  assert.equal(priorFile.length, 107);
+  assert.equal(priorFile[IDENTITY_FILE_LAYOUT.profileOffset], 1);
+  assert.equal(restored.contact, expectedContact);
   assert.deepEqual(restored.identity.privateKey, identity.privateKey);
 });
 
@@ -348,6 +375,8 @@ test("the fixed profile records explicit Argon2id13 interactive constants", () =
     algorithm: 2,
     operationsLimit: 2,
     memoryLimit: 67_108_864,
+    keyBytes: 32,
+    saltBytes: 16,
   });
   assert.deepEqual(IDENTITY_FILE_LAYOUT, {
     magicOffset: 0,
@@ -362,4 +391,39 @@ test("the fixed profile records explicit Argon2id13 interactive constants", () =
     ciphertextBytes: 48,
     totalBytes: 107,
   });
+});
+
+test("the Alpha 1 profile accepts only the reviewed sodium constant mapping before KDF work", () => {
+  let deriveCalls = 0;
+  const compatible = {
+    crypto_pwhash_ALG_ARGON2ID13: 2,
+    crypto_pwhash_OPSLIMIT_INTERACTIVE: 2,
+    crypto_pwhash_MEMLIMIT_INTERACTIVE: 67_108_864,
+    crypto_aead_xchacha20poly1305_ietf_KEYBYTES: 32,
+    crypto_pwhash_SALTBYTES: 16,
+    crypto_pwhash() {
+      deriveCalls += 1;
+    },
+  };
+
+  assert.doesNotThrow(() => assertAlpha1KdfCompatibility(compatible));
+  assert.equal(deriveCalls, 0);
+
+  for (const name of [
+    "crypto_pwhash_ALG_ARGON2ID13",
+    "crypto_pwhash_OPSLIMIT_INTERACTIVE",
+    "crypto_pwhash_MEMLIMIT_INTERACTIVE",
+    "crypto_aead_xchacha20poly1305_ietf_KEYBYTES",
+    "crypto_pwhash_SALTBYTES",
+  ]) {
+    assert.throws(
+      () =>
+        assertAlpha1KdfCompatibility({
+          ...compatible,
+          [name]: compatible[name] + 1,
+        }),
+      /does not match the reviewed Alpha 1 KDF profile/u,
+    );
+    assert.equal(deriveCalls, 0);
+  }
 });

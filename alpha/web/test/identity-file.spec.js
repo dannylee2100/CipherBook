@@ -5,6 +5,7 @@ import {
   IDENTITY_FILE_MAGIC_TEXT,
   IDENTITY_FILE_MAX_BYTES,
   IDENTITY_FILE_NAME,
+  IDENTITY_FILE_MIME,
 } from "../src/identity-file.js";
 import {
   confirmFullComparison,
@@ -54,18 +55,28 @@ test("identity controls expose the experimental and offline-guessing boundaries"
   await expect(page.locator("body")).toContainText(
     "does not automatically save",
   );
-  await expect(page.locator("#identity-import-passphrase")).toHaveAttribute(
-    "type",
-    "password",
+  for (const selector of [
+    "#identity-import-passphrase",
+    "#identity-export-passphrase",
+    "#identity-export-confirmation",
+  ]) {
+    await expect(page.locator(selector)).toHaveAttribute("type", "password");
+    await expect(page.locator(selector)).toHaveAttribute("autocomplete", "off");
+    await expect(page.locator(selector)).toHaveAttribute(
+      "autocapitalize",
+      "none",
+    );
+    await expect(page.locator(selector)).not.toHaveAttribute(
+      "autocomplete",
+      /^(?:new-password|current-password)$/u,
+    );
+  }
+  await expect(page.locator("body")).toContainText(
+    "password managers, operating systems, and crash data may still retain or offer to fill it",
   );
-  await expect(page.locator("#identity-export-passphrase")).toHaveAttribute(
-    "type",
-    "password",
-  );
-  await expect(page.locator("#identity-export-confirmation")).toHaveAttribute(
-    "type",
-    "password",
-  );
+  await expect(
+    page.getByText(/remember passphrase/iu, { exact: false }),
+  ).toHaveCount(0);
   await expect(page.locator("body")).not.toContainText(
     /Sign in|Log in|Username|Backup complete|Secure vault|Zero knowledge|Unbreakable/iu,
   );
@@ -274,4 +285,100 @@ test("passphrase errors are bounded and clear fields while Clear removes file co
   await expect(page.locator("#global-status")).toContainText(
     "cannot delete exported files or guarantee memory erasure",
   );
+});
+
+test("pagehide and persisted pageshow render a populated workflow as empty", async ({
+  context,
+}) => {
+  const alice = await context.newPage();
+  const bob = await context.newPage();
+  await connectPair(alice, bob);
+  await confirmFullComparison(alice);
+  await confirmFullComparison(bob);
+  await sealText(alice, "synthetic lifecycle seal draft");
+  const received = await sealText(bob, "synthetic lifecycle opened text");
+  await openEnvelope(alice, received);
+  await expect(alice.locator("#opened-plaintext")).toHaveText(
+    "synthetic lifecycle opened text",
+  );
+
+  const filePassphrase = runtimeBrowserPassphrase("-file");
+  const identityFile = await exportIdentityFile(alice, filePassphrase);
+  const pendingPassphrase = runtimeBrowserPassphrase("-pending");
+  await alice.locator("#identity-file-input").setInputFiles({
+    name: IDENTITY_FILE_NAME,
+    mimeType: IDENTITY_FILE_MIME,
+    buffer: Buffer.from(identityFile),
+  });
+  await alice
+    .locator("#identity-import-passphrase")
+    .fill(runtimeBrowserPassphrase("-import"));
+  await alice.locator("#identity-export-passphrase").fill(pendingPassphrase);
+  await alice.locator("#identity-export-confirmation").fill(pendingPassphrase);
+  await alice.locator("#identity-export-acknowledgment").check();
+
+  await expect(alice.locator("#own-contact")).not.toHaveValue("");
+  await expect(alice.locator("#active-contact")).not.toHaveText(
+    "No counterparty contact imported.",
+  );
+  await expect(alice.locator("#relationship-hex")).not.toHaveValue("");
+  await expect(alice.locator("#relationship-emoji .emoji-item")).toHaveCount(
+    16,
+  );
+  await expect(alice.locator("#comparison-confirmed")).toBeChecked();
+  await expect(alice.locator("#sealed-envelope")).not.toHaveValue("");
+  await expect(alice.locator("#open-envelope")).not.toHaveValue("");
+  await expect(alice.locator("#identity-file-input")).not.toHaveValue("");
+
+  const expectEmptyLifecycleState = async () => {
+    for (const selector of [
+      "#own-contact",
+      "#contact-input",
+      "#relationship-hex",
+      "#seal-plaintext",
+      "#sealed-envelope",
+      "#open-envelope",
+      "#identity-import-passphrase",
+      "#identity-export-passphrase",
+      "#identity-export-confirmation",
+      "#identity-file-input",
+    ]) {
+      await expect(alice.locator(selector)).toHaveValue("");
+    }
+    await expect(alice.locator("#active-contact")).toHaveText(
+      "No counterparty contact imported.",
+    );
+    await expect(alice.locator("#relationship-emoji .emoji-item")).toHaveCount(
+      0,
+    );
+    await expect(alice.locator("#comparison-confirmed")).not.toBeChecked();
+    await expect(alice.locator("#opened-plaintext")).toHaveText("");
+    await expect(alice.locator("#copy-own-contact")).toBeDisabled();
+    await expect(alice.locator("#seal-button")).toBeDisabled();
+    await expect(alice.locator("#open-button")).toBeDisabled();
+    await expect(alice.locator("#restore-identity-file")).toBeDisabled();
+    await expect(alice.locator("#identity-export-passphrase")).toBeDisabled();
+    await expect(alice.locator("#identity-export-confirmation")).toBeDisabled();
+    await expect(
+      alice.locator("#identity-export-acknowledgment"),
+    ).toBeDisabled();
+    await expect(alice.locator("#download-identity-file")).toBeDisabled();
+    await expect(alice.locator("#global-status")).toHaveText(
+      "No temporary identity exists.",
+    );
+  };
+
+  await alice.evaluate(() => {
+    globalThis.dispatchEvent(
+      new PageTransitionEvent("pagehide", { persisted: true }),
+    );
+  });
+  await expectEmptyLifecycleState();
+
+  await alice.evaluate(() => {
+    globalThis.dispatchEvent(
+      new PageTransitionEvent("pageshow", { persisted: true }),
+    );
+  });
+  await expectEmptyLifecycleState();
 });

@@ -44,6 +44,13 @@
 - Best-effort byte-array clearing does not guarantee erasure. JavaScript,
   WebAssembly, browsers, operating systems, crash data, swap, downloads, and
   backups may retain copies.
+- Page exit and persisted back/forward-cache restoration reset and re-render
+  page-controlled state. That removes visible values from the retained DOM but
+  is not guaranteed memory erasure, and browser lifecycle behavior remains part
+  of the trusted execution environment.
+- Passphrase fields request `autocomplete="off"` and are cleared after attempts.
+  The request cannot prevent a browser, extension, password manager, operating
+  system, or crash data from retaining or offering to fill a passphrase.
 - There is no automatic persistence. Reload begins empty, and continuity
   requires a manual file export followed by a later manual selection and
   passphrase entry.

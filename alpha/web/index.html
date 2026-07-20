@@ -67,6 +67,11 @@
             Select one file that you previously created manually. CipherBook
             does not remember the file or passphrase.
           </p>
+          <p class="warning-inline">
+            CipherBook does not intentionally save the passphrase. Browsers,
+            extensions, password managers, operating systems, and crash data may
+            still retain or offer to fill it.
+          </p>
           <label for="identity-file-input">Encrypted identity file</label>
           <input
             id="identity-file-input"
@@ -78,6 +83,7 @@
             id="identity-import-passphrase"
             type="password"
             autocomplete="off"
+            autocapitalize="none"
             spellcheck="false"
           />
           <button id="restore-identity-file" type="button" disabled>
@@ -111,7 +117,8 @@
           <input
             id="identity-export-passphrase"
             type="password"
-            autocomplete="new-password"
+            autocomplete="off"
+            autocapitalize="none"
             spellcheck="false"
           />
           <p class="field-help">
@@ -123,7 +130,8 @@
           <input
             id="identity-export-confirmation"
             type="password"
-            autocomplete="new-password"
+            autocomplete="off"
+            autocapitalize="none"
             spellcheck="false"
           />
           <label class="confirmation">

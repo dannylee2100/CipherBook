@@ -57,7 +57,10 @@ Export requires an active identity, a matching passphrase and confirmation, and
 an explicit acknowledgment of offline guessing and unrecoverable passphrase
 loss. Import requires one manually selected file and its passphrase. The page
 does not remember either value, and it clears the relevant password and file
-inputs after an attempted operation.
+inputs after an attempted operation. All three passphrase controls request
+`autocomplete="off"`, which is only a browser hint and not a guarantee that a
+browser, extension, password manager, operating system, or crash data will not
+retain or offer to fill a value.
 
 The filename is always `cipherbook-alpha1-identity.cbidentity`, with media type
 `application/octet-stream`. The browser chooses the actual download location.
@@ -82,13 +85,20 @@ contacts, or arbitrary KDF parameters. The cleartext header identifies the file
 as a CipherBook Alpha identity artifact, but it does not contain the public
 contact.
 
-The profile maps locally to:
+Profile `1` has these literal Alpha-only semantics:
 
-- libsodium `crypto_pwhash` with explicit
-  `crypto_pwhash_ALG_ARGON2ID13`;
-- `crypto_pwhash_OPSLIMIT_INTERACTIVE` = 2;
-- `crypto_pwhash_MEMLIMIT_INTERACTIVE` = 67,108,864 bytes; and
-- a 32-byte output key for XChaCha20-Poly1305.
+- algorithm ID `2` (`crypto_pwhash_ALG_ARGON2ID13`);
+- operations limit `2`;
+- memory limit `67,108,864` bytes;
+- derived-key length `32` bytes; and
+- salt length `16` bytes.
+
+Runtime initialization compares the loaded sodium constants with every literal
+value above. A mismatch fails closed before any identity-file derivation or
+decryption; it does not reinterpret profile `1`, substitute dependency defaults,
+add another profile, or fall back. Supporting a changed dependency or migrating
+files would require a separate reviewed decision. This Alpha format promises no
+migration path or future compatibility.
 
 Every export uses a fresh random salt and 24-byte nonce. Combined-mode
 `crypto_aead_xchacha20poly1305_ietf_encrypt` authenticates the complete 59-byte
@@ -150,7 +160,13 @@ manually downloads a file and manually selects it later.
 Clear overwrites the active private-key array on a best-effort basis and drops
 page-controlled references, passphrase inputs, and the selected file. It cannot
 delete downloaded files, browser download history, clipboard-manager data,
-operating-system backups, crash records, or memory copies.
+operating-system backups, crash records, or memory copies. Page exit performs
+the same state reset and renders the empty state before the document may enter
+the browser back/forward cache. A persisted page restoration resets and renders
+again defensively; it never restores an encrypted identity automatically or
+preserves relationship verification. These lifecycle operations clear the
+page-controlled DOM but do not guarantee erasure from JavaScript, WebAssembly,
+browser, extension, operating-system, swap, or crash memory.
 
 ## Explicit exclusions
 

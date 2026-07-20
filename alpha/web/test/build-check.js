@@ -39,6 +39,8 @@ for (const pattern of [
   /(?:stable|canonical|compatible) identity[- ]file format/iu,
   /(?:Copy|Display|Download) (?:the )?(?:unencrypted )?private key/iu,
   /\b(?:analytics|telemetry)\b/iu,
+  /autocomplete=["'](?:new-password|current-password)["']/iu,
+  /password managers? (?:cannot|can't|will not|won't|never) (?:save|store|retain|fill)/iu,
 ]) {
   assert.doesNotMatch(output, pattern);
 }
@@ -47,6 +49,7 @@ assert.match(output, /experimental engineering preview/iu);
 assert.match(output, /not been independently reviewed or human-validated/iu);
 assert.match(output, /recipient-forgeable/iu);
 assert.match(output, /not third-party proof of authorship/iu);
+assert.match(output, /password managers/iu);
 
 assert.equal(
   entries.some((entry) =>

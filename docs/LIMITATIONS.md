@@ -85,6 +85,15 @@ independently audited, or appropriate for evading employer monitoring.
   memory are outside the page's control. The file header reveals that it is a
   CipherBook Alpha identity artifact, though it contains no cleartext public
   contact.
+- Page exit and persisted back/forward-cache restoration clear and re-render
+  page-controlled state, but this is not guaranteed memory erasure. The page
+  requests `autocomplete="off"` and clears passphrase controls; browsers,
+  extensions, password managers, operating systems, and crash data may still
+  retain or offer to fill passphrases.
+- Profile `1` maps to literal algorithm `2`, operations `2`, memory
+  `67,108,864` bytes, key length `32`, and salt length `16`. Dependency constant
+  drift stops initialization rather than reinterpreting the profile. This does
+  not promise file migration or future compatibility.
 - There is no installable PWA, service worker, deployment, or verified offline
   behavior.
 - There is no delivery, notification, conversation history, group, attachment,

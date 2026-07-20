@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 
 const alphaRoot = fileURLToPath(new URL("..", import.meta.url));
+const repositoryRoot = new URL("../../../", import.meta.url);
 const runtimeFiles = [
   "index.html",
   "src/clipboard.js",
@@ -96,6 +97,60 @@ test("Alpha 1 runtime never persists, logs, copies, shares, or names a passphras
     "utf8",
   );
   assert.doesNotMatch(stateSource, /passphrase/iu);
+});
+
+test("all identity passphrase controls request autocomplete off without claiming exclusion", async () => {
+  const html = await readFile(
+    new URL("../index.html", import.meta.url),
+    "utf8",
+  );
+  for (const id of [
+    "identity-import-passphrase",
+    "identity-export-passphrase",
+    "identity-export-confirmation",
+  ]) {
+    const field = html.match(
+      new RegExp(`<input[^>]*\\bid="${id}"[^>]*>`, "isu"),
+    )?.[0];
+    assert.ok(field, `missing ${id}`);
+    assert.match(field, /type="password"/iu);
+    assert.match(field, /autocomplete="off"/iu);
+    assert.match(field, /autocapitalize="none"/iu);
+    assert.doesNotMatch(
+      field,
+      /autocomplete="(?:new-password|current-password)"/iu,
+    );
+  }
+  assert.doesNotMatch(html, /remember[- ]passphrase/iu);
+  assert.match(
+    html,
+    /browsers,\s+extensions, password managers, operating systems, and crash data may\s+still retain or offer to fill it/iu,
+  );
+});
+
+test("documentation does not claim password-manager prevention", async () => {
+  const documentation = (
+    await Promise.all(
+      [
+        "README.md",
+        "alpha/web/README.md",
+        "alpha/web/KNOWN_LIMITATIONS.md",
+        "docs/THREAT_MODEL.md",
+        "docs/LIMITATIONS.md",
+        "docs/decisions/ALPHA-0002-encrypted-identity-file.md",
+      ].map((path) => readFile(new URL(path, repositoryRoot), "utf8")),
+    )
+  ).join("\n");
+
+  assert.doesNotMatch(
+    documentation,
+    /password managers? (?:cannot|can't|will not|won't|never) (?:save|store|retain|fill)/iu,
+  );
+  assert.match(documentation, /autocomplete=[`"]off[`"]/iu);
+  assert.match(
+    documentation,
+    /(?:not a guarantee|cannot prevent|does not prevent|may still retain or offer to fill)/iu,
+  );
 });
 
 test("warnings preserve unstable, unvalidated, and no-real-secrets boundaries", async () => {

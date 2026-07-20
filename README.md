@@ -43,7 +43,14 @@ manual download/restore path for one passphrase-encrypted identity file. It
 does not automatically persist state. The fixed binary file is disposable
 Alpha machinery, not a stable vault, backup, recovery design, envelope format,
 or protocol version. Anyone holding the file can attempt passphrase guesses
-offline, and there is no password reset. See [Alpha 1](alpha/web/README.md), its
+offline, and there is no password reset. Page exit and back/forward-cache
+restoration clear and re-render page-controlled state, but this does not
+guarantee memory erasure. Passphrase fields request `autocomplete="off"`; that
+does not prevent browsers, extensions, or password managers from retaining or
+offering to fill values. Profile `1` has literal Alpha-only numeric semantics,
+and dependency-constant drift stops initialization instead of reinterpreting
+existing files. No migration or future compatibility is promised. See
+[Alpha 1](alpha/web/README.md), its
 [known limitations](alpha/web/KNOWN_LIMITATIONS.md), and the provisional
 [Alpha 1 decision](docs/decisions/ALPHA-0002-encrypted-identity-file.md).
 

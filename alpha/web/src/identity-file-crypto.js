@@ -5,10 +5,35 @@ await sodium.ready;
 export const ALPHA1_KDF_PROFILE = Object.freeze({
   id: 1,
   name: "argon2id13-interactive-alpha1",
-  algorithm: sodium.crypto_pwhash_ALG_ARGON2ID13,
-  operationsLimit: sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE,
-  memoryLimit: sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE,
+  algorithm: 2,
+  operationsLimit: 2,
+  memoryLimit: 67_108_864,
+  keyBytes: 32,
+  saltBytes: 16,
 });
+
+export function assertAlpha1KdfCompatibility(sodiumApi) {
+  const expectedConstants = [
+    ["crypto_pwhash_ALG_ARGON2ID13", ALPHA1_KDF_PROFILE.algorithm],
+    ["crypto_pwhash_OPSLIMIT_INTERACTIVE", ALPHA1_KDF_PROFILE.operationsLimit],
+    ["crypto_pwhash_MEMLIMIT_INTERACTIVE", ALPHA1_KDF_PROFILE.memoryLimit],
+    [
+      "crypto_aead_xchacha20poly1305_ietf_KEYBYTES",
+      ALPHA1_KDF_PROFILE.keyBytes,
+    ],
+    ["crypto_pwhash_SALTBYTES", ALPHA1_KDF_PROFILE.saltBytes],
+  ];
+
+  for (const [name, expected] of expectedConstants) {
+    if (sodiumApi?.[name] !== expected) {
+      throw new Error(
+        `Loaded libsodium ${name} does not match the reviewed Alpha 1 KDF profile.`,
+      );
+    }
+  }
+}
+
+assertAlpha1KdfCompatibility(sodium);
 
 function copyBytes(value, expectedLength, name) {
   if (!(value instanceof Uint8Array) || value.length !== expectedLength) {
@@ -18,9 +43,9 @@ function copyBytes(value, expectedLength, name) {
 }
 
 export const identityFileCrypto = Object.freeze({
-  saltBytes: sodium.crypto_pwhash_SALTBYTES,
+  saltBytes: ALPHA1_KDF_PROFILE.saltBytes,
   nonceBytes: sodium.crypto_aead_xchacha20poly1305_ietf_NPUBBYTES,
-  keyBytes: sodium.crypto_aead_xchacha20poly1305_ietf_KEYBYTES,
+  keyBytes: ALPHA1_KDF_PROFILE.keyBytes,
   authenticationBytes: sodium.crypto_aead_xchacha20poly1305_ietf_ABYTES,
   privateKeyBytes: sodium.crypto_box_SECRETKEYBYTES,
   publicKeyBytes: sodium.crypto_box_PUBLICKEYBYTES,
@@ -32,7 +57,7 @@ export const identityFileCrypto = Object.freeze({
   deriveKey(passphraseBytes, salt) {
     return new Uint8Array(
       sodium.crypto_pwhash(
-        sodium.crypto_aead_xchacha20poly1305_ietf_KEYBYTES,
+        ALPHA1_KDF_PROFILE.keyBytes,
         passphraseBytes,
         salt,
         ALPHA1_KDF_PROFILE.operationsLimit,
