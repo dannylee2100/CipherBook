@@ -40,7 +40,7 @@
   "dependencies": {
     "@nuintun/qrcode": "5.0.3",
     "age-encryption": "0.3.0",
-    "libsodium-wrappers": "0.8.4"
+    "libsodium-wrappers-sumo": "0.8.4"
   },
   "devDependencies": {
     "@playwright/test": "1.61.1",
