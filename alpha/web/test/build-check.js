@@ -28,10 +28,19 @@ for (const pattern of [
   /\bsessionStorage\s*[.[]/u,
   /\bindexedDB\s*[.(]/u,
   /\bdocument\.cookie\s*=/u,
+  /\bcaches\.(?:open|match|put|delete)\s*\(/u,
   /\bserviceWorker\.register\b/u,
+  /\b(?:showSaveFilePicker|showOpenFilePicker|getDirectory)\s*\(/u,
   /CipherBook\s+v1|\bCBE1\b|\bCBC1\b/iu,
   /Verified author|Signed by|Proven sender|Authenticated to third parties/iu,
   /AGE-SECRET-KEY|age-encryption/iu,
+  /(?:Reset your password|Forgot (?:your )?password|Recover (?:your )?passphrase)/iu,
+  /(?:production[- ]ready|has been independently reviewed|has been human[- ]validated)/iu,
+  /(?:stable|canonical|compatible) identity[- ]file format/iu,
+  /(?:Copy|Display|Download) (?:the )?(?:unencrypted )?private key/iu,
+  /\b(?:analytics|telemetry)\b/iu,
+  /autocomplete=["'](?:new-password|current-password)["']/iu,
+  /password managers? (?:cannot|can't|will not|won't|never) (?:save|store|retain|fill)/iu,
 ]) {
   assert.doesNotMatch(output, pattern);
 }
@@ -40,6 +49,7 @@ assert.match(output, /experimental engineering preview/iu);
 assert.match(output, /not been independently reviewed or human-validated/iu);
 assert.match(output, /recipient-forgeable/iu);
 assert.match(output, /not third-party proof of authorship/iu);
+assert.match(output, /password managers/iu);
 
 assert.equal(
   entries.some((entry) =>
@@ -49,4 +59,4 @@ assert.equal(
   "Alpha build must not contain a service worker or web manifest",
 );
 
-console.log(`Checked ${files.length} locally bundled Alpha 0 files.`);
+console.log(`Checked ${files.length} locally bundled Alpha 1 files.`);

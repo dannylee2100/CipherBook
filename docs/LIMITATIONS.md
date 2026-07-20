@@ -2,7 +2,7 @@
 
 > [!WARNING]
 > CipherBook is experimental research and hobby engineering. Do not use it for
-> real secrets. Alpha 0 is an engineering preview, not a production security
+> real secrets. Alpha 1 is an engineering preview, not a production security
 > application.
 
 ## Evidence categories
@@ -13,10 +13,11 @@
   Milestone 2A contains a disposable browser workflow laboratory, and Milestone
   2B contains a local synthetic verification-study harness. No Milestone 2B
   human study has been run; the pilot was deferred before recruitment.
-- Alpha 0 provisionally uses the sodium experiment, its unstable encodings, a
-  full hexadecimal comparison, and a 16-emoji convenience view. Those choices
-  do not select a final construction, envelope, serialization, fingerprint,
-  persistence model, deployment, or protocol bytes.
+- Alpha 1 retains the Alpha 0 sodium experiment, unstable contact/envelope
+  encodings, full hexadecimal comparison, and 16-emoji convenience view. It
+  adds a manual, passphrase-encrypted, 107-byte identity-file experiment. Those
+  choices do not select a final construction, envelope, serialization,
+  fingerprint, persistent vault, recovery model, deployment, or protocol bytes.
 - The project has not undergone independent security review.
 - Milestones 1 and 2A use disposable keys and synthetic payloads; any later
   approved spike must retain those experimental boundaries.
@@ -45,18 +46,18 @@
 
 ## Claims explicitly rejected
 
-| Rejected claim | Actual limitation |
-| --- | --- |
-| Production readiness | There is no production implementation. Passing a research spike would not establish operational readiness. |
-| Independent review | No independent review has occurred. Maintainer self-review and tests are not substitutes for external cryptographic and product review. |
-| Anonymity | The concept does not make participants anonymous. Accounts, networks, devices, and transports can identify them. |
-| Metadata hiding | An envelope does not hide sender, recipient, timing, frequency, message length, IP data, account data, or transport retention. |
-| Enforced deletion | A sender cannot make delivered ciphertext, plaintext, screenshots, copies, or backups disappear. |
-| Enforced expiration | A timestamp or interface timer cannot force a recipient or modified open-source client to stop opening retained data. |
-| Forward secrecy | Static-key experiments must not claim forward secrecy. Later compromise may affect recorded envelopes; the exact consequences must be measured per spike. |
-| Endpoint protection | CipherBook cannot protect plaintext or keys from a compromised browser, extension, operating system, device, keyboard, clipboard, or display path. |
-| Recipient restraint | An intended recipient can copy, retain, publish, or alter plaintext. Some authentication models may also let the recipient create convincing sender-attributed envelopes. |
-| Censorship resistance | Existing transports and hosts can block, remove, throttle, flag, or refuse envelope text or the prototype itself. |
+| Rejected claim        | Actual limitation                                                                                                                                                         |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Production readiness  | There is no production implementation. Passing a research spike would not establish operational readiness.                                                                |
+| Independent review    | No independent review has occurred. Maintainer self-review and tests are not substitutes for external cryptographic and product review.                                   |
+| Anonymity             | The concept does not make participants anonymous. Accounts, networks, devices, and transports can identify them.                                                          |
+| Metadata hiding       | An envelope does not hide sender, recipient, timing, frequency, message length, IP data, account data, or transport retention.                                            |
+| Enforced deletion     | A sender cannot make delivered ciphertext, plaintext, screenshots, copies, or backups disappear.                                                                          |
+| Enforced expiration   | A timestamp or interface timer cannot force a recipient or modified open-source client to stop opening retained data.                                                     |
+| Forward secrecy       | Static-key experiments must not claim forward secrecy. Later compromise may affect recorded envelopes; the exact consequences must be measured per spike.                 |
+| Endpoint protection   | CipherBook cannot protect plaintext or keys from a compromised browser, extension, operating system, device, keyboard, clipboard, or display path.                        |
+| Recipient restraint   | An intended recipient can copy, retain, publish, or alter plaintext. Some authentication models may also let the recipient create convincing sender-attributed envelopes. |
+| Censorship resistance | Existing transports and hosts can block, remove, throttle, flag, or refuse envelope text or the prototype itself.                                                         |
 
 The project also rejects claims that it is untraceable, self-destructing,
 independently audited, or appropriate for evading employer monitoring.
@@ -64,7 +65,7 @@ independently audited, or appropriate for evading employer monitoring.
 ## Current functional limitations
 
 - The repository contains disposable Milestone laboratories and a sodium-only
-  Alpha 0 browser preview. The alpha is intended only for local developer and
+  Alpha 1 browser preview. The alpha is intended only for local developer and
   curious-tester evaluation with synthetic text.
 - The laboratories can generate temporary test identities and exercise contact,
   relationship-diagnostic, seal, and open operations using synthetic data only.
@@ -73,10 +74,26 @@ independently audited, or appropriate for evading employer monitoring.
   harness accepts synthetic comparison values only and has no identity, contact,
   or message workflow.
 - There is no stable, canonical, compatible, or version-1 encoding.
-- Alpha 0 has no human-validation evidence. Its emoji convenience view has not
+- Alpha 1 has no human-validation evidence. Its emoji convenience view has not
   been tested with participants and represents only the first 96 digest bits.
-- There is no persistent vault, recovery flow, device migration, or revocation
-  mechanism.
+- Alpha 1 can manually export and restore one encrypted identity file. This is
+  not automatic persistence, a persistent vault, managed backup, password
+  recovery, device-migration design, rotation, or revocation.
+- A file holder can attempt offline passphrase guesses. There is no password
+  reset, and loss of the passphrase makes the file unusable.
+- Exported file copies, download history, operating-system backups, and retained
+  memory are outside the page's control. The file header reveals that it is a
+  CipherBook Alpha identity artifact, though it contains no cleartext public
+  contact.
+- Page exit and persisted back/forward-cache restoration clear and re-render
+  page-controlled state, but this is not guaranteed memory erasure. The page
+  requests `autocomplete="off"` and clears passphrase controls; browsers,
+  extensions, password managers, operating systems, and crash data may still
+  retain or offer to fill passphrases.
+- Profile `1` maps to literal algorithm `2`, operations `2`, memory
+  `67,108,864` bytes, key length `32`, and salt length `16`. Dependency constant
+  drift stops initialization rather than reinterpreting the profile. This does
+  not promise file migration or future compatibility.
 - There is no installable PWA, service worker, deployment, or verified offline
   behavior.
 - There is no delivery, notification, conversation history, group, attachment,
@@ -107,7 +124,8 @@ completed this comparison task." They cannot establish a broad claim that the
 project is secure, fit for sensitive data, or safe under conditions that were
 not tested.
 
-The maintainer chose to build Alpha 0 without completing the planned human
-validation. That is an engineering decision, not positive validation evidence.
-Any expansion beyond the alpha still requires a separate reviewed plan; the
-project may instead be redesigned or archived.
+The maintainer chose to build Alpha 0 and the narrow Alpha 1 identity-file
+experiment without completing the planned human validation. Those are
+engineering decisions, not positive validation evidence. Any expansion beyond
+the authorized alpha still requires a separate reviewed plan; the project may
+instead be redesigned or archived.

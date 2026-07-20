@@ -6,8 +6,17 @@ const ids = [
   "global-status",
   "generate-identity",
   "identity-error",
+  "identity-file-input",
+  "identity-import-passphrase",
+  "restore-identity-file",
+  "identity-import-error",
   "own-contact",
   "copy-own-contact",
+  "identity-export-passphrase",
+  "identity-export-confirmation",
+  "identity-export-acknowledgment",
+  "download-identity-file",
+  "identity-export-error",
   "contact-input",
   "import-contact",
   "active-contact",
@@ -36,7 +45,7 @@ export const elements = Object.fromEntries(
   ids.map((id) => {
     const element = document.getElementById(id);
     if (!element) {
-      throw new Error(`missing Alpha 0 element: ${id}`);
+      throw new Error(`missing Alpha 1 element: ${id}`);
     }
     return [id, element];
   }),
@@ -76,6 +85,14 @@ function renderEmoji(items) {
 
 export function render(state) {
   const identityReady = Boolean(state.identity);
+  const importPassphraseReady =
+    elements["identity-import-passphrase"].value.length > 0;
+  const selectedFileCount = elements["identity-file-input"].files?.length ?? 0;
+  const exportPassphrase = elements["identity-export-passphrase"].value;
+  const exportConfirmation = elements["identity-export-confirmation"].value;
+  const exportPassphraseReady =
+    Array.from(exportPassphrase).length >= 12 &&
+    exportPassphrase === exportConfirmation;
   const contactReady = Boolean(state.counterparty);
   const fingerprintReady = state.relationshipHex.length > 0;
   const plaintextBytes = utf8(state.sealPlaintext).length;
@@ -85,8 +102,25 @@ export function render(state) {
   elements["global-status"].textContent = state.status;
   elements["generate-identity"].disabled = state.busy;
   elements["identity-error"].textContent = state.errors.identity;
+  elements["identity-file-input"].disabled = state.busy;
+  elements["identity-import-passphrase"].disabled = state.busy;
+  elements["restore-identity-file"].disabled =
+    state.busy || selectedFileCount !== 1 || !importPassphraseReady;
+  elements["identity-import-error"].textContent = state.errors.identityImport;
   setValue(elements["own-contact"], state.ownContact);
   elements["copy-own-contact"].disabled = state.busy || !identityReady;
+  elements["identity-export-passphrase"].disabled =
+    state.busy || !identityReady;
+  elements["identity-export-confirmation"].disabled =
+    state.busy || !identityReady;
+  elements["identity-export-acknowledgment"].disabled =
+    state.busy || !identityReady;
+  elements["download-identity-file"].disabled =
+    state.busy ||
+    !identityReady ||
+    !exportPassphraseReady ||
+    !elements["identity-export-acknowledgment"].checked;
+  elements["identity-export-error"].textContent = state.errors.identityExport;
 
   setValue(elements["contact-input"], state.contactDraft);
   elements["contact-input"].disabled = state.busy || !identityReady;
