@@ -12,6 +12,9 @@ disposable Node experiment using synthetic data, Milestone 2A is a disposable
 browser workflow experiment, and Milestone 2B is a local synthetic verification
 study harness. No Milestone 2B human study has been run. Any remaining
 separately approved Milestone 2 work must remain a disposable experiment too.
+The maintainer deferred that pilot and authorized a sodium-only Alpha 0
+engineering preview. The alpha changes no threat boundary and supplies no human
+verification evidence.
 
 ## Evidence categories
 
@@ -23,10 +26,14 @@ separately approved Milestone 2 work must remain a disposable experiment too.
   public; private keys and plaintext are not.
 - Plaintext necessarily exists at an endpoint before sealing and after opening.
 - A recipient who learns plaintext can copy, disclose, transform, or retain it.
-- This repository contains disposable Milestone 1, Milestone 2A, and Milestone
-  2B laboratories, not a usable encryption application. Their synthetic Node,
-  browser, and automated study-harness results do not establish technical
+- This repository contains disposable Milestone laboratories and a provisional
+  Alpha 0 browser preview. Their synthetic tests do not establish technical
   protection for real data or human verification behavior.
+- Alpha 0 uses recipient-local, deniable, recipient-forgeable sodium
+  authentication. It is not a signature or transferable proof of authorship.
+- Alpha 0 uses static identity keys. Later disclosure of either party's static
+  private key can expose retained relationship envelopes; it has no forward
+  secrecy.
 
 ### Assumptions to test
 
