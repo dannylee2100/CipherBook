@@ -8,12 +8,13 @@
 
 ### Facts
 
-- Milestone 0 is complete, and Milestone 1 contains a disposable Node laboratory.
+- Milestone 0 is complete, Milestone 1 contains a disposable Node laboratory,
+  and Milestone 2A contains a disposable locally run browser laboratory.
 - No cryptographic construction, envelope, serialization, fingerprint,
   persistence model, deployment, or protocol bytes have been selected.
 - The project has not undergone independent security review.
-- Milestone 1 uses disposable keys and synthetic payloads; any later approved
-  spike must retain those experimental boundaries.
+- Milestones 1 and 2A use disposable keys and synthetic payloads; any later
+  approved spike must retain those experimental boundaries.
 
 ### Assumptions to test
 
@@ -57,11 +58,12 @@ independently audited, or appropriate for evading employer monitoring.
 
 ## Current functional limitations
 
-- The only executable is a disposable Milestone 1 laboratory, not a user tool or
-  encryption application.
-- The laboratory can generate temporary test identities and exercise contact,
-  relationship-digest, seal, and open operations using synthetic data only; it
-  does not provide a real contact-exchange or message workflow.
+- The only executables are disposable Milestone 1 command-line and Milestone 2A
+  browser laboratories, not user tools or encryption applications.
+- The laboratories can generate temporary test identities and exercise contact,
+  relationship-diagnostic, seal, and open operations using synthetic data only.
+  The browser laboratory does not intentionally persist state, and it does not
+  provide a workflow appropriate for real contacts or messages.
 - There is no stable, canonical, compatible, or version-1 encoding.
 - There is no persistent vault, recovery flow, device migration, or revocation
   mechanism.

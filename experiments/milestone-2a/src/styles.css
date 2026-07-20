@@ -1,0 +1,203 @@
+:root {
+  color-scheme: light;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  color: #182018;
+  background: #f3f1e8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  width: min(52rem, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 1rem 0 4rem;
+}
+
+header,
+section,
+.warning {
+  margin: 1rem 0;
+  border: 1px solid #b8b9aa;
+  border-radius: 0.4rem;
+  background: #fffef9;
+  padding: 1rem;
+}
+
+.warning {
+  border-width: 3px;
+  border-color: #8b1e1e;
+  background: #fff0ed;
+  color: #671313;
+}
+
+.warning strong {
+  display: block;
+  font-size: 1.05rem;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  font-size: clamp(2rem, 6vw, 3.3rem);
+  line-height: 1;
+  max-width: 12ch;
+}
+
+h2 {
+  font-size: 1.25rem;
+}
+
+.eyebrow,
+.field-label,
+label {
+  font-weight: 700;
+}
+
+label,
+.field-label {
+  display: block;
+  margin: 0.8rem 0 0.3rem;
+}
+
+textarea,
+select,
+button {
+  width: 100%;
+  font: inherit;
+}
+
+textarea,
+select {
+  border: 1px solid #777b70;
+  border-radius: 0.3rem;
+  background: white;
+  padding: 0.65rem;
+}
+
+textarea,
+.monospace,
+.opened {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+button {
+  margin-top: 0.75rem;
+  border: 0;
+  border-radius: 0.3rem;
+  background: #244d34;
+  color: white;
+  padding: 0.72rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+button.danger {
+  background: #8b1e1e;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.row button {
+  width: auto;
+}
+
+.labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.8rem;
+}
+
+.labels span {
+  border: 1px solid #777b70;
+  border-radius: 99rem;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.confirmation {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: start;
+}
+
+.confirmation input {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin: 0.1rem 0 0;
+}
+
+.notice,
+.status {
+  margin-top: 0.7rem;
+  color: #4e554b;
+}
+
+.warning-inline {
+  border-left: 0.3rem solid #a34a22;
+  padding-left: 0.65rem;
+  color: #713015;
+  font-weight: 700;
+}
+
+.error {
+  min-height: 1.3rem;
+  margin-top: 0.6rem;
+  color: #8b1e1e;
+  font-weight: 700;
+}
+
+.opened {
+  min-height: 5rem;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  border: 1px solid #777b70;
+  border-radius: 0.3rem;
+  background: white;
+  padding: 0.65rem;
+}
+
+.semantics {
+  border-left: 0.3rem solid #244d34;
+  padding-left: 0.65rem;
+  font-weight: 650;
+}
+
+.break-all {
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 42rem) {
+  button {
+    width: auto;
+  }
+}

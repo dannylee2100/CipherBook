@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'none'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <title>CipherBook Milestone 2A laboratory</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <main>
+      <div class="warning" role="alert" data-testid="experimental-warning">
+        <strong>Experimental laboratory only. Do not use real secrets.</strong>
+        State is not intentionally saved. Clear or reload resets this interface
+        and drops application references, but the browser, operating system,
+        clipboard, extensions, crash data, or memory may still retain copies.
+      </div>
+
+      <header>
+        <p class="eyebrow">CipherBook research hypothesis · Milestone 2A</p>
+        <h1>Memory-only envelope workflow</h1>
+        <p>
+          This locally run page compares two disposable construction workflows.
+          It is not a released browser client, protocol, or production tool.
+        </p>
+      </header>
+
+      <section aria-labelledby="construction-heading">
+        <h2 id="construction-heading">1. Construction study control</h2>
+        <label for="mode-select">
+          Study control — not a user-selectable final algorithm
+        </label>
+        <select id="mode-select">
+          <option value="sodium">Sodium relationship experiment</option>
+          <option value="age">Native age experiment</option>
+        </select>
+        <p class="notice">
+          Changing this control resets the interface's identity, contact,
+          comparison, plaintext, and envelope state and drops application
+          references.
+        </p>
+      </section>
+
+      <section aria-labelledby="identity-heading">
+        <h2 id="identity-heading">2. Temporary identity</h2>
+        <p>
+          Reload starts a fresh experiment, so this interface cannot reopen
+          envelopes for the prior temporary identity. Private material is kept
+          in application memory and is never displayed or downloaded.
+        </p>
+        <button id="generate-identity" type="button">
+          Generate temporary identity
+        </button>
+        <p id="identity-status" class="status" aria-live="polite"></p>
+        <p id="identity-error" class="error" aria-live="assertive"></p>
+        <label for="own-contact">Public contact</label>
+        <textarea
+          id="own-contact"
+          rows="3"
+          readonly
+          spellcheck="false"
+        ></textarea>
+        <button id="copy-own-contact" type="button" disabled>
+          Copy public contact
+        </button>
+      </section>
+
+      <section aria-labelledby="contact-heading">
+        <h2 id="contact-heading">3. Counterparty public contact</h2>
+        <label for="contact-input">Paste one public contact</label>
+        <textarea
+          id="contact-input"
+          rows="3"
+          autocomplete="off"
+          spellcheck="false"
+          disabled
+        ></textarea>
+        <button id="import-contact" type="button" disabled>
+          Import counterparty contact
+        </button>
+        <p class="field-label">Active imported contact</p>
+        <p id="active-contact" class="monospace break-all"></p>
+        <p id="contact-error" class="error" aria-live="assertive"></p>
+      </section>
+
+      <section aria-labelledby="diagnostic-heading">
+        <h2 id="diagnostic-heading">4. Relationship diagnostic</h2>
+        <div class="labels" aria-label="Diagnostic limitations">
+          <span>UX EXPERIMENT ONLY</span>
+          <span>Public comparison value</span>
+          <span>Not a password</span>
+          <span>Not an encryption key</span>
+          <span>Not a selected fingerprint format</span>
+        </div>
+        <label for="relationship-diagnostic">
+          Full 256-bit SHA-256 value, grouped for display
+        </label>
+        <textarea
+          id="relationship-diagnostic"
+          rows="2"
+          readonly
+          spellcheck="false"
+          data-testid="relationship-diagnostic"
+        ></textarea>
+        <label class="confirmation">
+          <input id="comparison-confirmed" type="checkbox" disabled />
+          I compared the entire value with the other person through a separate
+          trusted interaction.
+        </label>
+        <p class="notice">
+          Hexadecimal is a neutral diagnostic for this technical study. Its
+          usability and final length are not approved here.
+        </p>
+      </section>
+
+      <section aria-labelledby="seal-heading">
+        <h2 id="seal-heading">5. Seal experimental text</h2>
+        <p class="warning-inline">
+          Use synthetic text only, never real secrets.
+        </p>
+        <label for="seal-plaintext">Synthetic text</label>
+        <textarea
+          id="seal-plaintext"
+          rows="5"
+          autocomplete="off"
+          spellcheck="false"
+        ></textarea>
+        <div class="row">
+          <span id="seal-byte-count" class="status"></span>
+          <button id="fill-synthetic" type="button">
+            Fill synthetic example
+          </button>
+        </div>
+        <button id="seal-button" type="button" disabled>
+          Seal experimental text
+        </button>
+        <p id="seal-error" class="error" aria-live="assertive"></p>
+        <label for="sealed-envelope">Generated experimental envelope</label>
+        <textarea
+          id="sealed-envelope"
+          rows="8"
+          readonly
+          spellcheck="false"
+        ></textarea>
+        <button id="copy-envelope" type="button" disabled>
+          Copy ciphertext
+        </button>
+      </section>
+
+      <section aria-labelledby="open-heading">
+        <h2 id="open-heading">6. Open experimental envelope</h2>
+        <label for="open-envelope">Paste an experimental envelope</label>
+        <textarea
+          id="open-envelope"
+          rows="8"
+          autocomplete="off"
+          spellcheck="false"
+        ></textarea>
+        <button id="open-button" type="button" disabled>Open envelope</button>
+        <p id="open-error" class="error" aria-live="assertive"></p>
+        <p class="field-label">Opened text</p>
+        <pre id="opened-plaintext" class="opened" tabindex="0"></pre>
+        <button id="copy-plaintext" type="button" disabled>
+          Copy opened plaintext
+        </button>
+        <p class="warning-inline">
+          Your operating system and other applications may retain clipboard
+          contents.
+        </p>
+      </section>
+
+      <section aria-labelledby="clear-heading">
+        <h2 id="clear-heading">7. Clear experiment</h2>
+        <button id="clear-all" class="danger" type="button">
+          Clear application state
+        </button>
+        <p class="notice">
+          Clear drops application references and overwrites sodium private-key
+          byte arrays where practical. Age secret strings and JavaScript memory
+          cannot be reliably overwritten; other browser or operating-system
+          layers may retain copies.
+        </p>
+      </section>
+
+      <section aria-labelledby="limitations-heading">
+        <h2 id="limitations-heading">8. Construction limitations</h2>
+        <h3 id="construction-name"></h3>
+        <p id="sender-meaning" class="semantics"></p>
+        <p id="compromise-meaning" class="semantics"></p>
+        <p>
+          Neither mode hides transport metadata, protects a compromised
+          endpoint, controls a recipient, or enforces deletion or expiration.
+        </p>
+      </section>
+
+      <p id="copy-status" class="status" aria-live="polite"></p>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
