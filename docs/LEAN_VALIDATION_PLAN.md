@@ -26,9 +26,10 @@ decision.
 - Recipient confidentiality, sender authentication, human contact verification,
   transport metadata, endpoint behavior, and recipient behavior are separate
   concerns.
-- Milestone 1 provides disposable Node implementation evidence, and Milestone
-  2A provides disposable browser feasibility evidence. No verification-method
-  user-observation evidence exists yet.
+- Milestone 1 provides disposable Node implementation evidence, Milestone 2A
+  provides disposable browser feasibility evidence, and Milestone 2B provides
+  a synthetic verification-study harness and unexecuted human-study protocol.
+  No verification-method user-observation evidence exists yet.
 - No cryptographic construction, wire format, fingerprint choice, storage model,
   host, or protocol bytes are approved.
 

@@ -8,8 +8,9 @@
 
 This document identifies the threats that the lean validation work must expose
 rather than conceal. It is not a claim that mitigations exist. Milestone 1 is a
-disposable Node experiment using synthetic data, and Milestone 2A is a
-disposable, locally run browser experiment using synthetic data. Any remaining
+disposable Node experiment using synthetic data, Milestone 2A is a disposable
+browser workflow experiment, and Milestone 2B is a local synthetic verification
+study harness. No Milestone 2B human study has been run. Any remaining
 separately approved Milestone 2 work must remain a disposable experiment too.
 
 ## Evidence categories
@@ -22,9 +23,10 @@ separately approved Milestone 2 work must remain a disposable experiment too.
   public; private keys and plaintext are not.
 - Plaintext necessarily exists at an endpoint before sealing and after opening.
 - A recipient who learns plaintext can copy, disclose, transform, or retain it.
-- This repository contains disposable Milestone 1 and Milestone 2A
-  laboratories, not a usable encryption application. Their synthetic Node and
-  browser results do not establish technical protection for real data.
+- This repository contains disposable Milestone 1, Milestone 2A, and Milestone
+  2B laboratories, not a usable encryption application. Their synthetic Node,
+  browser, and automated study-harness results do not establish technical
+  protection for real data or human verification behavior.
 
 ### Assumptions to test
 

@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <title>CipherBook Milestone 2B verification study</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <main>
+      <div class="warning" role="alert" data-testid="experimental-warning">
+        <strong
+          >Experimental study harness only. Do not use real secrets.</strong
+        >
+        This page creates synthetic comparison tasks. It is not a contact
+        exchange, a verification recommendation, a released application, or
+        evidence from human participants.
+      </div>
+
+      <header>
+        <p class="eyebrow">CipherBook research hypothesis · Milestone 2B</p>
+        <h1>Verification-method study harness</h1>
+        <p>
+          Compare public representations under controlled match and mismatch
+          tasks. Every value is synthetic and every mapping is experiment-only.
+        </p>
+        <div class="labels" aria-label="Study value limitations">
+          <span>SYNTHETIC STUDY VALUE</span>
+          <span>NOT A KEY</span>
+          <span>NOT A PASSWORD</span>
+          <span>NOT A REAL CONTACT FINGERPRINT</span>
+        </div>
+      </header>
+
+      <p id="global-status" class="status" aria-live="polite"></p>
+      <p id="global-error" class="error" aria-live="assertive"></p>
+
+      <section id="setup-view" aria-labelledby="setup-heading">
+        <h2 id="setup-heading">Moderator setup</h2>
+        <p>
+          Use an anonymous code such as <code>P01</code>. Do not enter a name,
+          email address, phone number, employer, account identifier, or other
+          identifying information.
+        </p>
+        <label for="participant-code">Anonymous participant code</label>
+        <input
+          id="participant-code"
+          type="text"
+          value="P01"
+          inputmode="text"
+          autocomplete="off"
+          maxlength="5"
+          pattern="P[0-9]{2,4}"
+        />
+
+        <fieldset id="condition-selection">
+          <legend>Experimental conditions</legend>
+          <label
+            ><input type="checkbox" value="qr-256" checked /> Full-digest QR —
+            256 bits</label
+          >
+          <label
+            ><input type="checkbox" value="emoji-48" checked /> Visual emoji — 8
+            symbols / 48 bits</label
+          >
+          <label
+            ><input type="checkbox" value="emoji-96" checked /> Visual emoji —
+            16 symbols / 96 bits</label
+          >
+          <label
+            ><input type="checkbox" value="emoji-144" checked /> Visual emoji —
+            24 symbols / 144 bits</label
+          >
+          <label
+            ><input type="checkbox" value="spoken-emoji-96" checked /> Spoken
+            emoji labels — 16 labels / 96 bits</label
+          >
+          <label
+            ><input type="checkbox" value="words-96" checked /> Word list — 12
+            words / 96 bits</label
+          >
+          <label
+            ><input type="checkbox" value="hex-96" checked /> Grouped
+            hexadecimal — 6 groups / 96 bits</label
+          >
+        </fieldset>
+
+        <label for="task-order">Condition and task order</label>
+        <select id="task-order">
+          <option value="random">Randomized locally</option>
+          <option value="fixed">Documented fixed order</option>
+        </select>
+        <p class="notice">
+          Randomization uses a local session seed. No value or observation is
+          uploaded or automatically saved.
+        </p>
+        <button id="create-session" type="button">
+          Create synthetic study session
+        </button>
+      </section>
+
+      <section id="moderator-view" aria-labelledby="moderator-heading" hidden>
+        <p class="mode-badge">Moderator mode</p>
+        <h2 id="moderator-heading">Moderator controls and answer key</h2>
+        <p id="session-summary"></p>
+        <p id="task-summary" class="task-summary"></p>
+
+        <div id="answer-key" class="answer-key" data-testid="answer-key">
+          <h3>Answer key — keep hidden from the participant</h3>
+          <p id="ground-truth"></p>
+          <p id="mismatch-detail"></p>
+        </div>
+
+        <div id="moderator-reference-area">
+          <h3>Moderator reference</h3>
+          <div id="moderator-reference"></div>
+          <p id="spoken-instruction" class="notice" hidden>
+            Read the numbered English labels exactly as shown. Do not coach the
+            participant. Record requested repeats manually.
+          </p>
+        </div>
+
+        <div id="pending-outcome" class="outcome" hidden>
+          <h3>Recorded response</h3>
+          <p id="outcome-text"></p>
+        </div>
+
+        <label for="repeat-count">Spoken-label repeat count</label>
+        <input id="repeat-count" type="number" min="0" max="99" value="0" />
+
+        <label for="moderator-observation">
+          Short moderator observation — no personal information
+        </label>
+        <textarea
+          id="moderator-observation"
+          rows="3"
+          maxlength="240"
+          autocomplete="off"
+        ></textarea>
+
+        <div class="button-row">
+          <button id="show-participant" type="button">
+            Start or restart participant task
+          </button>
+          <button id="save-advance" type="button" hidden>
+            Save observation and advance
+          </button>
+          <button id="clear-session" class="danger" type="button">
+            Clear study session
+          </button>
+        </div>
+
+        <div id="export-area" class="export-area" hidden>
+          <h3>Explicit anonymous export</h3>
+          <p id="export-summary"></p>
+          <button id="review-export" type="button">Review export</button>
+          <div id="export-confirmation" hidden>
+            <p class="warning-inline">
+              The export contains anonymous observations only. Downloaded files
+              remain on this device and must be handled appropriately. Nothing
+              is uploaded.
+            </p>
+            <label class="confirmation">
+              <input id="confirm-export" type="checkbox" />
+              I reviewed the summary and confirm this explicit local download.
+            </label>
+            <div class="button-row">
+              <button id="download-json" type="button" disabled>
+                Download JSON
+              </button>
+              <button id="download-csv" type="button" disabled>
+                Download CSV
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="participant-view"
+        aria-labelledby="participant-heading"
+        hidden
+      >
+        <p class="mode-badge participant">Participant mode</p>
+        <h2 id="participant-heading">Compare the current study values</h2>
+        <p id="participant-task-summary" class="task-summary"></p>
+        <p class="warning-inline">
+          These values are public comparison representations. They are not
+          secrets, passwords, keys, or real contact fingerprints.
+        </p>
+        <p id="participant-instruction"></p>
+
+        <div class="stimulus-grid">
+          <div class="stimulus-card" id="reference-card">
+            <h3>Reference</h3>
+            <div id="participant-reference"></div>
+          </div>
+          <div class="stimulus-card">
+            <h3>Comparison</h3>
+            <div id="participant-comparison"></div>
+          </div>
+        </div>
+
+        <div id="qr-study-control" class="qr-study-control" hidden>
+          <button id="run-qr-comparison" type="button">
+            Decode both generated QRs locally
+          </button>
+          <p id="qr-comparison-status" class="status" aria-live="polite"></p>
+          <p class="notice">
+            This generated-image probe does not use a camera and cannot
+            establish camera or in-person usability. Its result compares the
+            decoded synthetic bytes, not human identity.
+          </p>
+        </div>
+
+        <fieldset class="confidence-fieldset">
+          <legend>Optional confidence</legend>
+          <label
+            ><input type="radio" name="confidence" value="1" /> 1 — low</label
+          >
+          <label
+            ><input type="radio" name="confidence" value="2" /> 2 —
+            medium</label
+          >
+          <label
+            ><input type="radio" name="confidence" value="3" /> 3 — high</label
+          >
+        </fieldset>
+
+        <div class="response-grid" aria-label="Participant response">
+          <button type="button" data-response="match">Match</button>
+          <button type="button" data-response="mismatch">Mismatch</button>
+          <button type="button" data-response="unsure">Unsure</button>
+        </div>
+        <button id="pause-task" class="secondary" type="button">
+          Pause and return to moderator
+        </button>
+      </section>
+
+      <section aria-labelledby="boundary-heading">
+        <h2 id="boundary-heading">Study boundary</h2>
+        <p>
+          The QR condition uses locally generated images and a tested local
+          decoder. It does not include a camera and is not evidence about camera
+          usability. Emoji rendering, English labels, English words, and this
+          small harness require observation with actual participants before any
+          interpretation.
+        </p>
+        <p>
+          A passing automated test is technical evidence only. No verification
+          method or displayed length is selected by this page.
+        </p>
+      </section>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
