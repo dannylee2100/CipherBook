@@ -70,9 +70,18 @@ shows two public representations:
   labels and assistive text.
 
 The emoji display is public, not a key or password, and has not been tested with
-human participants. It cannot authorize sealing. The user must explicitly
-confirm comparison of the full hexadecimal value through a separate trusted
-interaction.
+human participants. It cannot authorize sealing or opening. The Matrix-derived
+table's source and license are linked from the
+[Milestone 2B attributions](../../experiments/milestone-2b/ATTRIBUTIONS.md).
+
+Merely importing a contact is not verification. Before either sealing or
+opening, the person performing that action must explicitly confirm that the
+full hexadecimal value matched through a separate trusted interaction. One
+party's confirmation does not confirm the other party's interface. Removing
+confirmation clears generated ciphertext, pasted ciphertext, opened plaintext,
+and the prior open-success state. This interface rule has not been validated
+with people, and confirmation does not create a signature or transferable proof
+of authorship.
 
 Neither display is a final fingerprint format. The contact, envelope,
 relationship digest, and emoji choices are not protocol version 1.

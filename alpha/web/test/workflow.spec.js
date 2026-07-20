@@ -63,6 +63,42 @@ test("two parties derive the same full hex and 16-emoji views", async ({
   ).toContainText("full hexadecimal value");
 });
 
+test("contact import alone cannot authorize opening and direct invocation fails safely", async ({
+  context,
+}) => {
+  const alice = await context.newPage();
+  const bob = await context.newPage();
+  await connectPair(alice, bob);
+
+  await expect(alice.locator("#seal-button")).toBeDisabled();
+  await expect(bob.locator("#open-button")).toBeDisabled();
+  await expect(bob.locator("body")).toContainText(
+    "Opening is disabled until you confirm that the full hexadecimal relationship value matches through a separate trusted interaction.",
+  );
+
+  await confirmFullComparison(alice);
+  const envelope = await sealText(
+    alice,
+    "synthetic independently confirmed recipient workflow",
+  );
+  await bob.locator("#open-envelope").fill(envelope);
+  await expect(bob.locator("#open-button")).toBeDisabled();
+
+  await bob.locator("#open-button").dispatchEvent("click");
+  await expect(bob.locator("#open-error")).toHaveText(
+    "Confirm the full hexadecimal relationship comparison before opening this envelope.",
+  );
+  await expect(bob.locator("#opened-plaintext")).toHaveText("");
+
+  await confirmFullComparison(bob);
+  await expect(bob.locator("#open-button")).toBeEnabled();
+  await bob.locator("#open-button").click();
+  await expect(bob.locator("#open-error")).toHaveText("");
+  await expect(bob.locator("#opened-plaintext")).toHaveText(
+    "synthetic independently confirmed recipient workflow",
+  );
+});
+
 test("contact import rejects malformed, oversized, and own contacts while replacements reset dependent state", async ({
   context,
 }) => {
@@ -99,6 +135,26 @@ test("contact import rejects malformed, oversized, and own contacts while replac
     "synthetic opened text cleared on change",
   );
 
+  await alice.locator("#comparison-confirmed").uncheck();
+  await expect(alice.locator("#seal-button")).toBeDisabled();
+  await expect(alice.locator("#open-button")).toBeDisabled();
+  await expect(alice.locator("#sealed-envelope")).toHaveValue("");
+  await expect(alice.locator("#open-envelope")).toHaveValue("");
+  await expect(alice.locator("#opened-plaintext")).toHaveText("");
+  await expect(alice.locator("#open-status")).toHaveText("");
+  await expect(alice.locator("#seal-error")).toHaveText("");
+  await expect(alice.locator("#open-error")).toHaveText("");
+  await expect(alice.locator("#seal-plaintext")).toHaveValue(
+    "synthetic output cleared on contact change",
+  );
+
+  await confirmFullComparison(alice);
+  await sealText(alice, "synthetic output cleared on contact edit");
+  await openEnvelope(alice, reply);
+  await expect(alice.locator("#opened-plaintext")).toHaveText(
+    "synthetic opened text cleared on change",
+  );
+
   await alice.locator("#contact-input").fill(carolContact);
   await expect(alice.locator("#relationship-hex")).toHaveValue("");
   await expect(alice.locator("#relationship-emoji .emoji-item")).toHaveCount(0);
@@ -106,6 +162,9 @@ test("contact import rejects malformed, oversized, and own contacts while replac
   await expect(alice.locator("#sealed-envelope")).toHaveValue("");
   await expect(alice.locator("#open-envelope")).toHaveValue("");
   await expect(alice.locator("#opened-plaintext")).toHaveText("");
+  await expect(alice.locator("#open-status")).toHaveText("");
+  await expect(alice.locator("#seal-button")).toBeDisabled();
+  await expect(alice.locator("#open-button")).toBeDisabled();
   await expect(alice.locator("#import-contact")).toHaveText(
     "Replace counterparty contact",
   );
@@ -132,6 +191,7 @@ test("confirmed pair seals and opens multilingual and empty text", async ({
   const bob = await context.newPage();
   await connectPair(alice, bob);
   await confirmFullComparison(alice);
+  await confirmFullComparison(bob);
 
   await alice.locator("#fill-synthetic").click();
   await expect(alice.locator("#seal-plaintext")).toHaveValue(
@@ -146,7 +206,7 @@ test("confirmed pair seals and opens multilingual and empty text", async ({
     await openEnvelope(bob, envelope);
     await expect(bob.locator("#open-error")).toHaveText("");
     await expect(bob.locator("#open-status")).toHaveText(
-      "Opened using the expected relationship key.",
+      "Opened after confirming the expected relationship's full hexadecimal comparison.",
     );
     await expect(bob.locator("#opened-plaintext")).toHaveText(plaintext);
   }
@@ -184,6 +244,7 @@ test("copy and native share actions expose only the explicitly selected value", 
   );
 
   await confirmFullComparison(alice);
+  await confirmFullComparison(bob);
   const plaintext =
     '<img src="x" onerror="globalThis.__alphaXss=true"> synthetic';
   const envelope = await sealText(alice, plaintext);

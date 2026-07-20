@@ -28,8 +28,9 @@ Alpha 0 will:
   the authoritative Alpha 0 comparison;
 - display the first 96 bits as 16 symbols from the existing Matrix-derived
   experiment emoji table, with numbered positions and English labels;
-- require explicit confirmation that the full hexadecimal value was compared
-  through a separate trusted interaction before sealing; and
+- require each acting party to confirm that the full hexadecimal value was
+  compared through a separate trusted interaction before sealing or opening;
+  and
 - remain local-only, unpublished, and undeployed.
 
 These are reversible implementation constraints for one alpha. They are not a
@@ -46,6 +47,12 @@ recipient can create a transcript that their own client accepts under the other
 party's public contact. It is not a signature and is not transferable proof of
 sender authorship.
 
+Importing a contact alone is not verification. The Alpha 0 interface gates both
+sealing and opening on explicit full-hexadecimal comparison confirmation and
+clears trust-dependent output if confirmation is removed or the contact
+changes. Each party confirms independently. This unvalidated interface state
+does not create a signature or transferable proof of authorship.
+
 Either party's later static-private-key disclosure, combined with the other
 party's public contact, can expose captured relationship envelopes. Alpha 0 has
 no forward secrecy. It also provides no endpoint protection, metadata hiding,
@@ -53,7 +60,7 @@ recipient restraint, enforced deletion, or enforced expiration.
 
 The emoji representation is public, is not a key or password, uses only part of
 the full comparison value, and has not been tested with human participants. It
-cannot authorize sealing by itself.
+cannot authorize sealing or opening by itself.
 
 ## Consequences
 

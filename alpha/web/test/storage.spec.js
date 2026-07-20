@@ -56,6 +56,7 @@ test("complete Alpha 0 workflow leaves browser storage empty and makes no runtim
   }
 
   await confirmFullComparison(alice);
+  await confirmFullComparison(bob);
   const envelope = await sealText(alice, "synthetic storage inspection");
   await openEnvelope(bob, envelope);
   await expect(bob.locator("#opened-plaintext")).toHaveText(

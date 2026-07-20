@@ -23,16 +23,20 @@ export function createAlphaState() {
   };
 }
 
-export function clearVerificationState(state) {
-  state.relationshipHex = "";
-  state.emojiItems = [];
-  state.comparisonConfirmed = false;
+export function clearTrustDependentOutput(state) {
   state.generatedEnvelope = "";
   state.openEnvelope = "";
   state.openedPlaintext = "";
   state.openStatus = "";
   state.errors.seal = "";
   state.errors.open = "";
+}
+
+export function clearVerificationState(state) {
+  state.relationshipHex = "";
+  state.emojiItems = [];
+  state.comparisonConfirmed = false;
+  clearTrustDependentOutput(state);
 }
 
 export function replaceCounterparty(state, counterparty) {

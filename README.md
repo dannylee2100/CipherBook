@@ -39,7 +39,11 @@ project may still be redesigned or archived.
 Alpha 0 is a locally run, sodium-only, memory-only browser envelope utility. It
 reuses reviewed experimental components and unstable encodings, displays a full
 hexadecimal relationship comparison, and offers an unvalidated 16-emoji
-convenience view. See [Alpha 0](alpha/web/README.md) and its
+convenience view. Its interface requires each party to confirm the full
+hexadecimal comparison before sealing or opening; importing a contact alone is
+not verification, and the emoji view cannot authorize either action. That
+confirmation is unvalidated and does not create a signature or transferable
+proof of authorship. See [Alpha 0](alpha/web/README.md) and its
 [known limitations](alpha/web/KNOWN_LIMITATIONS.md). No Alpha 0 behavior is
 protocol version 1.
 

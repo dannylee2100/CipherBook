@@ -125,7 +125,12 @@ export function render(state) {
   setValue(elements["open-envelope"], state.openEnvelope);
   elements["open-envelope"].disabled = state.busy;
   elements["open-button"].disabled =
-    state.busy || !identityReady || !contactReady || !envelopeReady;
+    state.busy ||
+    !identityReady ||
+    !contactReady ||
+    !fingerprintReady ||
+    !state.comparisonConfirmed ||
+    !envelopeReady;
   elements["open-error"].textContent = state.errors.open;
   elements["open-status"].textContent = state.openStatus;
   elements["opened-plaintext"].textContent = state.openedPlaintext;

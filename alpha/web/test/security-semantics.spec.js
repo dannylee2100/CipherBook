@@ -25,6 +25,7 @@ test("browser workflow rejects wrong recipient, wrong sender, tampering, and tru
   const malloryContact = await generateIdentity(mallory);
   await importContact(mallory, aliceContact);
   await confirmFullComparison(alice);
+  await confirmFullComparison(mallory);
   const envelope = await sealText(
     alice,
     "synthetic Alpha 0 hostile-input target",
@@ -38,12 +39,14 @@ test("browser workflow rejects wrong recipient, wrong sender, tampering, and tru
 
   await bob.locator("#contact-input").fill(malloryContact);
   await bob.locator("#import-contact").click();
+  await confirmFullComparison(bob);
   await openEnvelope(bob, envelope);
   await expect(bob.locator("#opened-plaintext")).toHaveText("");
   await expect(bob.locator("#open-error")).toContainText(
     "expected counterparty contact",
   );
   await importContact(bob, aliceContact);
+  await confirmFullComparison(bob);
 
   await openEnvelope(bob, mutateEnvelope(envelope));
   await expect(bob.locator("#opened-plaintext")).toHaveText("");
@@ -91,6 +94,7 @@ test("oversized plaintext and envelope input fail without partial plaintext", as
   const bob = await context.newPage();
   await connectPair(alice, bob);
   await confirmFullComparison(alice);
+  await confirmFullComparison(bob);
 
   await alice.locator("#seal-plaintext").fill("x".repeat(64 * 1024 + 1));
   await expect(alice.locator("#seal-error")).toContainText(

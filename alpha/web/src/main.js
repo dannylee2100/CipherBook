@@ -9,6 +9,7 @@ import { deriveRelationshipFingerprint } from "./fingerprint.js";
 import { shareCiphertextFromUserGesture } from "./share.js";
 import { sodiumAlpha } from "./sodium-adapter.js";
 import {
+  clearTrustDependentOutput,
   clearVerificationState,
   createAlphaState,
   disposeAlphaState,
@@ -26,6 +27,11 @@ function resetState(status = "No temporary identity exists.") {
 
 function classifyOpenFailure(error) {
   const message = error instanceof Error ? error.message : "";
+  if (
+    /full hexadecimal relationship comparison is not confirmed/iu.test(message)
+  ) {
+    return "Confirm the full hexadecimal relationship comparison before opening this envelope.";
+  }
   if (/different recipient/iu.test(message)) {
     return "This envelope names a different recipient.";
   }
@@ -97,7 +103,7 @@ elements["contact-input"].addEventListener("input", (event) => {
   if (state.counterparty && state.contactDraft !== state.counterparty.text) {
     clearVerificationState(state);
     state.status =
-      "Counterparty draft changed. Re-import and compare the full hexadecimal value before sealing.";
+      "Counterparty draft changed. Re-import and compare the full hexadecimal value before sealing or opening.";
   }
   render(state);
 });
@@ -131,10 +137,12 @@ elements["import-contact"].addEventListener("click", async () => {
 
 elements["comparison-confirmed"].addEventListener("change", (event) => {
   state.comparisonConfirmed = event.currentTarget.checked;
-  state.generatedEnvelope = "";
+  if (!state.comparisonConfirmed) {
+    clearTrustDependentOutput(state);
+  }
   state.status = state.comparisonConfirmed
     ? "Full hexadecimal comparison confirmed for this temporary relationship."
-    : "Comparison confirmation removed; sealing is disabled.";
+    : "Comparison confirmation removed; sealing and opening are disabled.";
   render(state);
 });
 
@@ -218,6 +226,23 @@ elements["open-button"].addEventListener("click", async () => {
     async () => {
       state.openedPlaintext = "";
       state.openStatus = "";
+      if (!state.identity) {
+        throw new Error("an active temporary identity is required");
+      }
+      if (!state.counterparty) {
+        throw new Error("an expected counterparty contact is required");
+      }
+      if (!state.comparisonConfirmed) {
+        throw new Error(
+          "the full hexadecimal relationship comparison is not confirmed",
+        );
+      }
+      if (!state.relationshipHex) {
+        throw new Error("a full relationship diagnostic is required");
+      }
+      if (state.openEnvelope.length === 0) {
+        throw new Error("an experimental envelope is required");
+      }
       if (utf8(state.openEnvelope).length > MAX_SODIUM_WRAPPER_BYTES) {
         throw new Error("envelope is oversized");
       }
@@ -226,7 +251,8 @@ elements["open-button"].addEventListener("click", async () => {
         state.identity,
         state.counterparty,
       );
-      state.openStatus = "Opened using the expected relationship key.";
+      state.openStatus =
+        "Opened after confirming the expected relationship's full hexadecimal comparison.";
       state.status =
         "Envelope opened locally. This is not third-party proof of authorship.";
     },

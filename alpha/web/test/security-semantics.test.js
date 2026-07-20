@@ -10,6 +10,7 @@ import {
   sealSodiumText,
 } from "../../../experiments/milestone-1/src/sodium.js";
 import { sodiumAlpha } from "../src/sodium-adapter.js";
+import { clearTrustDependentOutput, createAlphaState } from "../src/state.js";
 
 function mutateCiphertext(serialized) {
   const value = JSON.parse(serialized);
@@ -141,4 +142,31 @@ test("private identity byte arrays receive best-effort overwrite on disposal", a
   assert.ok(privateBytes.every((byte) => byte === 0));
   assert.equal(identity.privateKey, null);
   assert.equal(identity.publicKey, null);
+});
+
+test("trust-output clearing removes prior artifacts and errors without erasing the comparison", () => {
+  const state = createAlphaState();
+  state.relationshipHex = "00000000 ".repeat(7) + "00000000";
+  state.emojiItems = [{ symbol: "🧪" }];
+  state.comparisonConfirmed = false;
+  state.sealPlaintext = "synthetic unsent draft";
+  state.generatedEnvelope = "synthetic generated ciphertext";
+  state.openEnvelope = "synthetic pasted ciphertext";
+  state.openedPlaintext = "synthetic opened plaintext";
+  state.openStatus = "synthetic prior success";
+  state.errors.seal = "synthetic prior seal error";
+  state.errors.open = "synthetic prior open error";
+
+  clearTrustDependentOutput(state);
+
+  assert.notEqual(state.relationshipHex, "");
+  assert.equal(state.emojiItems.length, 1);
+  assert.equal(state.comparisonConfirmed, false);
+  assert.equal(state.sealPlaintext, "synthetic unsent draft");
+  assert.equal(state.generatedEnvelope, "");
+  assert.equal(state.openEnvelope, "");
+  assert.equal(state.openedPlaintext, "");
+  assert.equal(state.openStatus, "");
+  assert.equal(state.errors.seal, "");
+  assert.equal(state.errors.open, "");
 });
