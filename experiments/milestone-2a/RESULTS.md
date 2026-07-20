@@ -65,7 +65,9 @@ Measured locally on 2026-07-20:
   control.
 - Both construction workflows left local storage, session storage, cookies,
   IndexedDB, Cache Storage, and service-worker registrations empty. Clear and
-  reload returned the interface to empty state.
+  reload returned the interface to empty state. This observation does not
+  establish deletion from browser, operating-system, clipboard, extension,
+  crash, or memory layers.
 - Automated request observation found no request outside the local test origin.
 - The first Chromium run was blocked by CSP before workflow execution because
   libsodium instantiates WebAssembly. Adding only `'wasm-unsafe-eval'` allowed

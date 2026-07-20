@@ -26,8 +26,9 @@ decision.
 - Recipient confidentiality, sender authentication, human contact verification,
   transport metadata, endpoint behavior, and recipient behavior are separate
   concerns.
-- Milestone 1 now provides disposable Node implementation evidence. No browser
-  or user-observation evidence exists yet.
+- Milestone 1 provides disposable Node implementation evidence, and Milestone
+  2A provides disposable browser feasibility evidence. No verification-method
+  user-observation evidence exists yet.
 - No cryptographic construction, wire format, fingerprint choice, storage model,
   host, or protocol bytes are approved.
 
@@ -437,8 +438,9 @@ operations:
 
 The study surface includes candidate QR display/scan, visual emoji, spoken emoji
 labels, words, and hexadecimal. QR support is study instrumentation, not a
-production camera design. Reload and clear remove the temporary identity and
-payload state.
+production camera design. Reload and Clear reset the application interface and
+drop its temporary identity and payload references; browser, operating-system,
+clipboard, extension, crash, or memory layers may still retain copies.
 
 ### Objective acceptance criteria
 

@@ -15,8 +15,9 @@
     <main>
       <div class="warning" role="alert" data-testid="experimental-warning">
         <strong>Experimental laboratory only. Do not use real secrets.</strong>
-        All identities and messages disappear when this page is cleared or
-        reloaded.
+        State is not intentionally saved. Clear or reload resets this interface
+        and drops application references, but the browser, operating system,
+        clipboard, extensions, crash data, or memory may still retain copies.
       </div>
 
       <header>
@@ -38,17 +39,18 @@
           <option value="age">Native age experiment</option>
         </select>
         <p class="notice">
-          Changing this control clears the identity, contact, comparison,
-          plaintext, and envelopes in memory.
+          Changing this control resets the interface's identity, contact,
+          comparison, plaintext, and envelope state and drops application
+          references.
         </p>
       </section>
 
       <section aria-labelledby="identity-heading">
         <h2 id="identity-heading">2. Temporary identity</h2>
         <p>
-          Losing or reloading this temporary identity makes its envelopes
-          unreadable. Private material is kept only in JavaScript memory and is
-          never displayed or downloaded.
+          Reload starts a fresh experiment, so this interface cannot reopen
+          envelopes for the prior temporary identity. Private material is kept
+          in application memory and is never displayed or downloaded.
         </p>
         <button id="generate-identity" type="button">
           Generate temporary identity
@@ -174,11 +176,13 @@
       <section aria-labelledby="clear-heading">
         <h2 id="clear-heading">7. Clear experiment</h2>
         <button id="clear-all" class="danger" type="button">
-          Clear all in-memory state
+          Clear application state
         </button>
         <p class="notice">
-          Clearing drops application references and overwrites byte arrays where
-          practical. JavaScript does not guarantee reliable memory erasure.
+          Clear drops application references and overwrites sodium private-key
+          byte arrays where practical. Age secret strings and JavaScript memory
+          cannot be reliably overwritten; other browser or operating-system
+          layers may retain copies.
         </p>
       </section>
 

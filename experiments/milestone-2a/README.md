@@ -1,6 +1,8 @@
 > [!WARNING]
-> **Experimental laboratory only. Do not use real secrets. All identities and
-> messages disappear when this page is cleared or reloaded.**
+> **Experimental laboratory only. Do not use real secrets. State is not
+> intentionally saved. Clear or reload resets the application interface and
+> drops its references, but other browser or operating-system layers may retain
+> copies.**
 
 # Milestone 2A: memory-only browser envelope workflow
 
@@ -82,12 +84,16 @@ test or approve its usability, representation, or length.
 
 ## Memory-only boundary
 
-- Private identity material exists only in JavaScript memory.
+- The experiment keeps private identity material in application memory and does
+  not intentionally write it to browser storage.
 - The interface never displays, downloads, or exports a private identity.
-- Clear drops all application references and overwrites sodium private-key byte
-  arrays where practical.
+- Clear drops the application references it controls and overwrites sodium
+  private-key byte arrays where practical.
+- Age secret strings cannot be reliably overwritten.
 - Reload starts with no identity, contact, confirmation, plaintext, or envelope.
 - JavaScript cannot guarantee reliable memory erasure.
+- The browser, operating system, clipboard, extensions, crash data, or memory
+  may still retain copies.
 - Plaintext copying is a separate explicit action and warns that the operating
   system or other applications may retain clipboard contents.
 

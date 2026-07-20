@@ -18,6 +18,12 @@ test("the warning, study controls, and construction limits are visible", async (
   await expect(page.getByTestId("experimental-warning")).toContainText(
     "Experimental laboratory only. Do not use real secrets.",
   );
+  await expect(page.getByTestId("experimental-warning")).toContainText(
+    "State is not intentionally saved.",
+  );
+  await expect(page.getByTestId("experimental-warning")).toContainText(
+    "may still retain copies",
+  );
   await expect(page.locator("#mode-select option")).toHaveCount(2);
   await expect(page.locator("#sender-meaning")).toContainText(
     "recipient-local expected-sender key check",

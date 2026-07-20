@@ -16,11 +16,11 @@ The immediate work is to test whether that workflow deserves a project at all.
 
 Milestone 0 is complete. Milestone 1 now contains a disposable command-line
 laboratory that compares two construction candidates using synthetic data. It
-is evidence-gathering code, not an application or production CLI. There is no
-stable envelope, selected cryptographic construction, or protocol version. A
-draft Milestone 2A branch contains a locally run, memory-only browser workflow
-experiment for the same two study controls; it is not a released browser client
-and uses only synthetic data. See the
+is evidence-gathering code, not an application or production CLI. Milestone 2A
+contains a locally run, memory-only browser workflow experiment for the same two
+construction study controls. It is experimental evidence, not a released
+browser client, selected construction, stable envelope, or protocol version,
+and it uses only synthetic data. See the
 [Milestone 1 laboratory](experiments/milestone-1/README.md) and its
 [recorded results](experiments/milestone-1/RESULTS.md), plus the
 [Milestone 2A laboratory](experiments/milestone-2a/README.md).
@@ -33,8 +33,8 @@ problem better than existing tools without misleading users about its limits.
 
 ### Facts
 
-- The repository contains a project charter and a disposable construction
-  laboratory, not a usable encryption tool.
+- The repository contains a project charter and disposable command-line and
+  browser laboratories, not a usable encryption tool.
 - Common message transports can observe, retain, reorder, alter, or replace text
   sent through them.
 - Existing tools already cover substantial parts of the proposed use case.
