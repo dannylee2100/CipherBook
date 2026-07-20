@@ -312,6 +312,35 @@ test("KDF allocation failure is attempted once with no weaker fallback", async (
   assert.equal(deriveCalls, 1);
 });
 
+test("an unexpected derived-key buffer is rejected and zeroed without fallback", async () => {
+  const identity = runtimeIdentity();
+  const passphrase = runtimePassphrase();
+  const unexpectedKey = new Uint8Array(identityFileCrypto.keyBytes - 1).fill(
+    0x5a,
+  );
+  let deriveCalls = 0;
+  const invalidCrypto = {
+    ...identityFileCrypto,
+    deriveKey() {
+      deriveCalls += 1;
+      return unexpectedKey;
+    },
+  };
+
+  await assert.rejects(
+    () =>
+      exportEncryptedIdentityFile(
+        identity,
+        passphrase,
+        passphrase,
+        invalidCrypto,
+      ),
+    (error) => error.code === "kdf-failed",
+  );
+  assert.equal(deriveCalls, 1);
+  assert.ok(unexpectedKey.every((byte) => byte === 0));
+});
+
 test("the fixed profile records explicit Argon2id13 interactive constants", () => {
   assert.deepEqual(IDENTITY_FILE_KDF_PROFILE, {
     id: 1,

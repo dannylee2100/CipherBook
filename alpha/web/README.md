@@ -131,12 +131,12 @@ implementation, not an additional cryptographic system.
 
 In the 2026-07-20 local run, the fixed 64 MiB profile allocated successfully in
 Chromium 149.0.7827.55 and Firefox 151.0. The observed single-operation timings
-were approximately 160.55 ms export / 104.06 ms import in Chromium and 865.61
-ms / 762.97 ms in Firefox. These measurements include browser workflow overhead
+were approximately 155.21 ms export / 110.37 ms import in Chromium and 960.35
+ms / 850.15 ms in Firefox. These measurements include browser workflow overhead
 and are observations, not timing guarantees or thresholds.
 
 The pre-change Alpha JavaScript bundle was 454.09 kB raw / 161.03 kB gzip. The
-current build is approximately 566.01 kB / 200.32 kB, an increase of 111.92 kB
+current build is approximately 565.98 kB / 200.32 kB, an increase of 111.89 kB
 raw / 39.29 kB gzip. The size increase is a maintenance and delivery cost; it is
 not evidence of product value.
 

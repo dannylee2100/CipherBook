@@ -99,13 +99,17 @@ function encodePassphrase(passphrase, { requireMinimum }) {
   return bytes;
 }
 
-export function validateExportPassphrase(passphrase, confirmation) {
+function requireMatchingPassphrases(passphrase, confirmation) {
   if (passphrase !== confirmation) {
     throw fail(
       "passphrase-mismatch",
       "Passphrase and confirmation must match exactly.",
     );
   }
+}
+
+export function validateExportPassphrase(passphrase, confirmation) {
+  requireMatchingPassphrases(passphrase, confirmation);
   const bytes = encodePassphrase(passphrase, { requireMinimum: true });
   bytes.fill(0);
 }
@@ -161,7 +165,7 @@ export async function exportEncryptedIdentityFile(
   crypto = identityFileCrypto,
 ) {
   validateActiveIdentity(identity, crypto);
-  validateExportPassphrase(passphrase, confirmation);
+  requireMatchingPassphrases(passphrase, confirmation);
 
   let passphraseBytes;
   let derivedKey;
@@ -184,8 +188,9 @@ export async function exportEncryptedIdentityFile(
     const additionalData = concatBytes(MAGIC, profile, salt, nonce);
 
     try {
-      derivedKey = requireExactBytes(
-        crypto.deriveKey(passphraseBytes, salt),
+      derivedKey = crypto.deriveKey(passphraseBytes, salt);
+      requireExactBytes(
+        derivedKey,
         crypto.keyBytes,
         "derived-key-length",
         "Derived encryption key",
@@ -228,8 +233,9 @@ export async function importEncryptedIdentityFile(
   try {
     passphraseBytes = encodePassphrase(passphrase, { requireMinimum: false });
     try {
-      derivedKey = requireExactBytes(
-        crypto.deriveKey(passphraseBytes, parsed.salt),
+      derivedKey = crypto.deriveKey(passphraseBytes, parsed.salt);
+      requireExactBytes(
+        derivedKey,
         crypto.keyBytes,
         "derived-key-length",
         "Derived encryption key",
