@@ -17,10 +17,13 @@ The immediate work is to test whether that workflow deserves a project at all.
 Milestone 0 is complete. Milestone 1 now contains a disposable command-line
 laboratory that compares two construction candidates using synthetic data. It
 is evidence-gathering code, not an application or production CLI. There is no
-browser prototype, stable envelope, selected cryptographic construction, or
-protocol version. See the
+stable envelope, selected cryptographic construction, or protocol version. A
+draft Milestone 2A branch contains a locally run, memory-only browser workflow
+experiment for the same two study controls; it is not a released browser client
+and uses only synthetic data. See the
 [Milestone 1 laboratory](experiments/milestone-1/README.md) and its
-[recorded results](experiments/milestone-1/RESULTS.md).
+[recorded results](experiments/milestone-1/RESULTS.md), plus the
+[Milestone 2A laboratory](experiments/milestone-2a/README.md).
 
 The project may be archived after the evaluation milestone. Continuing is not
 the default outcome; it requires evidence that the workflow solves a real
