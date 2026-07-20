@@ -1,44 +1,62 @@
-# Alpha 0 known limitations
+# Alpha 1 known limitations
 
 > [!WARNING]
-> Alpha 0 is not independently reviewed, human-validated, production-ready, or
+> Alpha 1 is not independently reviewed, human-validated, production-ready, or
 > suitable for real secrets.
 
 - The human pilot was deferred. No participant evidence shows that users
-  compare the full value, understand recipient forgeability, or benefit from
-  this workflow.
-- The sodium choice and existing contact/envelope encodings are provisional.
-  The encodings are unstable and are not protocol version 1.
+  compare the full value, understand recipient forgeability, choose usable
+  passphrases, retain a downloaded file, or benefit from this workflow.
+- The sodium relationship construction and existing contact/envelope encodings
+  remain provisional. Those encodings are unchanged, unstable, and not protocol
+  version 1.
+- The 107-byte encrypted identity file is an Alpha-only disposable format. It
+  is not stable, canonical, compatible, or a decision about future vault,
+  migration, backup, or recovery design.
+- Anyone who obtains an identity file can attempt passphrase guesses offline.
+  Argon2id raises the cost of guessing but cannot make a weak passphrase strong.
+- There is no password reset, hint, recovery service, or alternate unlock path.
+  Losing the passphrase makes the file unusable. Losing both the active identity
+  and usable file loses the identity.
+- Exported copies are controlled by the browser, operating system, user, backup
+  tools, and storage media—not CipherBook. Clear cannot locate or delete them.
+- The cleartext header identifies a CipherBook Alpha identity artifact. It does
+  not contain the public contact, but it is still file-type metadata.
+- Restoring a static identity can lengthen its lifetime. Later disclosure of
+  either party's private key can expose retained relationship envelopes when
+  the other public contact is available. Alpha 1 has no forward secrecy.
+- A stolen file plus a successfully guessed passphrase yields the static
+  private key and permits impersonation within the existing recipient-local,
+  recipient-forgeable construction.
 - Authentication is recipient-local, deniable, and recipient-forgeable. Opening
   is not a signature or third-party proof that the expected counterparty wrote
   the plaintext.
-- Importing a public contact alone is not verification. The interface requires
-  each person to confirm the full hexadecimal comparison independently before
-  sealing or opening, and removing confirmation clears trust-dependent output.
-  This self-reported confirmation has not been validated and does not create a
-  signature or transferable proof.
-- Static identities provide no forward secrecy. Later disclosure of either
-  party's private key can expose captured relationship envelopes when the other
-  public contact is available.
+- Importing a public contact alone is not verification. Each person must confirm
+  the full hexadecimal comparison independently. This self-reported step has
+  not been validated and does not create transferable proof.
 - The 16-emoji convenience view represents only the first 96 digest bits. It has
   not been tested for omission, skimming, rendering, accessibility, language,
-  pronunciation, or transposition failures. Full hexadecimal comparison is
-  required by the alpha but is also not human-validated. The emoji view cannot
-  authorize sealing or opening.
+  pronunciation, or transposition failures. It cannot authorize sealing or
+  opening.
 - Compromised endpoints, browsers, extensions, operating systems, keyboards,
-  displays, clipboards, or dependencies can expose or change private keys and
-  plaintext.
-- Memory-only state does not guarantee erasure. Clear and reload drop references
-  controlled by the page, but other layers may retain copies.
-- Reloading or closing loses the temporary identity permanently. There is no
-  persistence, backup, recovery, migration, rotation, or revocation.
+  displays, clipboards, dependencies, or download paths can expose or change
+  passphrases, private keys, files, and plaintext.
+- Best-effort byte-array clearing does not guarantee erasure. JavaScript,
+  WebAssembly, browsers, operating systems, crash data, swap, downloads, and
+  backups may retain copies.
+- There is no automatic persistence. Reload begins empty, and continuity
+  requires a manual file export followed by a later manual selection and
+  passphrase entry.
+- There is no managed backup, cloud sync, hardware-backed protection, multiple
+  identity support, contact persistence, rotation, or revocation.
 - Ciphertext does not hide participants, accounts, network identifiers, timing,
-  frequency, approximate message size, or transport retention.
+  frequency, approximate size, or transport retention.
 - A recipient can copy, retain, disclose, alter, or republish opened plaintext.
 - The alpha does not prevent replay, denial of service, transport suppression,
   account suspension, or censorship.
 - Only automated Chromium and Firefox desktop workflows are in scope. Safari,
   WebKit, mobile browsers, extensions, screen readers, and real assistive
   technology remain untested.
-- Local Vite execution does not remove endpoint, browser, dependency, or supply-
-  chain risk. The alpha is not deployed and has no hosted-update model.
+- Local Vite execution and a local bundle do not remove endpoint, browser,
+  dependency, or supply-chain risk. The alpha is not deployed and has no hosted
+  update model.

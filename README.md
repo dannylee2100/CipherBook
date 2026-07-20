@@ -32,35 +32,37 @@ verification method or length has been selected.
 
 The Milestone 2B human pilot was deferred before recruitment. No participants
 were recruited, no observations were collected, and no usability conclusions
-were reached. The maintainer chose to continue with **CipherBook Alpha 0** as a
-hobby engineering exercise, not because the validation gates passed. The
-project may still be redesigned or archived.
+were reached. The maintainer chose to continue with **CipherBook Alpha 0**, and
+then the narrow **Alpha 1 encrypted identity-file continuity experiment**, as
+hobby engineering work—not because the validation gates passed. The project may
+still be redesigned or archived.
 
-Alpha 0 is a locally run, sodium-only, memory-only browser envelope utility. It
-reuses reviewed experimental components and unstable encodings, displays a full
-hexadecimal relationship comparison, and offers an unvalidated 16-emoji
-convenience view. Its interface requires each party to confirm the full
-hexadecimal comparison before sealing or opening; importing a contact alone is
-not verification, and the emoji view cannot authorize either action. That
-confirmation is unvalidated and does not create a signature or transferable
-proof of authorship. See [Alpha 0](alpha/web/README.md) and its
-[known limitations](alpha/web/KNOWN_LIMITATIONS.md). No Alpha 0 behavior is
-protocol version 1.
+Alpha 1 is a locally run, sodium-only browser envelope utility. It retains the
+Alpha 0 contact, verification, seal, and open behavior and adds an optional
+manual download/restore path for one passphrase-encrypted identity file. It
+does not automatically persist state. The fixed binary file is disposable
+Alpha machinery, not a stable vault, backup, recovery design, envelope format,
+or protocol version. Anyone holding the file can attempt passphrase guesses
+offline, and there is no password reset. See [Alpha 1](alpha/web/README.md), its
+[known limitations](alpha/web/KNOWN_LIMITATIONS.md), and the provisional
+[Alpha 1 decision](docs/decisions/ALPHA-0002-encrypted-identity-file.md).
 
 ## What is fact, assumed, hypothesized, and decided
 
 ### Facts
 
 - The repository contains a project charter, disposable research laboratories,
-  and a provisional Alpha 0 engineering preview. None is appropriate for real
+  and a provisional Alpha 1 engineering preview. None is appropriate for real
   secrets.
 - Common message transports can observe, retain, reorder, alter, or replace text
   sent through them.
 - Existing tools already cover substantial parts of the proposed use case.
-- No cryptographic construction, serialization, fingerprint design, storage
-  design, hosting provider, or protocol bytes have been approved.
-- The deferred human pilot produced no participant evidence. Alpha 0 choices
-  are maintainer-selected implementation constraints, not validation results.
+- No final project cryptographic construction, serialization, fingerprint
+  design, storage design, hosting provider, or protocol bytes have been
+  approved. Alpha-only engineering choices do not resolve them.
+- The deferred human pilot produced no participant evidence. Alpha 0 and Alpha
+  1 choices are maintainer-selected implementation constraints, not validation
+  results.
 
 ### Assumptions to test
 
@@ -91,6 +93,9 @@ protocol version 1.
 - Defer the human pilot without treating it as completed.
 - Build the narrowly scoped Alpha 0 using provisional choices recorded in
   [ALPHA-0001](docs/decisions/ALPHA-0001-sodium-browser-alpha.md).
+- Add manual passphrase-encrypted identity-file continuity for Alpha 1 only,
+  under [ALPHA-0002](docs/decisions/ALPHA-0002-encrypted-identity-file.md),
+  without resolving persistent vault, recovery, envelope, or protocol design.
 
 ## Example fit
 
@@ -98,8 +103,9 @@ Potentially valid scenario, if later evidence supports the concept: Alice and
 Bob have already verified each other during an in-person meeting. Months later,
 Alice needs to place one short confidential note into a ticketing system that
 both already use. An envelope utility could let Bob detect tampering and recover
-the note without turning the utility into a conversation service. The current
-repository cannot perform this scenario.
+the note without turning the utility into a conversation service. The Alpha can
+exercise only a synthetic local approximation of this scenario; it is not
+appropriate for the real note.
 
 Poor-fit scenarios:
 
@@ -127,9 +133,9 @@ The approved plan has four milestones:
 3. Evaluate the construction evidence and user observations, then continue,
    narrow the idea, or archive the project. This evaluation has not occurred.
 
-The maintainer has paused that sequence and authorized Alpha 0 separately. The
-alpha does not replace missing human evidence or settle the historical decision
-log.
+The maintainer has paused that sequence and authorized Alpha 0 and the narrow
+Alpha 1 identity-file experiment separately. The alpha does not replace missing
+human evidence or settle the historical decision log.
 
 See the complete [Lean Validation Plan](docs/LEAN_VALIDATION_PLAN.md),
 [Threat Model](docs/THREAT_MODEL.md), and

@@ -11,22 +11,25 @@ The repository began by testing whether a verified-contact encrypted-envelope
 workflow is useful and understandable enough to justify further development.
 The planned Milestone 2B human pilot was deferred before recruitment; no human
 observations or Milestone 3 analysis exist. The maintainer has separately
-authorized CipherBook Alpha 0 as a small engineering exercise despite that
+authorized CipherBook Alpha 0 as a small engineering exercise and then Alpha 1
+as a narrow manual encrypted identity-file continuity experiment despite that
 missing usability evidence. The project may still be narrowed, redesigned, or
 archived.
 
 CipherBook is not a chat application. It is not production-ready,
 independently reviewed, or appropriate for real secrets. No protocol,
-production architecture, or CipherBook compatibility guarantee exists. Alpha 0
-temporarily reuses experimental sodium formats without promoting them to a
-stable format.
+production architecture, or CipherBook compatibility guarantee exists. Alpha 1
+temporarily reuses the experimental sodium formats and adds one disposable
+identity-file format without promoting any artifact to a stable format.
 
 The historical validation plan remains in `docs/LEAN_VALIDATION_PLAN.md`. The
 only additional engineering work currently authorized is the narrow Alpha 0
-scope recorded in
-`docs/decisions/ALPHA-0001-sodium-browser-alpha.md` and issue #9. That approval
-does not complete Milestone 3, resolve a final project decision, or authorize
-persistence, recovery, deployment, release engineering, or protocol design.
+scope recorded in `docs/decisions/ALPHA-0001-sodium-browser-alpha.md` and issue
+#9, plus manual encrypted identity-file continuity recorded in
+`docs/decisions/ALPHA-0002-encrypted-identity-file.md` and issue #11. Those
+approvals do not complete Milestone 3, resolve a final project decision, or
+authorize automatic persistence, a production vault, recovery service,
+deployment, release engineering, or protocol design.
 
 ## Required reading
 
@@ -39,9 +42,10 @@ full:
 - `docs/UNRESOLVED_DECISIONS.md`
 - `docs/LEAN_VALIDATION_PLAN.md`
 - `docs/decisions/ALPHA-0001-sodium-browser-alpha.md` when working on Alpha 0
+- `docs/decisions/ALPHA-0002-encrypted-identity-file.md` when working on Alpha 1
 
 Treat the unresolved-decision log, the historical validation record, and the
-narrow Alpha 0 decision as authoritative for their respective scopes. Stop and
+narrow Alpha decisions as authoritative for their respective scopes. Stop and
 report any contradiction instead of silently expanding the alpha or choosing a
 final architecture.
 
@@ -65,15 +69,15 @@ Experimental convenience choices do not resolve these questions. Never convert
 spike output, test fixtures, or study encodings into protocol v1 without explicit
 human approval following a positive Milestone 3 decision.
 
-Alpha 0 provisionally chooses sodium, the existing unstable sodium encodings, a
-full hexadecimal comparison, and a 16-emoji convenience view solely for the
-engineering branch. These are not project-wide recommendations or final
-decisions.
+Alpha 0 provisionally chose sodium, the existing unstable sodium encodings, a
+full hexadecimal comparison, and a 16-emoji convenience view. Alpha 1 locally
+adds one fixed, unstable Argon2id/XChaCha20-Poly1305 identity file. These are not
+project-wide recommendations or final decisions.
 
 ## Current security and product boundaries
 
 - Use only synthetic payloads and disposable identities during experimental
-  milestones and Alpha 0 testing.
+  milestones and Alpha testing. Alpha 1 files must contain test identities only.
 - Do not claim anonymity, metadata hiding, endpoint protection, forward secrecy,
   enforced deletion, enforced expiration, recipient restraint, or censorship
   resistance.
@@ -85,6 +89,8 @@ decisions.
 - A verification representation is never an encryption key, password, secret,
   or recovery mechanism.
 - Treat contacts, envelopes, QR input, and all other imported data as untrusted.
+- Treat encrypted identity files as hostile. Reject size, exact length, magic,
+  and fixed profile before KDF work; never accept file-selected KDF cost.
 - A compromised endpoint, browser, extension, operating system, or recipient is
   outside the protections being tested.
 - Existing transports can expose participants, timing, length, frequency, and
@@ -93,7 +99,8 @@ decisions.
 ## Agent workflow rules
 
 - Work only on the explicitly authorized milestone and keep the change narrow.
-- For Alpha 0, work only within issue #9 and the recorded architecture decision.
+- For Alpha 0, work only within issue #9 and ALPHA-0001. For Alpha 1, work only
+  within issue #11 and ALPHA-0002.
 - Preserve unresolved decisions unless a later approved evaluation resolves
   them.
 - Prefer disposable experiments over stable architecture or protocol work.
@@ -102,9 +109,11 @@ decisions.
   spike.
 - Clearly label every executable spike and all of its output as experimental and
   unstable.
-- Never add persistent storage, recovery, PWA installation, service workers,
-  hosting, CI/CD, release engineering, or production claims unless the approved
-  milestone explicitly authorizes that exact work.
+- Never add automatic persistent storage, a production vault, recovery service,
+  PWA installation, service workers, hosting, deployment, release engineering,
+  or production claims unless an approved milestone explicitly authorizes that
+  exact work. Alpha 1 authorizes only manual encrypted-file download/import and
+  its focused CI check.
 - Never log or commit real private keys, plaintext secrets, tokens, credentials,
   passphrases, environment files, or recovery data.
 - Avoid unnecessary dependencies and document why any authorized experimental
@@ -173,6 +182,33 @@ It must not add age as a user-facing mode, persistent storage, recovery, PWA
 installation, service workers, deployment, a stable protocol, production
 claims, or usability claims. It must not alter the historical experiment
 directories or frozen Milestone 2B tag.
+
+### Alpha 1: manual encrypted identity-file continuity
+
+The maintainer authorized this track in issue #11 and ALPHA-0002. Its maximum
+scope is:
+
+- retain the Alpha 0 envelope/contact bytes and recipient-local semantics;
+- manually download and manually import one fixed 107-byte encrypted identity
+  file using the exact Alpha 1 profile;
+- use official bundled libsodium Argon2id13 interactive password derivation and
+  XChaCha20-Poly1305 combined-mode authenticated encryption;
+- encrypt only the 32-byte `crypto_box` private key and reconstruct the public
+  key with an official sodium operation;
+- keep passphrases and selected files out of long-lived application state;
+- perform best-effort secret-buffer clearing and atomic identity replacement;
+- test Chromium and Firefox, including real-profile allocation and observations;
+  and
+- add the focused `Alpha 1 encrypted identity file` CI check without weakening
+  existing checks or branch protection.
+
+Alpha 1 must not add automatic storage, a persistent vault, managed backup,
+password recovery, accounts, sync, multiple identities, contact persistence,
+hardware-backed-key claims, deployment, PWA installation, service workers,
+stable-format claims, protocol version 1, production claims, or usability
+claims. The one approved historical-source maintenance change is replacing the
+standard sodium wrapper import with the official sumo wrapper required for
+`crypto_pwhash`; no experiment behavior or encoding may change.
 
 ## Review requirements
 
