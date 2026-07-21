@@ -53,9 +53,24 @@ a secret, key, password, final fingerprint, or protocol-version-1 choice.
 
 ## Manual encrypted identity file
 
+The active identity consists of private identity material and its public
+contact. People use the public contact to address envelopes; it cannot decrypt
+messages or restore the identity. Closing or reloading the page loses the
+active identity unless an encrypted identity file was downloaded and remains
+available with its passphrase.
+
+After generating or restoring an identity, the page presents the encrypted-file
+download directly after the public contact. The steps are to enter and confirm
+a passphrase, explicitly download the file, and retain the file and passphrase
+separately. Exporting creates a passphrase-encrypted file containing the private
+material needed to restore the same public contact. The file does not contain
+counterparty contacts, verification confirmation, message plaintext or message
+history, the passphrase, or online account information. It must not be shared as
+a public contact or published.
+
 Export requires an active identity, a matching passphrase and confirmation, and
 an explicit acknowledgment of offline guessing and unrecoverable passphrase
-loss. Import requires one manually selected file and its passphrase. The page
+loss. Restore requires one manually selected file and its passphrase. The page
 does not remember either value, and it clears the relevant password and file
 inputs after an attempted operation. All three passphrase controls request
 `autocomplete="off"`, which is only a browser hint and not a guarantee that a
@@ -66,6 +81,14 @@ The filename is always `cipherbook-alpha1-identity.cbidentity`, with media type
 `application/octet-stream`. The browser chooses the actual download location.
 CipherBook does not copy the file to the clipboard, send it to native sharing,
 upload it, automatically re-import it, or delete downloaded copies.
+
+The page records only a non-sensitive, in-memory indication that an encrypted
+identity-file download was started for the active identity during the current
+page session. This is not proof that the browser saved the file or that the
+person retained it. CipherBook cannot inspect the browser's download location.
+The indication uses no browser storage and resets on reload, replacement
+generation, successful restoration, Clear, page exit, and persisted
+back/forward-cache restoration.
 
 ### Unstable fixed binary layout
 

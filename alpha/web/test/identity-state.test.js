@@ -19,6 +19,7 @@ function populatedState() {
   const state = createAlphaState();
   state.identity = identity();
   state.ownContact = "synthetic-public-contact";
+  state.identityFileDownloadStarted = true;
   state.contactDraft = "synthetic-counterparty-contact";
   state.counterparty = { text: state.contactDraft };
   state.relationshipHex = "ab".repeat(32);
@@ -56,6 +57,7 @@ test("successful identity replacement disposes old key and clears every dependen
   assert.ok(oldPrivateKey.every((byte) => byte === 0));
   assert.equal(state.identity, restored.identity);
   assert.equal(state.ownContact, restored.contact);
+  assert.equal(state.identityFileDownloadStarted, false);
   assert.equal(state.contactDraft, "");
   assert.equal(state.counterparty, null);
   assert.equal(state.relationshipHex, "");
@@ -100,6 +102,7 @@ test("clear removes identity and all import/export error state", () => {
   assert.ok(privateKey.every((byte) => byte === 0));
   assert.equal(state.identity, null);
   assert.equal(state.ownContact, "");
+  assert.equal(state.identityFileDownloadStarted, false);
   assert.ok(Object.values(state.errors).every((value) => value === ""));
   assert.doesNotMatch(JSON.stringify(state), /passphrase/iu);
 });

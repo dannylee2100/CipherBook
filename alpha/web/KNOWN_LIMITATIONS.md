@@ -20,6 +20,12 @@
   and usable file loses the identity.
 - Exported copies are controlled by the browser, operating system, user, backup
   tools, and storage media—not CipherBook. Clear cannot locate or delete them.
+- The session indicator reports only that a download action started. It cannot
+  prove that the browser stored the file or that the person retained it, and it
+  resets whenever the active identity or page-controlled state is replaced.
+- The encrypted identity file restores the same public contact only. It does
+  not restore counterparty contacts, verification state, message plaintext or
+  message history, the passphrase, or online account information.
 - The cleartext header identifies a CipherBook Alpha identity artifact. It does
   not contain the public contact, but it is still file-type metadata.
 - Restoring a static identity can lengthen its lifetime. Later disclosure of

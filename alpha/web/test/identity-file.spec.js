@@ -85,6 +85,53 @@ test("identity controls expose the experimental and offline-guessing boundaries"
   ).toHaveCount(0);
 });
 
+test("export guidance appears only for an active identity and distinguishes both artifacts", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.locator("#identity-export-panel")).toBeHidden();
+  await expect(page.locator("#identity-export-session-status")).toHaveText(
+    "CipherBook has not started an encrypted identity-file download for this identity during this page session.",
+  );
+
+  await generateIdentity(page);
+
+  const panel = page.locator("#identity-export-panel");
+  await expect(panel).toBeVisible();
+  await expect(
+    panel.getByRole("heading", { name: "Keep this identity for later" }),
+  ).toBeVisible();
+  await expect(
+    panel.getByRole("button", {
+      name: "Download encrypted identity file",
+    }),
+  ).toBeVisible();
+  await expect(page.locator("#own-contact-help")).toContainText(
+    "This public contact identifies your current CipherBook identity. People encrypt envelopes to this identity.",
+  );
+  await expect(page.locator("#own-contact-help")).toContainText(
+    "Closing, reloading, or leaving this page loses the active identity unless you previously downloaded its encrypted identity file.",
+  );
+  await expect(panel).toContainText(
+    "Exporting creates a passphrase-encrypted file containing the private key needed to use this same public contact again.",
+  );
+  await expect(panel).toContainText("Public contact");
+  await expect(panel).toContainText("Does not restore the identity");
+  await expect(panel).toContainText("Encrypted identity file");
+  await expect(panel).toContainText("Must not be sent as a public contact");
+  await expect(panel).toContainText(
+    "Counterparty contacts or verification confirmation",
+  );
+  await expect(panel).toContainText("Message plaintext or message history");
+  await expect(panel).toContainText("Online account information");
+  await expect(panel).toContainText(
+    "CipherBook cannot recover the file or passphrase.",
+  );
+  await expect(page.locator("#identity-export-pending-warning")).toHaveText(
+    "This identity will be lost when the page is closed or reloaded unless you download an encrypted identity file.",
+  );
+});
+
 test("explicit download creates the fixed encrypted file without network, clipboard, or share use", async ({
   context,
 }) => {
@@ -110,7 +157,9 @@ test("explicit download creates the fixed encrypted file without network, clipbo
   const requests = [];
   page.on("request", (request) => requests.push(request.url()));
   await page.goto("/");
-  await generateIdentity(page);
+  await expect(page.locator("#identity-export-panel")).toBeHidden();
+  const originalContact = await generateIdentity(page);
+  await expect(page.locator("#identity-export-panel")).toBeVisible();
   const initialRequests = [...requests];
   let downloadEvents = 0;
   page.on("download", () => {
@@ -137,6 +186,35 @@ test("explicit download creates the fixed encrypted file without network, clipbo
   expect(
     await page.evaluate(() => globalThis.__alphaIdentityShareCalls ?? 0),
   ).toBe(0);
+  await expect(page.locator("#identity-export-session-status")).toHaveText(
+    "An encrypted identity-file download was started during this page session.",
+  );
+  await expect(page.locator("#identity-export-retention-note")).toHaveText(
+    "CipherBook cannot verify where the browser stored the file or whether you retained it.",
+  );
+  await expect(page.locator("#identity-export-pending-warning")).toBeHidden();
+  await expect(page.locator("body")).not.toContainText(
+    /Identity safely backed up|Export complete|File securely saved|Recovery configured/iu,
+  );
+
+  await generateIdentity(page);
+  await expect(page.locator("#own-contact")).not.toHaveValue(originalContact);
+  await expect(page.locator("#identity-export-session-status")).toHaveText(
+    "CipherBook has not started an encrypted identity-file download for this identity during this page session.",
+  );
+  await expect(page.locator("#identity-export-pending-warning")).toBeVisible();
+
+  const replacementPassphrase = runtimeBrowserPassphrase("-replacement");
+  await exportIdentityFile(page, replacementPassphrase);
+  await importIdentityFile(page, file, passphrase);
+  await expect(page.locator("#own-contact")).toHaveValue(originalContact);
+  await expect(page.locator("#identity-export-session-status")).toHaveText(
+    "CipherBook has not started an encrypted identity-file download for this identity during this page session.",
+  );
+  await expect(page.locator("#global-status")).toHaveText(
+    "The same CipherBook identity was restored. Its public contact is shown below. Counterparty contacts and verification state were not restored. Import the counterparty’s public contact and compare the full hexadecimal value again.",
+  );
+  expect(requests).toEqual(initialRequests);
 });
 
 test("wrong passphrase and modified file preserve the entire active workflow", async ({
@@ -233,6 +311,14 @@ test("restoring the same identity still clears relationship and message state", 
   await importIdentityFile(alice, file, passphrase);
 
   await expect(alice.locator("#own-contact")).toHaveValue(aliceContact);
+  await expect(alice.locator("#identity-export-panel")).toBeVisible();
+  await expect(alice.locator("#identity-export-session-status")).toHaveText(
+    "CipherBook has not started an encrypted identity-file download for this identity during this page session.",
+  );
+  await expect(alice.locator("#identity-export-pending-warning")).toBeVisible();
+  await expect(alice.locator("#global-status")).toHaveText(
+    "The same CipherBook identity was restored. Its public contact is shown below. Counterparty contacts and verification state were not restored. Import the counterparty’s public contact and compare the full hexadecimal value again.",
+  );
   await expect(alice.locator("#active-contact")).toHaveText(
     "No counterparty contact imported.",
   );
@@ -267,7 +353,13 @@ test("passphrase errors are bounded and clear fields while Clear removes file co
   await expect(page.locator("#identity-export-passphrase")).toHaveValue("");
   await expect(page.locator("#identity-export-confirmation")).toHaveValue("");
 
-  const selected = Buffer.alloc(IDENTITY_FILE_LAYOUT.totalBytes);
+  const selected = await exportIdentityFile(
+    page,
+    runtimeBrowserPassphrase("-clear"),
+  );
+  await expect(page.locator("#identity-export-session-status")).toHaveText(
+    "An encrypted identity-file download was started during this page session.",
+  );
   await page.locator("#identity-file-input").setInputFiles({
     name: IDENTITY_FILE_NAME,
     mimeType: "application/octet-stream",
@@ -282,6 +374,10 @@ test("passphrase errors are bounded and clear fields while Clear removes file co
   await expect(page.locator("#identity-export-passphrase")).toHaveValue("");
   await expect(page.locator("#identity-export-confirmation")).toHaveValue("");
   await expect(page.locator("#own-contact")).toHaveValue("");
+  await expect(page.locator("#identity-export-panel")).toBeHidden();
+  await expect(page.locator("#identity-export-session-status")).toHaveText(
+    "CipherBook has not started an encrypted identity-file download for this identity during this page session.",
+  );
   await expect(page.locator("#global-status")).toContainText(
     "cannot delete exported files or guarantee memory erasure",
   );
@@ -304,6 +400,9 @@ test("pagehide and persisted pageshow render a populated workflow as empty", asy
 
   const filePassphrase = runtimeBrowserPassphrase("-file");
   const identityFile = await exportIdentityFile(alice, filePassphrase);
+  await expect(alice.locator("#identity-export-session-status")).toHaveText(
+    "An encrypted identity-file download was started during this page session.",
+  );
   const pendingPassphrase = runtimeBrowserPassphrase("-pending");
   await alice.locator("#identity-file-input").setInputFiles({
     name: IDENTITY_FILE_NAME,
@@ -363,6 +462,10 @@ test("pagehide and persisted pageshow render a populated workflow as empty", asy
       alice.locator("#identity-export-acknowledgment"),
     ).toBeDisabled();
     await expect(alice.locator("#download-identity-file")).toBeDisabled();
+    await expect(alice.locator("#identity-export-panel")).toBeHidden();
+    await expect(alice.locator("#identity-export-session-status")).toHaveText(
+      "CipherBook has not started an encrypted identity-file download for this identity during this page session.",
+    );
     await expect(alice.locator("#global-status")).toHaveText(
       "No temporary identity exists.",
     );

@@ -182,6 +182,47 @@ input[type="file"] {
   margin-bottom: 0.25rem;
 }
 
+.identity-export-panel {
+  border: 2px solid #315b50;
+  border-top-width: 0.45rem;
+  border-radius: 0.45rem;
+  padding: 1rem;
+  background: #f5faf7;
+}
+
+.identity-export-panel h4 {
+  margin-bottom: 0.25rem;
+}
+
+.identity-artifact-comparison {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.identity-artifact-card {
+  border: 1px solid #aab8b2;
+  border-radius: 0.35rem;
+  padding: 0.75rem;
+  background: #fff;
+}
+
+.identity-artifact-card h4,
+.identity-artifact-card ul {
+  margin-top: 0;
+}
+
+.compact-list {
+  margin-top: 0.35rem;
+  padding-left: 1.5rem;
+}
+
+.primary-action {
+  width: 100%;
+  font-size: 1.02rem;
+}
+
 .field-help {
   margin: 0.35rem 0 0;
   color: #59625e;
@@ -382,6 +423,10 @@ pre:focus-visible {
 
   .emoji-sequence {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .identity-artifact-comparison {
+    grid-template-columns: 1fr;
   }
 
   .row button {

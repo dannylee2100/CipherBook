@@ -230,8 +230,9 @@ elements["download-identity-file"].addEventListener("click", async () => {
         elements["identity-export-confirmation"].value,
       );
       downloadEncryptedIdentityFile(fileBytes);
+      state.identityFileDownloadStarted = true;
       state.status =
-        "Encrypted identity file created. Keep the file and passphrase separately. CipherBook cannot recover either one.";
+        "Encrypted identity-file download started. CipherBook cannot verify where the browser stored the file or whether you retained it.";
     },
     classifyIdentityExportFailure,
   );

@@ -12,11 +12,14 @@ const ids = [
   "identity-import-error",
   "own-contact",
   "copy-own-contact",
+  "identity-export-panel",
+  "identity-export-pending-warning",
   "identity-export-passphrase",
   "identity-export-confirmation",
   "identity-export-acknowledgment",
   "download-identity-file",
   "identity-export-error",
+  "identity-export-session-status",
   "contact-input",
   "import-contact",
   "active-contact",
@@ -109,6 +112,13 @@ export function render(state) {
   elements["identity-import-error"].textContent = state.errors.identityImport;
   setValue(elements["own-contact"], state.ownContact);
   elements["copy-own-contact"].disabled = state.busy || !identityReady;
+  elements["identity-export-panel"].hidden = !identityReady;
+  elements["identity-export-pending-warning"].hidden =
+    !identityReady || state.identityFileDownloadStarted;
+  elements["identity-export-session-status"].textContent =
+    state.identityFileDownloadStarted
+      ? "An encrypted identity-file download was started during this page session."
+      : "CipherBook has not started an encrypted identity-file download for this identity during this page session.";
   elements["identity-export-passphrase"].disabled =
     state.busy || !identityReady;
   elements["identity-export-confirmation"].disabled =

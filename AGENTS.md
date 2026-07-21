@@ -99,8 +99,13 @@ project-wide recommendations or final decisions.
 ## Agent workflow rules
 
 - Work only on the explicitly authorized milestone and keep the change narrow.
-- For Alpha 0, work only within issue #9 and ALPHA-0001. For Alpha 1, work only
-  within issue #11 and ALPHA-0002.
+- For Alpha 0, work only within issue #9 and ALPHA-0001. For Alpha 1 core
+  cryptographic and identity-file behavior, work only within issue #11 and
+  ALPHA-0002. Issue #13 separately authorizes a presentation and documentation
+  follow-up limited to explanatory copy, accessibility wiring, session-only
+  download-started state, and focused tests. It does not authorize changes to
+  cryptography, the identity-file format, persistence, recovery, deployment, or
+  protocol design.
 - Preserve unresolved decisions unless a later approved evaluation resolves
   them.
 - Prefer disposable experiments over stable architecture or protocol work.
@@ -201,6 +206,15 @@ scope is:
   and
 - add the focused `Alpha 1 encrypted identity file` CI check without weakening
   existing checks or branch protection.
+
+Issue #11 and ALPHA-0002 remain the authority for Alpha 1 cryptographic and
+identity-file behavior. Issue #13 authorizes one post-implementation
+presentation and documentation follow-up limited to explanatory copy,
+accessibility wiring, a session-only boolean recording whether this page started
+a download for the active identity, and focused tests. It does not change the
+107-byte identity-file format, authorize automatic persistence or managed
+backup, establish usability evidence, or resolve any of the nine final project
+decisions.
 
 Alpha 1 must not add automatic storage, a persistent vault, managed backup,
 password recovery, accounts, sync, multiple identities, contact persistence,

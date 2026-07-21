@@ -3,6 +3,7 @@ export function createAlphaState() {
     busy: false,
     identity: null,
     ownContact: "",
+    identityFileDownloadStarted: false,
     contactDraft: "",
     counterparty: null,
     relationshipHex: "",
@@ -61,6 +62,7 @@ export function replaceIdentity(state, restored, adapter) {
   }
   state.identity = restored.identity;
   state.ownContact = restored.contact;
+  state.identityFileDownloadStarted = false;
   state.contactDraft = "";
   state.counterparty = null;
   state.relationshipHex = "";
@@ -80,7 +82,7 @@ export function replaceIdentity(state, restored, adapter) {
     open: "",
   };
   state.status =
-    "Encrypted identity file restored. Import the counterparty contact and compare the full hexadecimal value again.";
+    "The same CipherBook identity was restored. Its public contact is shown below. Counterparty contacts and verification state were not restored. Import the counterparty’s public contact and compare the full hexadecimal value again.";
 }
 
 export function disposeAlphaState(state, adapter) {
@@ -92,6 +94,7 @@ export function disposeAlphaState(state, adapter) {
   }
   state.identity = null;
   state.ownContact = "";
+  state.identityFileDownloadStarted = false;
   state.contactDraft = "";
   state.counterparty = null;
   state.relationshipHex = "";
