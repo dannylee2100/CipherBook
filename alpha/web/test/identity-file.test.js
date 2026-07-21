@@ -20,6 +20,7 @@ import {
   runtimeIdentity,
   runtimePassphrase,
 } from "./identity-file-test-helpers.js";
+import { createAlphaState } from "../src/state.js";
 
 function changed(bytes, offset) {
   const copy = new Uint8Array(bytes);
@@ -239,6 +240,63 @@ test("exported bytes omit exact private key, public contact, and passphrase byte
     false,
   );
   assert.equal(containsExactBytes(file, utf8(passphrase)), false);
+});
+
+test("relationship and message state never enters the identity-file plaintext", async () => {
+  const identity = runtimeIdentity();
+  const passphrase = runtimePassphrase();
+  const { crypto } = makeFastCrypto();
+  const encryptedPlaintexts = [];
+  const observingCrypto = {
+    ...crypto,
+    encrypt(plaintext, ...arguments_) {
+      encryptedPlaintexts.push(new Uint8Array(plaintext));
+      return crypto.encrypt(plaintext, ...arguments_);
+    },
+  };
+  const relationshipVariants = [
+    {
+      contactDraft: "synthetic-counterparty-a",
+      counterparty: { text: "synthetic-counterparty-a" },
+      relationshipHex: "ab".repeat(32),
+      emojiItems: [{ symbol: "🧪" }],
+      comparisonConfirmed: true,
+      sealPlaintext: "synthetic draft a",
+      generatedEnvelope: "synthetic ciphertext a",
+      openEnvelope: "synthetic pasted ciphertext a",
+      openedPlaintext: "synthetic opened plaintext a",
+    },
+    {
+      contactDraft: "synthetic-counterparty-b",
+      counterparty: { text: "synthetic-counterparty-b" },
+      relationshipHex: "cd".repeat(32),
+      emojiItems: [{ symbol: "📨" }],
+      comparisonConfirmed: false,
+      sealPlaintext: "synthetic draft b",
+      generatedEnvelope: "synthetic ciphertext b",
+      openEnvelope: "synthetic pasted ciphertext b",
+      openedPlaintext: "synthetic opened plaintext b",
+    },
+  ];
+
+  for (const relationshipState of relationshipVariants) {
+    const state = Object.assign(createAlphaState(), relationshipState, {
+      identity,
+    });
+    const file = await exportEncryptedIdentityFile(
+      state.identity,
+      passphrase,
+      passphrase,
+      observingCrypto,
+    );
+    assert.equal(file.length, 107);
+  }
+
+  assert.equal(encryptedPlaintexts.length, relationshipVariants.length);
+  for (const plaintext of encryptedPlaintexts) {
+    assert.equal(plaintext.length, 32);
+    assert.deepEqual(plaintext, identity.privateKey);
+  }
 });
 
 test("passphrase validation preserves spaces, case, and Unicode form without normalization", async () => {

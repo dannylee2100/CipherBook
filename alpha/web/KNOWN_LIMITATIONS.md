@@ -23,9 +23,22 @@
 - The session indicator reports only that a download action started. It cannot
   prove that the browser stored the file or that the person retained it, and it
   resets whenever the active identity or page-controlled state is replaced.
-- The encrypted identity file restores the same public contact only. It does
-  not restore counterparty contacts, verification state, message plaintext or
-  message history, the passphrase, or online account information.
+- The encrypted identity file is not a complete CipherBook backup. It restores
+  the local private identity and reconstructs the same local public contact. It
+  does not restore counterparty contacts, previous verification, trust
+  decisions, aliases, message plaintext, message history, the passphrase, or
+  online account information.
+- After a successful restore, the user must paste the counterparty contact and
+  compare and explicitly confirm the full hexadecimal relationship value again.
+  The restored public contact is the one associated with that saved identity,
+  so restoring that file alone does not require exchanging a new one. A failed
+  or unavailable restore followed by new identity generation does produce a new
+  public contact that must be exchanged and verified.
+- Identity-only restore is a conservative current-Alpha choice, not a proven
+  security or usability result. Persisting contacts could preserve stale or
+  attacker-replaced relationship data, restoring prior confirmation could reuse
+  an outdated trust decision, and including either would reveal more
+  relationship information if the file were decrypted.
 - The cleartext header identifies a CipherBook Alpha identity artifact. It does
   not contain the public contact, but it is still file-type metadata.
 - Restoring a static identity can lengthen its lifetime. Later disclosure of

@@ -40,15 +40,23 @@ still be redesigned or archived.
 Alpha 1 is a locally run, sodium-only browser envelope utility. It retains the
 Alpha 0 contact, verification, seal, and open behavior and adds an optional
 manual download/restore path for one passphrase-encrypted identity file. It
-does not automatically persist state. An identity is the active private
-identity material together with the public contact to which counterparties
-address envelopes. Downloading the encrypted identity file is the only Alpha 1
-path for using that same public contact after the page is closed or reloaded;
-restoring it does not restore counterparty contacts, verification state,
-messages, or history. The page reports only that a download was started during
-the current session. It cannot verify where the browser stored the file or
-whether the person retained it, and that session-only status resets with the
-identity or page state.
+does not automatically persist state. The encrypted identity file is not a
+complete CipherBook backup. It restores only the local private identity and the
+same local public contact. It does not restore counterparty contacts, previous
+verification, trust decisions, messages, message history, the passphrase, or
+account information. After a successful restore, the user must paste the
+counterparty contact again, compare the full hexadecimal relationship value,
+and explicitly confirm it before sealing or opening. If the identity was not
+exported or cannot be restored, a new identity has a new public contact that
+must be exchanged and verified.
+
+This identity-only restore behavior is a conservative current-Alpha choice. It
+avoids silently reusing a stale contact or outdated verification decision and
+limits the relationship information exposed if a file is decrypted. It has not
+been shown to be secure or user-friendly through human observation. The page
+reports only that a download was started during the current session; it cannot
+verify where the browser stored the file or whether the person retained it.
+That session-only status resets with the identity or page state.
 
 The fixed binary file is disposable Alpha machinery, not a stable vault,
 backup, recovery design, envelope format, or protocol version. Anyone holding
@@ -62,7 +70,8 @@ drift stops initialization instead of reinterpreting existing files. No
 migration or future compatibility is promised. See
 [Alpha 1](alpha/web/README.md), its
 [known limitations](alpha/web/KNOWN_LIMITATIONS.md), and the provisional
-[Alpha 1 decision](docs/decisions/ALPHA-0002-encrypted-identity-file.md).
+[Alpha 1 file decision](docs/decisions/ALPHA-0002-encrypted-identity-file.md)
+and [identity-only restore decision](docs/decisions/ALPHA-0003-identity-only-restore.md).
 
 ## What is fact, assumed, hypothesized, and decided
 
@@ -113,6 +122,10 @@ migration or future compatibility is promised. See
 - Add manual passphrase-encrypted identity-file continuity for Alpha 1 only,
   under [ALPHA-0002](docs/decisions/ALPHA-0002-encrypted-identity-file.md),
   without resolving persistent vault, recovery, envelope, or protocol design.
+- Restore only the local identity in the current Alpha under
+  [ALPHA-0003](docs/decisions/ALPHA-0003-identity-only-restore.md), requiring
+  manual counterparty re-import and full hexadecimal reverification without
+  resolving the final contact, trust, persistence, or recovery design.
 
 ## Example fit
 

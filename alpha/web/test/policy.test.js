@@ -32,6 +32,16 @@ async function runtimeText() {
   ).join("\n");
 }
 
+async function identityFileSerializationText() {
+  return (
+    await Promise.all(
+      ["src/identity-file.js", "src/identity-file-crypto.js"].map((path) =>
+        readFile(new URL(path, new URL("../", import.meta.url)), "utf8"),
+      ),
+    )
+  ).join("\n");
+}
+
 test("Alpha 1 runtime contains no automatic persistence, service worker, or URL state", async () => {
   const source = await runtimeText();
   for (const pattern of [
@@ -100,6 +110,58 @@ test("Alpha 1 runtime never persists, logs, copies, shares, or names a passphras
   assert.doesNotMatch(stateSource, /passphrase/iu);
 });
 
+test("identity-file serialization contains no relationship, trust, alias, or message state", async () => {
+  const source = await identityFileSerializationText();
+  for (const field of [
+    "counterparty",
+    "contactDraft",
+    "relationshipHex",
+    "emojiItems",
+    "comparisonConfirmed",
+    "generatedEnvelope",
+    "openEnvelope",
+    "openedPlaintext",
+  ]) {
+    assert.doesNotMatch(source, new RegExp(`\\b${field}\\b`, "u"));
+  }
+  for (const pattern of [
+    /\bmessages\b|\bmessageHistory\b|\bconversationHistory\b|message[-_]history/iu,
+    /\balias(?:es)?\b|\bcontactName\b|\bdisplayName\b/iu,
+    /\btrustState\b|\btrustDecision\b|\btrustedContact\b/iu,
+  ]) {
+    assert.doesNotMatch(source, pattern);
+  }
+});
+
+test("identity-file export encrypts exactly one local private-key buffer", async () => {
+  const source = await readFile(
+    new URL("../src/identity-file.js", import.meta.url),
+    "utf8",
+  );
+  assert.match(
+    source,
+    /plaintextPrivateKey\s*=\s*new Uint8Array\(identity\.privateKey\)/u,
+  );
+  assert.equal(source.match(/crypto\.encrypt\s*\(/gu)?.length, 1);
+  assert.match(
+    source,
+    /crypto\.encrypt\(plaintextPrivateKey, additionalData, nonce, derivedKey\)/u,
+  );
+
+  const mainSource = await readFile(
+    new URL("../src/main.js", import.meta.url),
+    "utf8",
+  );
+  assert.match(
+    mainSource,
+    /exportEncryptedIdentityFile\(\s*state\.identity,\s*elements\["identity-export-passphrase"\]\.value,/u,
+  );
+  assert.doesNotMatch(
+    mainSource,
+    /exportEncryptedIdentityFile\(\s*state\s*[,)]/u,
+  );
+});
+
 test("all identity passphrase controls request autocomplete off without claiming exclusion", async () => {
   const html = await readFile(
     new URL("../index.html", import.meta.url),
@@ -139,6 +201,7 @@ test("documentation does not claim password-manager prevention", async () => {
         "docs/THREAT_MODEL.md",
         "docs/LIMITATIONS.md",
         "docs/decisions/ALPHA-0002-encrypted-identity-file.md",
+        "docs/decisions/ALPHA-0003-identity-only-restore.md",
       ].map((path) => readFile(new URL(path, repositoryRoot), "utf8")),
     )
   ).join("\n");
