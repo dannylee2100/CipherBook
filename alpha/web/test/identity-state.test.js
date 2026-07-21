@@ -71,7 +71,7 @@ test("successful identity replacement disposes old key and clears every dependen
   assert.ok(Object.values(state.errors).every((value) => value === ""));
   assert.equal(
     state.status,
-    "The same CipherBook identity was restored. Its public contact remains the same. Counterparty contacts and previous verification were not restored. Paste the counterparty’s public contact and compare the full hexadecimal value again.",
+    "The CipherBook identity from this file was restored. Its public contact is shown below. Counterparty contacts and previous verification were not restored. Paste the counterparty’s public contact and compare the full hexadecimal value again.",
   );
 });
 

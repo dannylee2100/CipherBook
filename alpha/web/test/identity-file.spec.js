@@ -116,7 +116,7 @@ test("export guidance appears only for an active identity and distinguishes both
     "Closing, reloading, or leaving this page loses the active identity unless you previously downloaded its encrypted identity file.",
   );
   await expect(page.locator("#own-contact-help")).toContainText(
-    "Restoring your identity keeps this public contact the same, but CipherBook intentionally requires you to import and verify the counterparty again.",
+    "Restoring a saved identity reconstructs the public contact associated with that saved identity, but CipherBook intentionally requires you to import and verify the counterparty again.",
   );
   await expect(page.locator("#own-contact-help")).toContainText(
     "If the identity was not exported or cannot be restored, a newly generated identity has a new public contact that must be exchanged and verified.",
@@ -141,7 +141,7 @@ test("export guidance appears only for an active identity and distinguishes both
   );
 });
 
-test("explicit download creates the fixed encrypted file without network, clipboard, or share use", async ({
+test("explicit download stays offline and restoring identity A over active identity B recovers A", async ({
   context,
 }) => {
   await context.addInitScript(() => {
@@ -206,8 +206,9 @@ test("explicit download creates the fixed encrypted file without network, clipbo
     /Identity safely backed up|Export complete|File securely saved|Recovery configured/iu,
   );
 
-  await generateIdentity(page);
-  await expect(page.locator("#own-contact")).not.toHaveValue(originalContact);
+  const replacementContact = await generateIdentity(page);
+  expect(replacementContact).not.toBe(originalContact);
+  await expect(page.locator("#own-contact")).toHaveValue(replacementContact);
   await expect(page.locator("#identity-export-session-status")).toHaveText(
     "CipherBook has not started an encrypted identity-file download for this identity during this page session.",
   );
@@ -220,9 +221,22 @@ test("explicit download creates the fixed encrypted file without network, clipbo
   await expect(page.locator("#identity-export-session-status")).toHaveText(
     "CipherBook has not started an encrypted identity-file download for this identity during this page session.",
   );
-  await expect(page.locator("#global-status")).toHaveText(
-    "The same CipherBook identity was restored. Its public contact remains the same. Counterparty contacts and previous verification were not restored. Paste the counterparty’s public contact and compare the full hexadecimal value again.",
+  const restoreStatus = page.locator("#global-status");
+  await expect(restoreStatus).toHaveText(
+    "The CipherBook identity from this file was restored. Its public contact is shown below. Counterparty contacts and previous verification were not restored. Paste the counterparty’s public contact and compare the full hexadecimal value again.",
   );
+  await expect(restoreStatus).not.toContainText(
+    /remains the same|stays the same|unchanged/iu,
+  );
+  await expect(page.locator("#contact-input")).toHaveValue("");
+  await expect(page.locator("#active-contact")).toHaveText(
+    "No counterparty contact imported.",
+  );
+  await expect(page.locator("#relationship-hex")).toHaveValue("");
+  await expect(page.locator("#relationship-emoji .emoji-item")).toHaveCount(0);
+  await expect(page.locator("#comparison-confirmed")).not.toBeChecked();
+  await expect(page.locator("#seal-button")).toBeDisabled();
+  await expect(page.locator("#open-button")).toBeDisabled();
   expect(requests).toEqual(initialRequests);
 });
 
@@ -340,7 +354,7 @@ test("restoring the same identity still clears relationship and message state", 
   );
   await expect(alice.locator("#identity-export-pending-warning")).toBeVisible();
   await expect(alice.locator("#global-status")).toHaveText(
-    "The same CipherBook identity was restored. Its public contact remains the same. Counterparty contacts and previous verification were not restored. Paste the counterparty’s public contact and compare the full hexadecimal value again.",
+    "The CipherBook identity from this file was restored. Its public contact is shown below. Counterparty contacts and previous verification were not restored. Paste the counterparty’s public contact and compare the full hexadecimal value again.",
   );
   await expect(alice.locator("#contact-input")).toHaveValue("");
   await expect(alice.locator("#active-contact")).toHaveText(

@@ -153,9 +153,9 @@ authentication, import reconstructs the public key with libsodium's
 builds a complete candidate. A failed import leaves the current identity,
 contact, verification, and synthetic content intact. A successful import then
 disposes the old identity on a best-effort basis and clears all counterparty,
-verification, draft, ciphertext, and opened-plaintext state—even if the public
-contact is unchanged. Successful identity restoration is not successful
-counterparty verification.
+verification, draft, ciphertext, and opened-plaintext state regardless of which
+identity was active immediately before import. Successful identity restoration
+is not successful counterparty verification.
 
 ### Passphrase behavior
 

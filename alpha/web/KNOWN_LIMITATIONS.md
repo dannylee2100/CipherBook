@@ -30,10 +30,10 @@
   online account information.
 - After a successful restore, the user must paste the counterparty contact and
   compare and explicitly confirm the full hexadecimal relationship value again.
-  The user's own public contact remains the same, so the restore alone does not
-  require exchanging a new one. A failed or unavailable restore followed by new
-  identity generation does produce a new public contact that must be exchanged
-  and verified.
+  The restored public contact is the one associated with that saved identity,
+  so restoring that file alone does not require exchanging a new one. A failed
+  or unavailable restore followed by new identity generation does produce a new
+  public contact that must be exchanged and verified.
 - Identity-only restore is a conservative current-Alpha choice, not a proven
   security or usability result. Persisting contacts could preserve stale or
   attacker-replaced relationship data, restoring prior confirmation could reuse

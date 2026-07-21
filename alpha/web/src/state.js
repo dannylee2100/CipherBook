@@ -82,7 +82,7 @@ export function replaceIdentity(state, restored, adapter) {
     open: "",
   };
   state.status =
-    "The same CipherBook identity was restored. Its public contact remains the same. Counterparty contacts and previous verification were not restored. Paste the counterparty’s public contact and compare the full hexadecimal value again.";
+    "The CipherBook identity from this file was restored. Its public contact is shown below. Counterparty contacts and previous verification were not restored. Paste the counterparty’s public contact and compare the full hexadecimal value again.";
 }
 
 export function disposeAlphaState(state, adapter) {
