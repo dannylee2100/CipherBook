@@ -18,6 +18,10 @@
   adds a manual, passphrase-encrypted, 107-byte identity-file experiment. Those
   choices do not select a final construction, envelope, serialization,
   fingerprint, persistent vault, recovery model, deployment, or protocol bytes.
+- The Alpha 1 encrypted plaintext is exactly one 32-byte local private key.
+  Successful restore reconstructs the same local public contact and clears
+  counterparty, verification, and message state; failed restore leaves the
+  active session intact.
 - The project has not undergone independent security review.
 - Milestones 1 and 2A use disposable keys and synthetic payloads; any later
   approved spike must retain those experimental boundaries.
@@ -43,6 +47,9 @@
 - Keep all outputs disposable and explicitly unstable.
 - Archive the project if the evaluation does not meet the continuation criteria
   in the lean validation plan.
+- For the current Alpha only, restore the local identity without restoring
+  counterparty contacts or trust state, as recorded in
+  [`ALPHA-0003`](decisions/ALPHA-0003-identity-only-restore.md).
 
 ## Claims explicitly rejected
 
@@ -80,10 +87,21 @@ independently audited, or appropriate for evading employer monitoring.
   not automatic persistence, a persistent vault, managed backup, password
   recovery, device-migration design, rotation, or revocation.
 - The public contact addresses envelopes but cannot decrypt them or restore an
-  identity. The encrypted file contains the passphrase-encrypted private
-  material needed to restore the same public contact; it does not restore
-  counterparty contacts, verification state, message plaintext or message
+  identity. The encrypted identity file is not a complete CipherBook backup. It
+  contains the passphrase-encrypted local private identity needed to reconstruct
+  the same local public contact; it does not restore counterparty contacts,
+  previous verification, trust decisions, aliases, message plaintext, message
   history, the passphrase, or online account information.
+- Successful identity restore does not restore counterparty verification. The
+  user must paste the counterparty contact, compare the full hexadecimal value,
+  and explicitly confirm it again. The same local public contact does not need
+  to be re-exchanged solely because restore succeeded; a newly generated
+  identity does have a new public contact that must be exchanged and verified.
+- This identity-only behavior is a conservative current-Alpha choice, not a
+  proven security or usability result. A stored contact may become stale,
+  restored confirmation may preserve an outdated trust decision, and either
+  field would expose more relationship information if the file were decrypted.
+  Contact persistence and revocation require a separate design.
 - A file holder can attempt offline passphrase guesses. There is no password
   reset, and loss of the passphrase makes the file unusable.
 - Exported file copies, download history, operating-system backups, and retained

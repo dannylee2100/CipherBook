@@ -59,14 +59,32 @@ messages or restore the identity. Closing or reloading the page loses the
 active identity unless an encrypted identity file was downloaded and remains
 available with its passphrase.
 
+The encrypted identity file is not a complete CipherBook backup. It restores
+the local private identity and reconstructs the same local public contact. It
+does not restore counterparty contacts, previous verification, trust decisions,
+messages, message history, the passphrase, or account information.
+
+After a successful restore, the counterparty does not need a new public contact
+from the user solely because of that restore. The user must still paste the
+counterparty's public contact locally, compare the full hexadecimal relationship
+value through a separate trusted interaction, and explicitly confirm it before
+sealing or opening. If the identity was not exported or cannot be restored, a
+new identity has a new public contact that must be exchanged and verified.
+
 After generating or restoring an identity, the page presents the encrypted-file
 download directly after the public contact. The steps are to enter and confirm
 a passphrase, explicitly download the file, and retain the file and passphrase
 separately. Exporting creates a passphrase-encrypted file containing the private
 material needed to restore the same public contact. The file does not contain
-counterparty contacts, verification confirmation, message plaintext or message
-history, the passphrase, or online account information. It must not be shared as
-a public contact or published.
+counterparty contacts, previous verification, aliases, trust decisions, message
+plaintext or message history, the passphrase, or online account information. It
+must not be shared as a public contact or published.
+
+This is a conservative current-Alpha choice, not a demonstrated usability or
+security result. A remembered contact may be stale, restoring old verification
+could silently preserve an outdated trust decision, and a decrypted file would
+reveal more relationship information if those fields were included. Contact
+persistence, key changes, and revocation require a separate reviewed design.
 
 Export requires an active identity, a matching passphrase and confirmation, and
 an explicit acknowledgment of offline guessing and unrecoverable passphrase
@@ -136,7 +154,8 @@ builds a complete candidate. A failed import leaves the current identity,
 contact, verification, and synthetic content intact. A successful import then
 disposes the old identity on a best-effort basis and clears all counterparty,
 verification, draft, ciphertext, and opened-plaintext state—even if the public
-contact is unchanged.
+contact is unchanged. Successful identity restoration is not successful
+counterparty verification.
 
 ### Passphrase behavior
 
@@ -196,11 +215,13 @@ browser, extension, operating-system, swap, or crash memory.
 Alpha 1 excludes age as a user-facing mode, multiple identities, multiple
 contacts, contact persistence, automatic key storage, a persistent vault,
 password recovery, managed backup, cloud sync, hardware-backed keys, rotation,
-revocation, chat, history, groups, attachments, QR camera flows, PWA
+revocation, contact aliases, trust-state persistence, chat, history, groups,
+attachments, QR camera flows, PWA
 installation, service workers, telemetry, remote runtime assets, deployment,
 GitHub Pages, a stable identity-file or envelope format, protocol version 1,
 production claims, independent-review claims, and human-validation claims.
 
 See [KNOWN_LIMITATIONS.md](KNOWN_LIMITATIONS.md),
-[`ALPHA-0001`](../../docs/decisions/ALPHA-0001-sodium-browser-alpha.md), and
-[`ALPHA-0002`](../../docs/decisions/ALPHA-0002-encrypted-identity-file.md).
+[`ALPHA-0001`](../../docs/decisions/ALPHA-0001-sodium-browser-alpha.md),
+[`ALPHA-0002`](../../docs/decisions/ALPHA-0002-encrypted-identity-file.md), and
+[`ALPHA-0003`](../../docs/decisions/ALPHA-0003-identity-only-restore.md).

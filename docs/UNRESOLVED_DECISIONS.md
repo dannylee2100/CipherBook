@@ -19,6 +19,10 @@
 - The repository contains no approved protocol bytes or final application
   design.
 - Existing tools may make a new envelope format unnecessary.
+- Current Alpha identity files restore only the local private identity and same
+  local public contact. They do not restore counterparty, verification, trust,
+  alias, or message state. This Alpha constraint is not a final persistence or
+  trust-model decision.
 
 ### Assumptions to test
 
@@ -77,6 +81,15 @@ local experiment does not approve passphrase files as the final identity model,
 select a persistent vault or recovery design, alter the contact or envelope
 encodings, or define protocol version 1. See
 [`ALPHA-0002`](decisions/ALPHA-0002-encrypted-identity-file.md).
+
+For the current Alpha only, the maintainer additionally decided that restore is
+identity-only. The encrypted identity file is not a complete CipherBook backup:
+after restore, the user must import the counterparty contact and explicitly
+confirm the full hexadecimal comparison again. This avoids silently restoring a
+stale contact or outdated trust decision and keeps relationship information out
+of the decrypted file. It does not select a final contact database, trust,
+revocation, persistence, or recovery design. See
+[`ALPHA-0003`](decisions/ALPHA-0003-identity-only-restore.md).
 
 ## Decision log
 

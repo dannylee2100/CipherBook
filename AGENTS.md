@@ -31,6 +31,11 @@ approvals do not complete Milestone 3, resolve a final project decision, or
 authorize automatic persistence, a production vault, recovery service,
 deployment, release engineering, or protocol design.
 
+The current Alpha identity-only restore behavior is recorded in
+`docs/decisions/ALPHA-0003-identity-only-restore.md` and issue #15. It narrows
+what the existing Alpha 1 file may restore; it does not authorize another file
+format, relationship persistence, contact storage, or a final trust model.
+
 ## Required reading
 
 Before planning, reviewing, or changing this repository, read these files in
@@ -43,6 +48,8 @@ full:
 - `docs/LEAN_VALIDATION_PLAN.md`
 - `docs/decisions/ALPHA-0001-sodium-browser-alpha.md` when working on Alpha 0
 - `docs/decisions/ALPHA-0002-encrypted-identity-file.md` when working on Alpha 1
+- `docs/decisions/ALPHA-0003-identity-only-restore.md` when working on Alpha 1
+  identity restore behavior
 
 Treat the unresolved-decision log, the historical validation record, and the
 narrow Alpha decisions as authoritative for their respective scopes. Stop and
@@ -105,7 +112,9 @@ project-wide recommendations or final decisions.
   follow-up limited to explanatory copy, accessibility wiring, session-only
   download-started state, and focused tests. It does not authorize changes to
   cryptography, the identity-file format, persistence, recovery, deployment, or
-  protocol design.
+  protocol design. Issue #15 and ALPHA-0003 separately authorize documentation,
+  UI clarification, and guardrail tests for the current identity-only restore
+  decision. They do not authorize relationship persistence or file-byte changes.
 - Preserve unresolved decisions unless a later approved evaluation resolves
   them.
 - Prefer disposable experiments over stable architecture or protocol work.
@@ -202,6 +211,14 @@ scope is:
   key with an official sodium operation;
 - keep passphrases and selected files out of long-lived application state;
 - perform best-effort secret-buffer clearing and atomic identity replacement;
+- restore only the local identity and reconstruct the same local public contact;
+- require manual counterparty contact re-import and full hexadecimal
+  reverification after every successful restore;
+- keep counterparty contacts, relationship diagnostics, verification
+  confirmation, aliases, trust state, and messages out of the identity file and
+  out of restored application state;
+- do not treat successful identity restoration as successful counterparty
+  verification;
 - test Chromium and Firefox, including real-profile allocation and observations;
   and
 - add the focused `Alpha 1 encrypted identity file` CI check without weakening
@@ -215,6 +232,14 @@ a download for the active identity, and focused tests. It does not change the
 107-byte identity-file format, authorize automatic persistence or managed
 backup, establish usability evidence, or resolve any of the nine final project
 decisions.
+
+Issue #15 and ALPHA-0003 record the identity-only restore decision for the
+current Alpha. Current Alpha identity files may restore only the local identity.
+Counterparty contacts, relationship diagnostics, verification confirmations,
+aliases, trust state, and messages must not be added to the identity file or
+restored across sessions without a new explicit authorization and decision
+review. Successful restore must require manual counterparty re-import and full
+hexadecimal reverification; it is not successful counterparty verification.
 
 Alpha 1 must not add automatic storage, a persistent vault, managed backup,
 password recovery, accounts, sync, multiple identities, contact persistence,
