@@ -64,9 +64,9 @@ download directly after the public contact. The steps are to enter and confirm
 a passphrase, explicitly download the file, and retain the file and passphrase
 separately. Exporting creates a passphrase-encrypted file containing the private
 material needed to restore the same public contact. The file does not contain
-counterparty contacts, verification confirmation, messages, message history,
-plaintext, the passphrase, or online account information. It must not be shared
-as a public contact or published.
+counterparty contacts, verification confirmation, message plaintext or message
+history, the passphrase, or online account information. It must not be shared as
+a public contact or published.
 
 Export requires an active identity, a matching passphrase and confirmation, and
 an explicit acknowledgment of offline guessing and unrecoverable passphrase

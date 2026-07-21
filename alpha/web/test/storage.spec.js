@@ -95,7 +95,7 @@ test("manual identity-file export and import add no browser persistence or runti
   );
   await page.reload();
   await expect(page.locator("#identity-export-session-status")).toHaveText(
-    "No encrypted identity file has been downloaded during this page session.",
+    "CipherBook has not started an encrypted identity-file download for this identity during this page session.",
   );
   const reloadRequests = requests.slice(initialRequests.length);
   await importIdentityFile(page, file, passphrase);

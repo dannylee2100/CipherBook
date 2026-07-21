@@ -82,8 +82,8 @@ independently audited, or appropriate for evading employer monitoring.
 - The public contact addresses envelopes but cannot decrypt them or restore an
   identity. The encrypted file contains the passphrase-encrypted private
   material needed to restore the same public contact; it does not restore
-  counterparty contacts, verification state, messages, history, plaintext, the
-  passphrase, or online account information.
+  counterparty contacts, verification state, message plaintext or message
+  history, the passphrase, or online account information.
 - A file holder can attempt offline passphrase guesses. There is no password
   reset, and loss of the passphrase makes the file unusable.
 - Exported file copies, download history, operating-system backups, and retained

@@ -118,7 +118,7 @@ export function render(state) {
   elements["identity-export-session-status"].textContent =
     state.identityFileDownloadStarted
       ? "An encrypted identity-file download was started during this page session."
-      : "No encrypted identity file has been downloaded during this page session.";
+      : "CipherBook has not started an encrypted identity-file download for this identity during this page session.";
   elements["identity-export-passphrase"].disabled =
     state.busy || !identityReady;
   elements["identity-export-confirmation"].disabled =

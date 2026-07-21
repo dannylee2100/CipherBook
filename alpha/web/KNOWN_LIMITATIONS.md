@@ -24,8 +24,8 @@
   prove that the browser stored the file or that the person retained it, and it
   resets whenever the active identity or page-controlled state is replaced.
 - The encrypted identity file restores the same public contact only. It does
-  not restore counterparty contacts, verification state, messages, message
-  history, plaintext, the passphrase, or online account information.
+  not restore counterparty contacts, verification state, message plaintext or
+  message history, the passphrase, or online account information.
 - The cleartext header identifies a CipherBook Alpha identity artifact. It does
   not contain the public contact, but it is still file-type metadata.
 - Restoring a static identity can lengthen its lifetime. Later disclosure of
