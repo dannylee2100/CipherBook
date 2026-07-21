@@ -55,6 +55,9 @@ test("identity controls expose the experimental and offline-guessing boundaries"
   await expect(page.locator("body")).toContainText(
     "does not automatically save",
   );
+  await expect(page.locator("body")).toContainText(
+    "This file restores your identity only. It does not restore contacts, previous verification, or messages.",
+  );
   for (const selector of [
     "#identity-import-passphrase",
     "#identity-export-passphrase",
@@ -111,6 +114,12 @@ test("export guidance appears only for an active identity and distinguishes both
   );
   await expect(page.locator("#own-contact-help")).toContainText(
     "Closing, reloading, or leaving this page loses the active identity unless you previously downloaded its encrypted identity file.",
+  );
+  await expect(page.locator("#own-contact-help")).toContainText(
+    "Restoring your identity keeps this public contact the same, but CipherBook intentionally requires you to import and verify the counterparty again.",
+  );
+  await expect(page.locator("#own-contact-help")).toContainText(
+    "If the identity was not exported or cannot be restored, a newly generated identity has a new public contact that must be exchanged and verified.",
   );
   await expect(panel).toContainText(
     "Exporting creates a passphrase-encrypted file containing the private key needed to use this same public contact again.",
@@ -212,7 +221,7 @@ test("explicit download creates the fixed encrypted file without network, clipbo
     "CipherBook has not started an encrypted identity-file download for this identity during this page session.",
   );
   await expect(page.locator("#global-status")).toHaveText(
-    "The same CipherBook identity was restored. Its public contact is shown below. Counterparty contacts and verification state were not restored. Import the counterparty’s public contact and compare the full hexadecimal value again.",
+    "The same CipherBook identity was restored. Its public contact remains the same. Counterparty contacts and previous verification were not restored. Paste the counterparty’s public contact and compare the full hexadecimal value again.",
   );
   expect(requests).toEqual(initialRequests);
 });
@@ -236,8 +245,12 @@ test("wrong passphrase and modified file preserve the entire active workflow", a
 
   const snapshot = async () => ({
     ownContact: await alice.locator("#own-contact").inputValue(),
+    contactDraft: await alice.locator("#contact-input").inputValue(),
     activeContact: await alice.locator("#active-contact").textContent(),
     relationshipHex: await alice.locator("#relationship-hex").inputValue(),
+    relationshipEmoji: await alice
+      .locator("#relationship-emoji .emoji-item")
+      .allTextContents(),
     comparisonConfirmed: await alice
       .locator("#comparison-confirmed")
       .isChecked(),
@@ -253,6 +266,16 @@ test("wrong passphrase and modified file preserve the entire active workflow", a
   await attemptImport(alice, identityFile, wrongPassphrase);
   await expect(alice.locator("#identity-import-error")).toHaveText(
     "The identity file could not be opened. The passphrase may be incorrect, or the file may be damaged or modified.",
+  );
+  expect(await snapshot()).toEqual(before);
+
+  await attemptImport(
+    alice,
+    changed(identityFile, IDENTITY_FILE_LAYOUT.magicOffset),
+    passphrase,
+  );
+  await expect(alice.locator("#identity-import-error")).toHaveText(
+    "This is not a supported CipherBook Alpha identity file.",
   );
   expect(await snapshot()).toEqual(before);
   await expect(alice.locator("body")).not.toContainText(wrongPassphrase);
@@ -317,8 +340,9 @@ test("restoring the same identity still clears relationship and message state", 
   );
   await expect(alice.locator("#identity-export-pending-warning")).toBeVisible();
   await expect(alice.locator("#global-status")).toHaveText(
-    "The same CipherBook identity was restored. Its public contact is shown below. Counterparty contacts and verification state were not restored. Import the counterparty’s public contact and compare the full hexadecimal value again.",
+    "The same CipherBook identity was restored. Its public contact remains the same. Counterparty contacts and previous verification were not restored. Paste the counterparty’s public contact and compare the full hexadecimal value again.",
   );
+  await expect(alice.locator("#contact-input")).toHaveValue("");
   await expect(alice.locator("#active-contact")).toHaveText(
     "No counterparty contact imported.",
   );
@@ -329,6 +353,8 @@ test("restoring the same identity still clears relationship and message state", 
   await expect(alice.locator("#sealed-envelope")).toHaveValue("");
   await expect(alice.locator("#open-envelope")).toHaveValue("");
   await expect(alice.locator("#opened-plaintext")).toHaveText("");
+  await expect(alice.locator("#seal-button")).toBeDisabled();
+  await expect(alice.locator("#open-button")).toBeDisabled();
 });
 
 test("passphrase errors are bounded and clear fields while Clear removes file controls", async ({

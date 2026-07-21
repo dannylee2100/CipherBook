@@ -6,7 +6,6 @@ import {
   exportIdentityFile,
   importContact,
   importIdentityFile,
-  openEnvelope,
   runtimeBrowserPassphrase,
   sealText,
 } from "./helpers.js";
@@ -39,7 +38,12 @@ test("manual identity-file restore opens a previously addressed synthetic envelo
   );
   await importContact(alice, bobContact);
   await expect(alice.locator("#relationship-hex")).toHaveValue(relationshipHex);
+  await alice.locator("#open-envelope").fill(envelope);
+  await expect(alice.locator("#seal-button")).toBeDisabled();
+  await expect(alice.locator("#open-button")).toBeDisabled();
   await confirmFullComparison(alice);
-  await openEnvelope(alice, envelope);
+  await expect(alice.locator("#seal-button")).toBeEnabled();
+  await expect(alice.locator("#open-button")).toBeEnabled();
+  await alice.locator("#open-button").click();
   await expect(alice.locator("#opened-plaintext")).toHaveText(plaintext);
 });

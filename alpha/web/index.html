@@ -66,6 +66,10 @@
             Select one file that you previously created manually. CipherBook
             does not remember the file or passphrase.
           </p>
+          <p>
+            This file restores your identity only. It does not restore contacts,
+            previous verification, or messages.
+          </p>
           <p class="warning-inline">
             CipherBook does not intentionally save the passphrase. Browsers,
             extensions, password managers, operating systems, and crash data may
@@ -96,7 +100,11 @@
           This public contact identifies your current CipherBook identity.
           People encrypt envelopes to this identity. Closing, reloading, or
           leaving this page loses the active identity unless you previously
-          downloaded its encrypted identity file.
+          downloaded its encrypted identity file. Restoring your identity keeps
+          this public contact the same, but CipherBook intentionally requires
+          you to import and verify the counterparty again. If the identity was
+          not exported or cannot be restored, a newly generated identity has a
+          new public contact that must be exchanged and verified.
         </p>
         <textarea
           id="own-contact"

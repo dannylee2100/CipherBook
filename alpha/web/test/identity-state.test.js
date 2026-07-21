@@ -69,6 +69,10 @@ test("successful identity replacement disposes old key and clears every dependen
   assert.equal(state.openedPlaintext, "");
   assert.equal(state.openStatus, "");
   assert.ok(Object.values(state.errors).every((value) => value === ""));
+  assert.equal(
+    state.status,
+    "The same CipherBook identity was restored. Its public contact remains the same. Counterparty contacts and previous verification were not restored. Paste the counterparty’s public contact and compare the full hexadecimal value again.",
+  );
 });
 
 test("rejecting an incomplete candidate preserves all current state", () => {
