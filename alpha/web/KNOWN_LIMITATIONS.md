@@ -83,6 +83,7 @@
 - Only automated Chromium and Firefox desktop workflows are in scope. Safari,
   WebKit, mobile browsers, extensions, screen readers, and real assistive
   technology remain untested.
-- Local Vite execution and a local bundle do not remove endpoint, browser,
-  dependency, or supply-chain risk. The alpha is not deployed and has no hosted
-  update model.
+- Local Vite execution and a bundled Pages artifact do not remove endpoint,
+  browser, dependency, hosted-code replacement, or supply-chain risk. GitHub
+  may observe ordinary hosting metadata, and HTTPS does not make the served code
+  immutable or independently reviewed.

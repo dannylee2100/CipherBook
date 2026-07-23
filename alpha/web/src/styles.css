@@ -411,6 +411,22 @@ pre:focus-visible {
   background: #edf4f1;
 }
 
+.site-footer {
+  margin-top: 1.5rem;
+  border-top: 1px solid #b9b5a8;
+  padding: 1rem 0.25rem 0;
+  color: #4d5753;
+  font-size: 0.82rem;
+}
+
+.site-footer p {
+  margin: 0.35rem 0;
+}
+
+.site-footer code {
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 42rem) {
   main {
     width: min(100% - 1rem, 58rem);
