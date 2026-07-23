@@ -22,8 +22,8 @@ production architecture, or CipherBook compatibility guarantee exists. Alpha 1
 temporarily reuses the experimental sodium formats and adds one disposable
 identity-file format without promoting any artifact to a stable format.
 
-The historical validation plan remains in `docs/LEAN_VALIDATION_PLAN.md`. The
-only additional engineering work currently authorized is the narrow Alpha 0
+The historical validation plan remains in `docs/LEAN_VALIDATION_PLAN.md`.
+Existing executable engineering work remains limited to the narrow Alpha 0
 scope recorded in `docs/decisions/ALPHA-0001-sodium-browser-alpha.md` and issue
 #9, plus manual encrypted identity-file continuity recorded in
 `docs/decisions/ALPHA-0002-encrypted-identity-file.md` and issue #11. Those
@@ -36,6 +36,17 @@ The current Alpha identity-only restore behavior is recorded in
 what the existing Alpha 1 file may restore; it does not authorize another file
 format, relationship persistence, contact storage, or a final trust model.
 
+On 2026-07-24, the maintainer approved the product directions in the
+"CipherBook v1 Direction Handoff" and the milestone roadmap in
+`docs/V1_READINESS_PLAN.md`. The maintainer then explicitly overrode the
+sequential approval procedure and authorized all technically performable v1
+work, including a GitHub Pages preview. That override is recorded in accepted
+`docs/decisions/V1-0001-direction-and-supersession.md`.
+
+The override does not establish representative human evidence or independent
+review. Until those actually occur, a hosted build must disclose their absence,
+remain inappropriate for real secrets, and avoid claims of product fitness.
+
 ## Required reading
 
 Before planning, reviewing, or changing this repository, read these files in
@@ -46,40 +57,72 @@ full:
 - `docs/LIMITATIONS.md`
 - `docs/UNRESOLVED_DECISIONS.md`
 - `docs/LEAN_VALIDATION_PLAN.md`
+- `docs/V1_READINESS_PLAN.md` when planning or reviewing v1 work
+- `docs/decisions/V1-0001-direction-and-supersession.md` when working on v1
+  authority or Milestone V1-1
+- `docs/decisions/V1-0002-sodium-construction.md` when working on the selected
+  v1 construction direction
+- `docs/decisions/V1-0007-hosted-preview.md` when working on GitHub Pages or
+  public-preview behavior
 - `docs/decisions/ALPHA-0001-sodium-browser-alpha.md` when working on Alpha 0
 - `docs/decisions/ALPHA-0002-encrypted-identity-file.md` when working on Alpha 1
 - `docs/decisions/ALPHA-0003-identity-only-restore.md` when working on Alpha 1
   identity restore behavior
 
-Treat the unresolved-decision log, the historical validation record, and the
-narrow Alpha decisions as authoritative for their respective scopes. Stop and
-report any contradiction instead of silently expanding the alpha or choosing a
-final architecture.
+Treat the unresolved-decision log, the historical validation record, the v1
+readiness roadmap, and the narrow Alpha decisions as authoritative for their
+respective scopes. Stop and report any contradiction instead of silently
+expanding an authorization, choosing protocol details, or skipping a review
+checkpoint.
 
-## Decisions that remain unresolved
+## Approved v1 directions and unresolved details
 
-Do not describe any candidate below as planned, preferred, approved, or final:
+The original v1 handoff approved these direction-level product decisions. The
+later procedural override authorizes their technical implementation subject to
+the recorded evidence and limitation requirements:
 
-1. libsodium `crypto_box` versus age/Typage or another maintained high-level
-   construction;
-2. recipient-local authentication versus transferable signatures;
-3. a custom CipherBook envelope versus an existing envelope format;
-4. fingerprint representation and length;
-5. QR-first versus spoken or manual verification;
-6. serialization format, including whether CBOR, JSON, another format, or no new
-   serialization is appropriate;
-7. persistent vault and recovery design;
-8. hosting and deployment, including GitHub Pages or another approach; and
-9. protocol version 1 bytes.
+1. maintained high-level libsodium operations are the v1 cryptographic family;
+2. v1 uses a logically separate transferable signing identity;
+3. v1 may use a compact custom CipherBook envelope only if later evidence
+   continues to justify it;
+4. v1 verification is layered across complete QR data, full grouped
+   hexadecimal, and a 16-emoji public convenience view;
+5. contacts imported through QR or text remain unverified until a separate
+   trusted interaction, then are pinned and require reverification after a key
+   change;
+6. v1 targets stable and explicitly temporary identities plus immediate and
+   inactivity locking; and
+7. GitHub Pages is the intended final-v1 host after every release gate passes;
+   V1-0007 separately permits an earlier development preview.
 
-Experimental convenience choices do not resolve these questions. Never convert
-spike output, test fixtures, or study encodings into protocol v1 without explicit
-human approval following a positive Milestone 3 decision.
+V1-0002 selects sealed-box encryption plus an inner transferable signature as
+the construction direction. V1-0007 selects the controls for an early GitHub
+Pages development preview. Neither decision defines protocol v1 bytes or
+establishes missing review evidence.
+
+These details remain unresolved and must not be described as preferred,
+approved, or final:
+
+1. exact signature input bytes, verification order, and protocol failure order;
+2. every custom contact and envelope field or byte;
+3. contact identifiers, relationship-digest bytes and ordering, emoji mapping,
+   and the final verification authorization flow;
+4. QR reciprocity, spoken comparison, and manual fallback behavior;
+5. deterministic CBOR versus canonical JSON and the strict-decoding profile;
+6. persistent vault, recovery, KDF, lock timeout, rotation, and old-envelope
+   behavior;
+7. final v1 release provenance and update policy beyond the accepted preview
+   deployment controls; and
+8. all protocol v1 bytes and compatibility rules.
+
+Experimental choices do not resolve these details. Never convert Alpha output,
+spike output, test fixtures, or study encodings into protocol v1 without the
+accepted decision and vector-manifest hash required by the readiness roadmap.
 
 Alpha 0 provisionally chose sodium, the existing unstable sodium encodings, a
 full hexadecimal comparison, and a 16-emoji convenience view. Alpha 1 locally
-adds one fixed, unstable Argon2id/XChaCha20-Poly1305 identity file. These are not
-project-wide recommendations or final decisions.
+adds one fixed, unstable Argon2id/XChaCha20-Poly1305 identity file. The v1
+direction does not promote, migrate, or relabel any of them.
 
 ## Current security and product boundaries
 
@@ -90,11 +133,15 @@ project-wide recommendations or final decisions.
   resistance.
 - Do not imply production readiness, independent review, or suitability for real
   sensitive information.
-- Emojis, words, QR, and hexadecimal are only candidate public verification
-  representations for experiments. No representation or fixed emoji length is
-  selected.
+- Alpha emojis, words, QR, and hexadecimal remain experimental public
+  representations. The v1 direction approves a layered full-QR/full-hex/
+  16-emoji design, but its digest bytes, mapping, authorization flow, and human
+  usability remain unresolved.
 - A verification representation is never an encryption key, password, secret,
   or recovery mechanism.
+- A transferable signature can be shown to third parties. It proves control of
+  a verified signing key over specified bytes, not physical identity,
+  truthfulness, intent, authority, or exclusive key control.
 - Treat contacts, envelopes, QR input, and all other imported data as untrusted.
 - Treat encrypted identity files as hostile. Reject size, exact length, magic,
   and fixed profile before KDF work; never accept file-selected KDF cost.
@@ -102,10 +149,16 @@ project-wide recommendations or final decisions.
   outside the protections being tested.
 - Existing transports can expose participants, timing, length, frequency, and
   other communication metadata.
+- GitHub Pages may observe normal hosting metadata. Intended hosting does not
+  make served code immutable or independently reviewed.
 
 ## Agent workflow rules
 
 - Work only on the explicitly authorized milestone and keep the change narrow.
+- For v1, follow `docs/V1_READINESS_PLAN.md` and record the decision and evidence
+  that controls each technical milestone. The maintainer's procedural override
+  permits implementation and Pages work without a new message at every
+  checkpoint, but it does not permit inventing evidence or hiding failed gates.
 - For Alpha 0, work only within issue #9 and ALPHA-0001. For Alpha 1 core
   cryptographic and identity-file behavior, work only within issue #11 and
   ALPHA-0002. Issue #13 separately authorizes a presentation and documentation
@@ -141,6 +194,48 @@ project-wide recommendations or final decisions.
   pressure to make production claims.
 
 ## Milestone-specific authorization
+
+### Milestone V1-0: authority reconciliation
+
+Completed as part of the accepted procedural override. Its maximum scope was:
+
+- record the approved v1 direction and remaining unresolved details;
+- propose V1-0001 for maintainer review;
+- reconcile `AGENTS.md`, the threat model, limitations, and unresolved-decision
+  log;
+- retain Alpha artifacts as historical and unstable; and
+- make documentation changes only.
+
+It must not add application code, dependencies, protocol files or bytes, test
+suites, CI, release labels, GitHub settings, hosting, or deployment.
+
+### Milestone V1-1: sodium construction comparison
+
+Completed under accepted V1-0001 and recorded in V1-0002. Its scope was the
+disposable synthetic comparison specified by the readiness roadmap:
+
+- inner transferable signature encrypted with `crypto_box_seal`;
+- the same signed inner model encrypted with static `crypto_box_easy`;
+- Node, Chromium, and Firefox evidence;
+- tamper, wrong-key, forgery, replay, re-encryption, size, and compromise
+  probes; and
+- proposed V1-0002 with no final bytes or production integration.
+
+Its experiment did not create product packages, select serialization, define
+protocol v1, or add a vault. The later Pages-preview work is separately
+controlled by V1-0007 rather than inferred from V1-1.
+
+### Milestones V1-2 through V1-9
+
+Technically performable work is authorized by the maintainer's procedural
+override. Each milestone must still record its evidence, failed gates, and
+unresolved risks. Representative human observations and independent review
+cannot be marked complete by the implementation agent.
+
+GitHub Pages publication is authorized only as an honestly labeled preview
+until the human-pilot and independent-review requirements actually pass. Such a
+preview must retain the no-real-secrets warning, disclose GitHub hosting
+metadata, and must not claim that `v1.0.0` proves product fitness.
 
 ### Milestone 0: project charter
 

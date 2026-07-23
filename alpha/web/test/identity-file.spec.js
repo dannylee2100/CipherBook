@@ -41,7 +41,7 @@ test("identity controls expose the experimental and offline-guessing boundaries"
 }) => {
   await page.goto("/");
   await expect(page.getByTestId("alpha-warning")).toContainText(
-    "CipherBook Alpha 1",
+    "CipherBook is an experimental, unreviewed preview",
   );
   await expect(page.getByTestId("alpha-warning")).toContainText(
     "Do not use real secrets",
@@ -289,7 +289,7 @@ test("wrong passphrase and modified file preserve the entire active workflow", a
     passphrase,
   );
   await expect(alice.locator("#identity-import-error")).toHaveText(
-    "This is not a supported CipherBook Alpha identity file.",
+    "This is not a supported CipherBook experimental identity file.",
   );
   expect(await snapshot()).toEqual(before);
   await expect(alice.locator("body")).not.toContainText(wrongPassphrase);

@@ -5,6 +5,8 @@ experiments/milestone-2a/dist/
 experiments/milestone-2a/test-results/
 experiments/milestone-2b/dist/
 experiments/milestone-2b/test-results/
+experiments/v1-construction/dist/
+experiments/v1-construction/test-results/
 alpha/web/dist/
 alpha/web/test-results/
 playwright-report/

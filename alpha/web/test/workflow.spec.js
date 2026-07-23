@@ -9,15 +9,15 @@ import {
   sealText,
 } from "./helpers.js";
 
-test("first screen states the alpha and memory boundaries without messenger UI", async ({
+test("first screen states the preview and memory boundaries without messenger UI", async ({
   page,
 }) => {
   await page.goto("/");
   await expect(page.getByTestId("alpha-warning")).toContainText(
-    "experimental engineering preview",
+    "experimental, unreviewed preview",
   );
   await expect(page.getByTestId("alpha-warning")).toContainText(
-    "not been independently reviewed or human-validated",
+    "not been independently reviewed or tested with representative users",
   );
   await expect(page.getByTestId("alpha-warning")).toContainText(
     "Do not use real secrets",
@@ -195,7 +195,7 @@ test("confirmed pair seals and opens multilingual and empty text", async ({
 
   await alice.locator("#fill-synthetic").click();
   await expect(alice.locator("#seal-plaintext")).toHaveValue(
-    /Synthetic Alpha 1 note/u,
+    /Synthetic CipherBook preview note/u,
   );
   await expect(alice.locator("#seal-byte-count")).toHaveText(
     /^[1-9][0-9]* \/ 65536 UTF-8 bytes$/u,

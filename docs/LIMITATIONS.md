@@ -3,7 +3,8 @@
 > [!WARNING]
 > CipherBook is experimental research and hobby engineering. Do not use it for
 > real secrets. Alpha 1 is an engineering preview, not a production security
-> application.
+> application. The approved v1 direction is a roadmap, not an implemented or
+> released product.
 
 ## Evidence categories
 
@@ -25,6 +26,12 @@
 - The project has not undergone independent security review.
 - Milestones 1 and 2A use disposable keys and synthetic payloads; any later
   approved spike must retain those experimental boundaries.
+- V1-0002 selects sealed-box encryption plus an inner transferable signature at
+  the construction level. No v1 serialization, protocol specification, vector
+  set, independent implementation, vault, product application, or v1 release
+  artifact exists.
+- V1-0007 authorizes a GitHub Pages development preview of the existing browser
+  utility. Hosting does not turn its unstable Alpha-era formats into v1.
 
 ### Assumptions to test
 
@@ -32,6 +39,9 @@
 - Users can complete a separate trusted contact-verification interaction.
 - A browser and Node experiment can be run without users mistaking it for a
   finished product.
+- Users can understand the disclosure and dispute consequences of a
+  transferable signature and distinguish verified-key control from physical
+  identity.
 
 ### Hypotheses
 
@@ -50,6 +60,10 @@
 - For the current Alpha only, restore the local identity without restoring
   counterparty contacts or trust state, as recorded in
   [`ALPHA-0003`](decisions/ALPHA-0003-identity-only-restore.md).
+- Use the approved v1 readiness roadmap and accepted V1-0001 for technical work.
+- Record that the maintainer overrode sequential approvals and authorized an
+  early Pages preview without treating missing human or independent-review
+  evidence as complete.
 
 ## Claims explicitly rejected
 
@@ -72,8 +86,9 @@ independently audited, or appropriate for evading employer monitoring.
 ## Current functional limitations
 
 - The repository contains disposable Milestone laboratories and a sodium-only
-  Alpha 1 browser preview. The alpha is intended only for local developer and
-  curious-tester evaluation with synthetic text.
+  Alpha 1 browser utility. A public copy may be hosted as an unreviewed
+  development preview for developer and curious-tester evaluation with
+  synthetic text.
 - The laboratories can generate temporary test identities and exercise contact,
   relationship-diagnostic, seal, and open operations using synthetic data only.
   The browser laboratory does not intentionally persist state, and it does not
@@ -121,10 +136,43 @@ independently audited, or appropriate for evading employer monitoring.
   `67,108,864` bytes, key length `32`, and salt length `16`. Dependency constant
   drift stops initialization rather than reinterpreting the profile. This does
   not promise file migration or future compatibility.
-- There is no installable PWA, service worker, deployment, or verified offline
-  behavior.
+- There is no installable PWA, service worker, or verified offline-installation
+  behavior. The public preview is a mutable GitHub Pages artifact built from a
+  reviewed repository commit.
 - There is no delivery, notification, conversation history, group, attachment,
   or account feature.
+
+## Proposed v1 direction is not current functionality
+
+The maintainer has approved direction-level goals for a separate signing
+identity, transferable signatures inside encryption, a compact custom envelope,
+layered QR/hex/emoji verification, pinned contacts, stable locked identities,
+and GitHub Pages hosting. V1-0002 selects the sealed-box construction direction,
+and V1-0007 controls the early hosted preview. These decisions do not establish
+that:
+
+- the sign-and-encrypt composition has been adversarially reviewed;
+- a custom format is justified or safely specified;
+- deterministic CBOR or canonical JSON has been selected;
+- any contact, envelope, signature input, relationship digest, fingerprint, QR,
+  vault, or recovery byte is protocol v1;
+- 16 emojis are sufficient to authorize trust;
+- automatic lock guarantees memory erasure;
+- encrypted browser storage is hardware-backed or prevents offline guessing;
+- a verified signing key proves a person's physical identity, truthfulness,
+  intent, or authority;
+- GitHub Pages makes hosted code immutable or hides visitor metadata; or
+- an early hosted preview has passed the protocol, pilot, independent-review,
+  or product-fitness gates merely because publication was authorized.
+
+A recipient can reveal signed content and its signature to other people. If a
+signing private key is copied or compromised, another party can create new
+content associated with that signing key. Rotation and revocation cannot erase
+already revealed signatures.
+
+The intended Pages host may observe normal hosting metadata such as IP address
+and access time. Application-level absence of telemetry would not mean that the
+hosting provider or network observes nothing.
 
 ## Limits that experiments cannot remove
 

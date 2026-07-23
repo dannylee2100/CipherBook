@@ -15,6 +15,18 @@ The immediate work is to test whether that workflow deserves a project at all.
 
 ## Current status
 
+The maintainer has authorized a new v1 evidence track and a public development
+preview. The V1-1 sodium comparison selected sealed-box encryption around an
+inner transferable signature as the construction direction; it did not define
+protocol bytes. The browser preview still uses the older unstable,
+recipient-local Alpha-era formats and is not a v1 implementation.
+
+The public preview target is
+[`https://dannylee2100.github.io/CipherBook/`](https://dannylee2100.github.io/CipherBook/).
+Use only generated test identities and synthetic text. The page is hosted by
+GitHub Pages, which may observe ordinary hosting metadata such as IP addresses
+and access times.
+
 Milestone 0 is complete. Milestone 1 now contains a disposable command-line
 laboratory that compares two construction candidates using synthetic data. It
 is evidence-gathering code, not an application or production CLI. Milestone 2A
@@ -37,18 +49,19 @@ then the narrow **Alpha 1 encrypted identity-file continuity experiment**, as
 hobby engineering work—not because the validation gates passed. The project may
 still be redesigned or archived.
 
-Alpha 1 is a locally run, sodium-only browser envelope utility. It retains the
-Alpha 0 contact, verification, seal, and open behavior and adds an optional
-manual download/restore path for one passphrase-encrypted identity file. It
-does not automatically persist state. The encrypted identity file is not a
-complete CipherBook backup. It restores only the local private identity and the
-same local public contact. It does not restore counterparty contacts, previous
-verification, trust decisions, messages, message history, the passphrase, or
-account information. After a successful restore, the user must paste the
-counterparty contact again, compare the full hexadecimal relationship value,
-and explicitly confirm it before sealing or opening. If the identity was not
-exported or cannot be restored, a new identity has a new public contact that
-must be exchanged and verified.
+Alpha 1 is a sodium-only browser envelope utility that can run locally and is
+also the implementation currently used by the public development preview. It
+retains the Alpha 0 contact, verification, seal, and open behavior and adds an
+optional manual download/restore path for one passphrase-encrypted identity
+file. It does not automatically persist state. The encrypted identity file is
+not a complete CipherBook backup. It restores only the local private identity
+and the same local public contact. It does not restore counterparty contacts,
+previous verification, trust decisions, messages, message history, the
+passphrase, or account information. After a successful restore, the user must
+paste the counterparty contact again, compare the full hexadecimal relationship
+value, and explicitly confirm it before sealing or opening. If the identity was
+not exported or cannot be restored, a new identity has a new public contact
+that must be exchanged and verified.
 
 This identity-only restore behavior is a conservative current-Alpha choice. It
 avoids silently reusing a stale contact or outdated verification decision and
@@ -83,9 +96,11 @@ and [identity-only restore decision](docs/decisions/ALPHA-0003-identity-only-res
 - Common message transports can observe, retain, reorder, alter, or replace text
   sent through them.
 - Existing tools already cover substantial parts of the proposed use case.
-- No final project cryptographic construction, serialization, fingerprint
-  design, storage design, hosting provider, or protocol bytes have been
-  approved. Alpha-only engineering choices do not resolve them.
+- V1-0002 selects sealed-box encryption around an inner transferable signature
+  as the construction direction. V1-0007 selects GitHub Pages controls for an
+  early development preview. No final serialization, fingerprint mapping,
+  storage design, protocol bytes, compatibility promise, representative-user
+  evidence, or independent review exists.
 - The deferred human pilot produced no participant evidence. Alpha 0 and Alpha
   1 choices are maintainer-selected implementation constraints, not validation
   results.
@@ -126,6 +141,13 @@ and [identity-only restore decision](docs/decisions/ALPHA-0003-identity-only-res
   [ALPHA-0003](docs/decisions/ALPHA-0003-identity-only-restore.md), requiring
   manual counterparty re-import and full hexadecimal reverification without
   resolving the final contact, trust, persistence, or recovery design.
+- Use the accepted V1-0002 sealed-box-plus-inner-signature construction
+  direction for new protocol research without promoting its disposable fixture
+  to protocol v1.
+- Publish the existing browser utility as an honestly labeled GitHub Pages
+  development preview under
+  [V1-0007](docs/decisions/V1-0007-hosted-preview.md), while retaining the
+  no-real-secrets warning and disclosing missing evidence.
 
 ## Example fit
 
@@ -163,9 +185,11 @@ The approved plan has four milestones:
 3. Evaluate the construction evidence and user observations, then continue,
    narrow the idea, or archive the project. This evaluation has not occurred.
 
-The maintainer has paused that sequence and authorized Alpha 0 and the narrow
-Alpha 1 identity-file experiment separately. The alpha does not replace missing
-human evidence or settle the historical decision log.
+The maintainer paused that sequence, authorized Alpha 0 and the narrow Alpha 1
+identity-file experiment separately, then authorized the v1 readiness roadmap
+and overrode its sequential approval procedure for technically performable
+work. None of those decisions replaces missing human evidence or independent
+review.
 
 See the complete [Lean Validation Plan](docs/LEAN_VALIDATION_PLAN.md),
 [Threat Model](docs/THREAT_MODEL.md), and

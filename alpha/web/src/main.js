@@ -51,7 +51,7 @@ function classifyOpenFailure(error) {
   if (/auth|decrypt|ciphertext/iu.test(message)) {
     return "Opening failed. The ciphertext may be altered or for another relationship.";
   }
-  return "The envelope could not be opened by this Alpha 1 identity.";
+  return "The envelope could not be opened by this preview identity.";
 }
 
 function classifyIdentityImportFailure(error) {
@@ -60,7 +60,7 @@ function classifyIdentityImportFailure(error) {
     return "The identity file could not be opened. The passphrase may be incorrect, or the file may be damaged or modified.";
   }
   if (code === "file-format") {
-    return "This is not a supported CipherBook Alpha identity file.";
+    return "This is not a supported CipherBook experimental identity file.";
   }
   if (code === "kdf-profile") {
     return "This identity file uses an unsupported KDF profile.";
@@ -309,7 +309,7 @@ elements["seal-plaintext"].addEventListener("input", (event) => {
 
 elements["fill-synthetic"].addEventListener("click", () => {
   state.sealPlaintext =
-    "Synthetic Alpha 1 note. This text is not real or sensitive information.";
+    "Synthetic CipherBook preview note. This text is not real or sensitive information.";
   state.generatedEnvelope = "";
   state.errors.seal = "";
   render(state);

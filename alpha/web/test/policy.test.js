@@ -219,11 +219,17 @@ test("documentation does not claim password-manager prevention", async () => {
 
 test("warnings preserve unstable, unvalidated, and no-real-secrets boundaries", async () => {
   const source = await runtimeText();
-  assert.match(source, /not been independently reviewed or human-validated/iu);
+  assert.match(
+    source,
+    /not been independently reviewed or tested with representative\s+users/iu,
+  );
   assert.match(source, /Do not use\s+real secrets/iu);
   assert.match(source, /Experimental convenience view/iu);
   assert.match(source, /First 96 bits only/iu);
   assert.match(source, /not third-party proof of\s+authorship/iu);
+  assert.match(source, /not protocol v1 or a\s+compatibility promise/iu);
+  assert.match(source, /GitHub may observe\s+ordinary hosting metadata/iu);
+  assert.match(source, /does not send usage reports/iu);
   assert.doesNotMatch(
     source,
     /has been human-validated|usability-validated|participants (?:confirmed|validated)|study (?:proved|shows)/iu,

@@ -14,7 +14,7 @@ const MAGIC = encoder.encode(MAGIC_TEXT);
 const PROFILE_BYTES = 1;
 
 export const IDENTITY_FILE_MAX_BYTES = 4 * 1024;
-export const IDENTITY_FILE_NAME = "cipherbook-alpha1-identity.cbidentity";
+export const IDENTITY_FILE_NAME = "cipherbook-preview-identity.cbidentity";
 export const IDENTITY_FILE_MIME = "application/octet-stream";
 export const IDENTITY_FILE_MIN_PASSPHRASE_CODE_POINTS = 12;
 export const IDENTITY_FILE_MAX_PASSPHRASE_BYTES = 1024;
@@ -154,7 +154,7 @@ function validateActiveIdentity(identity, crypto) {
     !(identity.privateKey instanceof Uint8Array) ||
     identity.privateKey.length !== crypto.privateKeyBytes
   ) {
-    throw fail("identity", "An active Alpha identity is required.");
+    throw fail("identity", "An active CipherBook identity is required.");
   }
 }
 

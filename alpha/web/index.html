@@ -8,21 +8,19 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'none'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
     />
-    <title>CipherBook Alpha 1 envelope utility</title>
+    <title>CipherBook experimental envelope preview</title>
     <link rel="stylesheet" href="/src/styles.css" />
   </head>
   <body>
     <main>
       <div class="critical-warning" role="alert" data-testid="alpha-warning">
-        <strong
-          >CipherBook Alpha 1 is an experimental engineering preview.</strong
-        >
-        It has not been independently reviewed or human-validated. Do not use
-        real secrets.
+        <strong>CipherBook is an experimental, unreviewed preview.</strong>
+        It has not been independently reviewed or tested with representative
+        users. Do not use real secrets.
       </div>
 
       <header class="hero">
-        <p class="eyebrow">CipherBook Alpha 1 · local engineering preview</p>
+        <p class="eyebrow">CipherBook · public development preview</p>
         <h1>One encrypted envelope at a time</h1>
         <p>
           Create or manually restore one identity, compare one contact through a
@@ -252,7 +250,7 @@
           <span class="step" aria-hidden="true">2</span>
           <div>
             <h2 id="contact-heading">Import one counterparty contact</h2>
-            <p>Contacts are hostile input. Alpha 1 supports one only.</p>
+            <p>Contacts are hostile input. This preview supports one only.</p>
           </div>
         </div>
         <label for="contact-input">Counterparty public contact</label>
@@ -283,7 +281,7 @@
         </div>
 
         <div class="comparison-card authoritative">
-          <h3>Authoritative Alpha 1 comparison</h3>
+          <h3>Full relationship comparison</h3>
           <div class="labels" aria-label="Full comparison limitations">
             <span>Public</span>
             <span>Not a key</span>
@@ -413,7 +411,7 @@
         <div class="section-heading">
           <span class="step" aria-hidden="true">6</span>
           <div>
-            <h2 id="clear-heading">Clear this alpha</h2>
+            <h2 id="clear-heading">Clear this preview</h2>
             <p>Drop every application reference controlled by this page.</p>
           </div>
         </div>
@@ -429,16 +427,30 @@
       <section class="boundary" aria-labelledby="boundary-heading">
         <h2 id="boundary-heading">What opening means</h2>
         <p>
-          Alpha 1 performs a recipient-local expected-counterparty key check. It
-          is deniable and recipient-forgeable, not a signature. Either party’s
-          later static-private-key disclosure can expose captured relationship
-          envelopes. Endpoint compromise defeats these intended protections.
+          This preview performs a recipient-local expected-counterparty key
+          check. It is deniable and recipient-forgeable, not a signature. Either
+          party’s later static-private-key disclosure can expose captured
+          relationship envelopes. Endpoint compromise defeats these intended
+          protections.
         </p>
         <p>
-          The unstable contact and envelope encodings are retained only for this
-          alpha. They are not a stable protocol or compatibility promise.
+          The contact, envelope, relationship, and identity-file formats are
+          unstable experimental artifacts. They are not protocol v1 or a
+          compatibility promise.
         </p>
       </section>
+
+      <footer class="site-footer" aria-label="Build and hosting information">
+        <p>
+          Build <strong>CIPHERBOOK_BUILD_LABEL</strong> · source commit
+          <code>CIPHERBOOK_BUILD_COMMIT</code>
+        </p>
+        <p>
+          The public preview is hosted by GitHub Pages. GitHub may observe
+          ordinary hosting metadata such as IP addresses and access times.
+          CipherBook itself does not send usage reports.
+        </p>
+      </footer>
     </main>
     <script type="module" src="/src/main.js"></script>
   </body>

@@ -27,10 +27,12 @@ npm ci
 npm run alpha:dev
 ```
 
-Open `http://127.0.0.1:4175/`. This is local development tooling, not a hosting
-or deployment design. Chromium and Firefox are the automated browser targets.
-Safari, WebKit, mobile browsers, browser extensions, screen readers, and real
-assistive technology have not been validated.
+Open `http://127.0.0.1:4175/`. The same utility may be published as a GitHub
+Pages development preview under
+[`V1-0007`](../../docs/decisions/V1-0007-hosted-preview.md). Hosting does not
+promote its formats to protocol v1. Chromium and Firefox are the automated
+browser targets. Safari, WebKit, mobile browsers, browser extensions, screen
+readers, and real assistive technology have not been validated.
 
 ## Unchanged envelope behavior
 
@@ -95,7 +97,7 @@ inputs after an attempted operation. All three passphrase controls request
 browser, extension, password manager, operating system, or crash data will not
 retain or offer to fill a value.
 
-The filename is always `cipherbook-alpha1-identity.cbidentity`, with media type
+The filename is always `cipherbook-preview-identity.cbidentity`, with media type
 `application/octet-stream`. The browser chooses the actual download location.
 CipherBook does not copy the file to the clipboard, send it to native sharing,
 upload it, automatically re-import it, or delete downloaded copies.
